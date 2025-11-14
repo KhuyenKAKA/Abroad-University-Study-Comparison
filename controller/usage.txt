@@ -1,0 +1,43 @@
+Xử lý logic:
+
+Khi người dùng bấm “Thêm”, controller lấy dữ liệu từ form → model → cập nhật lại UI
+from models.student import StudentModel
+from utils.validators import validate_student
+Example
+
+class StudentController:
+def __init__(self):
+self.model = StudentModel()
+
+
+def add_student(self, data):
+# data: dict with keys name, age, class, score, phone
+validate_student(data)
+return self.model.add(
+data['name'], int(data['age']), data.get('class',''), float(data.get('score') or 0), data.get('phone')
+)
+
+
+def update_student(self, id_, data):
+validate_student(data)
+self.model.update(id_, data['name'], int(data['age']), data.get('class',''), float(data.get('score') or 0), data.get('phone'))
+
+
+def delete_student(self, id_):
+self.model.delete(id_)
+
+
+def list_students(self):
+return self.model.get_all()
+
+
+def get_student(self, id_):
+return self.model.get_by_id(id_)
+
+
+def search(self, name):
+return self.model.search_by_name(name)
+
+
+def close(self):
+self.model.close()

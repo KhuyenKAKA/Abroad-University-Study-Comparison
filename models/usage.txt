@@ -1,0 +1,19 @@
+để model, chua cac class xu li crud them sua xoa
+ví dụ
+import sqlite3
+
+class StudentModel:
+    def __init__(self):
+        self.conn = sqlite3.connect("students.db")
+        self.cursor = self.conn.cursor()
+
+    def add_student(self, name, age, clazz, score):
+        self.cursor.execute(
+            "INSERT INTO students(name, age, class, score) VALUES (?, ?, ?, ?)",
+            (name, age, clazz, score)
+        )
+        self.conn.commit()
+
+    def get_all(self):
+        self.cursor.execute("SELECT * FROM students")
+        return self.cursor.fetchall()
