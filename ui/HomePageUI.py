@@ -68,7 +68,7 @@ def create_ui():
     tk.Button(right_nav_frame, text="Free Counselling",foreground='white', background='#28a745', ).pack(side='left', padx=5)
     
     try:
-        img = Image.open("E:\\Tunz\\Python\\ProjectPythonNC\\Abroad-University-Study-Comparison\\assets\\search.png")
+        img = Image.open("assets\\search.png")
         img = img.resize((24, 24), Image.LANCZOS)
         photo = ImageTk.PhotoImage(img)
         tk.Button(right_nav_frame, image=photo,bg= 'white',relief='flat').pack(side='left', padx=5)
