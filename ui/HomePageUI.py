@@ -68,10 +68,10 @@ def create_ui():
     tk.Button(right_nav_frame, text="Free Counselling",foreground='white', background='#28a745', ).pack(side='left', padx=5)
     
     try:
-        img = Image.open("assets\\search.png")
+        img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
         img = img.resize((24, 24), Image.LANCZOS)
-        photo = ImageTk.PhotoImage(img)
-        tk.Button(right_nav_frame, image=photo,bg= 'white',relief='flat').pack(side='left', padx=5)
+        search_photo = ImageTk.PhotoImage(img)
+        tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
     except FileNotFoundError:
         tk.Label(right_nav_frame, text="🔍", font=("Arial", 16), bg="white").pack(side='left', padx=5)
     
@@ -190,13 +190,13 @@ def create_ui():
             "bg_color": "#eaf4ff" # Màu xanh nhạt cho khung 1
         },
         {
-            "quote": "Trên đời này không có chuyện đúng sai, chỉ có kẻ yếu và kẻ không biết mình yếu! Thế thôi!",
-            "name": "Đệ anh Bảnh",
-            "info": "Master of Science in Global Bốc Phét, Khu 2, Hoàng Thương, Thanh Ba, Phú Thọ",
+            "quote": "Trên đời này không có gì tuyệt vời hơn UniCompare khi ai đang tìm thông tin về các trường đại học cho tương lai của mình! Thế thôi!",
+            "name": "Hà Thiên Nhất",
+            "info": "Master of Science in Global UnderGround, Khu 2, Hoàng Thương, Thanh Ba, Phú Thọ",
             "bg_color": "white" # Màu trắng cho khung giữa
         },
         {
-            "quote": "QS were a huge help from the very beginning. When I felt overwhelmed, it was my counsellor who helped me to clarify my goals and find a programme best suited for my future.",
+            "quote": "UniCompare were a huge help from the very beginning. When I felt overwhelmed, it was my counsellor who helped me to clarify my goals and find a programme best suited for my future.",
             "name": "Bibit Jose",
             "info": "BSc in Mechanical Engineering, Arizona State University",
             "bg_color": "#eaf4ff" # Màu xanh nhạt cho khung 3
@@ -216,9 +216,9 @@ def create_ui():
         student_info_frame = tk.Frame(card_frame, bg=data["bg_color"])
         student_info_frame.pack(fill='x', pady=(10, 0))
         
-        if col != 1: 
-            photo_placeholder = tk.Label(student_info_frame, text="👤", font=("Arial", 12), width=3, height=1, bg="#007bff", fg="white")
-            photo_placeholder.pack(side="left", padx=(0, 10))
+        # if col != 1: 
+        #     photo_placeholder = tk.Label(student_info_frame, text="👤", font=("Arial", 12), width=3, height=1, bg="#007bff", fg="white")
+        #     photo_placeholder.pack(side="left", padx=(0, 10))
 
         text_info_frame = tk.Frame(student_info_frame, bg=data["bg_color"])
         text_info_frame.pack(side="left", fill='x', expand=True)
@@ -259,14 +259,27 @@ def create_ui():
     # except FileNotFoundError:
     #     tk.Label(right_nav_frame, text="🔍", font=("Arial", 16), bg="white").pack(side='left', padx=5)
     logo_texts = [
-        "University 1\nLogo", "AMERICAN\nUNIVERSITY", "Audiencia", "CARDIFF\nUNIVERSITY", "Logo 5",
-        "CNAM-NWS", "Logo 7", "DALHOUSIE\nUNIVERSITY", "DEAKIN", "Logo 10",
-        "UNIVERISTY\nOF MELBOURNE", "JEDHEC", "TU/E", "Logo 14", "Logo 15"
+        "Abroad-University-Study-Comparison/assets/American_university.png",
+        "Abroad-University-Study-Comparison/assets/Auckland-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Boston-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Brown-Unversity-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Cairo-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Chicago-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Columbia-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Cornell-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Duke-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Georgetown-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Harvard-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Melbourne-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Moscow-State-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/National-University-of-Singapore-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Northeastern-University-Logo.png",
+        
     ]
     
     row_count = 3
     col_count = 5
-    
+    images_reference = []
     for i, text in enumerate(logo_texts):
         row = i // col_count
         col = i % col_count
@@ -276,7 +289,11 @@ def create_ui():
         logo_box.grid(row=row, column=col, padx=10, pady=10, sticky="nsew")
         logo_box.grid_propagate(False) # Ngăn frame thay đổi kích thước theo nội dung
         
-        tk.Label(logo_box, text=text, font=("Arial", 8, "bold"), bg="white", wraplength=100, justify="center").pack(expand=True, fill='both')
+        img = Image.open(text)
+        img = img.resize((120, 120), Image.LANCZOS)
+        photo = ImageTk.PhotoImage(img)
+        tk.Label(logo_box, image=photo, font=("Arial", 8, "bold"), bg="white", wraplength=100, justify="center").pack(expand=True, fill='both')
+        images_reference.append(photo)
 
     # ===============================================
     # 7. Phần Footer
@@ -307,10 +324,18 @@ def create_ui():
     tk.Label(social_frame, text="Follow us", font=("Arial", 10, "bold"), bg="white").pack(side="left", padx=(0, 10))
     
     # Mô phỏng Social Icons (sử dụng Label với màu nền)
-    social_icons = ["\uf09a", "\uf099", "\uf0d5", "\uf0e1"] # F, T, L, I (cần Font Awesome để hiển thị)
+    social_icons = ["Abroad-University-Study-Comparison/assets/104498_facebook_icon.png", 
+                    "Abroad-University-Study-Comparison/assets/1161953_instagram_icon.png", 
+                    "Abroad-University-Study-Comparison/assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
+                    "Abroad-University-Study-Comparison/assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
+    
     for icon in social_icons:
-        icon_label = tk.Label(social_frame, text=icon, bg="#007bff", width=2, height=1) 
+        img = Image.open(icon)
+        img = img.resize((15, 15), Image.LANCZOS)
+        photo = ImageTk.PhotoImage(img)
+        icon_label = tk.Label(social_frame, image=photo, bg="#007bff", width=15, height=15) 
         icon_label.pack(side="left", padx=3)
+        images_reference.append(photo)
         
     # Các khối liên kết chính
     link_blocks = [
@@ -322,7 +347,7 @@ def create_ui():
     # Đặt các khối liên kết vào hàng 2 và 3
     for i, (header, links) in enumerate(link_blocks):
         # Header
-        tk.Label(footer_frame, text=f"{header} ⌵", font=("Arial", 10, "bold"), bg="white").grid(row=2, column=i, sticky="nw", pady=(20, 5))
+        tk.Label(footer_frame, text=f"{header}", font=("Arial", 10, "bold"), bg="white").grid(row=2, column=i, sticky="nw", pady=(20, 5))
         # Links
         for j, link in enumerate(links):
             tk.Label(footer_frame, text=link, font=("Arial", 9), fg="gray", bg="white").grid(row=3+j, column=i, sticky="nw")
