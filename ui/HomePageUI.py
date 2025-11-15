@@ -68,15 +68,15 @@ def create_ui():
     tk.Button(right_nav_frame, text="Free Counselling",foreground='white', background='#28a745', ).pack(side='left', padx=5)
     
     try:
-        img = Image.open("E:\\Tunz\\Python\\BTL\\search.png")
+        img = Image.open("E:\\Tunz\\Python\\ProjectPythonNC\\Abroad-University-Study-Comparison\\assets\\search.png")
         img = img.resize((24, 24), Image.LANCZOS)
         photo = ImageTk.PhotoImage(img)
         tk.Button(right_nav_frame, image=photo,bg= 'white',relief='flat').pack(side='left', padx=5)
     except FileNotFoundError:
         tk.Label(right_nav_frame, text="🔍", font=("Arial", 16), bg="white").pack(side='left', padx=5)
     
-    tk.Button(right_nav_frame, text="Login", foreground='white', background="#5558FF").pack(side='left', padx=5)
-    tk.Button(right_nav_frame, text="Sign Up", foreground='white', background="#0f0096").pack(side='left', padx=5)
+    tk.Button(right_nav_frame, text="Login", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
+    tk.Button(right_nav_frame, text="Sign Up", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
 
     style = ttk.Style() 
     style.configure('B.TButton', foreground='white', background='#007bff', font=('Arial', 10, 'bold'))
@@ -112,7 +112,7 @@ def create_ui():
         {"title": "UC World University Rankings: Asia 2026", "desc": "Discover the top universities in Asia with the UC Asia University Rankings."}
     ]
     # Explore 1
-    border_frame = tk.Frame(cards_container, bg="#1e90ff", bd=2, relief="solid") 
+    border_frame = tk.Frame(cards_container, bg="#1F3AB0", bd=2, relief="solid") 
     card_frame = tk.Frame(border_frame, bg="white", padx=15, pady=15)
     card_frame.pack(fill='both', expand=True, padx=2, pady=2) 
     
@@ -122,13 +122,13 @@ def create_ui():
     tk.Label(card_frame, text=card_data[0]["desc"], font=("Arial", 10), wraplength=220, bg="white").pack(pady=5)
     
     # Nút Explore ->
-    explore1_btn = tk.Button(card_frame, text="Explore →", foreground='white', background='#007bff', font=('Arial', 10, 'bold') )
+    explore1_btn = tk.Button(card_frame, text="Explore →", foreground='white', background='#1F3AB0', font=('Arial', 10, 'bold') )
     explore1_btn.pack(pady=(20, 10))
     
     border_frame.grid(row=0, column=0, padx=15, sticky="nsew")
 
     # Explore 2
-    border_frame = tk.Frame(cards_container, bg="#1e90ff", bd=2, relief="solid") 
+    border_frame = tk.Frame(cards_container, bg="#1F3AB0", bd=2, relief="solid") 
     card_frame = tk.Frame(border_frame, bg="white", padx=15, pady=15)
     card_frame.pack(fill='both', expand=True, padx=2, pady=2) # Lòng thẻ bên trong đường viền
     
@@ -138,13 +138,13 @@ def create_ui():
     tk.Label(card_frame, text=card_data[1]["desc"], font=("Arial", 10), wraplength=220, bg="white").pack(pady=5)
     
     # Nút Explore ->
-    explore2_btn = tk.Button(card_frame, text="Explore →", foreground='white', background='#007bff', font=('Arial', 10, 'bold') )
+    explore2_btn = tk.Button(card_frame, text="Explore →", foreground='white', background='#1F3AB0', font=('Arial', 10, 'bold') )
     explore2_btn.pack(pady=(20, 10))
     
     border_frame.grid(row=0, column=1, padx=15, sticky="nsew")
 
     # Explore 3
-    border_frame = tk.Frame(cards_container, bg="#1e90ff", bd=2, relief="solid") 
+    border_frame = tk.Frame(cards_container, bg="#1F3AB0", bd=2, relief="solid") 
     card_frame = tk.Frame(border_frame, bg="white", padx=15, pady=15)
     card_frame.pack(fill='both', expand=True, padx=2, pady=2) # Lòng thẻ bên trong đường viền
     
@@ -154,7 +154,7 @@ def create_ui():
     tk.Label(card_frame, text=card_data[2]["desc"], font=("Arial", 10), wraplength=220, bg="white").pack(pady=5)
     
     # Nút Explore ->
-    explore3_btn = tk.Button(card_frame, text="Explore →", foreground='white', background='#007bff', font=('Arial', 10, 'bold') )
+    explore3_btn = tk.Button(card_frame, text="Explore →", foreground='white', background='#1F3AB0', font=('Arial', 10, 'bold') )
     explore3_btn.pack(pady=(20, 10))
     
     border_frame.grid(row=0, column=2, padx=15, sticky="nsew")
@@ -251,6 +251,13 @@ def create_ui():
         logo_container.grid_columnconfigure(i, weight=1)
 
     # Dữ liệu mô phỏng cho Logo (Sử dụng Label thay cho Hình ảnh)
+    # try:
+    #     img = Image.open("E:\\Tunz\\Python\\ProjectPythonNC\\Abroad-University-Study-Comparison\\assets\\search.png")
+    #     img = img.resize((24, 24), Image.LANCZOS)
+    #     photo = ImageTk.PhotoImage(img)
+    #     tk.Button(right_nav_frame, image=photo,bg= 'white',relief='flat').pack(side='left', padx=5)
+    # except FileNotFoundError:
+    #     tk.Label(right_nav_frame, text="🔍", font=("Arial", 16), bg="white").pack(side='left', padx=5)
     logo_texts = [
         "University 1\nLogo", "AMERICAN\nUNIVERSITY", "Audiencia", "CARDIFF\nUNIVERSITY", "Logo 5",
         "CNAM-NWS", "Logo 7", "DALHOUSIE\nUNIVERSITY", "DEAKIN", "Logo 10",
@@ -302,7 +309,7 @@ def create_ui():
     # Mô phỏng Social Icons (sử dụng Label với màu nền)
     social_icons = ["\uf09a", "\uf099", "\uf0d5", "\uf0e1"] # F, T, L, I (cần Font Awesome để hiển thị)
     for icon in social_icons:
-        icon_label = tk.Label(social_frame, text=" ", bg="#007bff", width=2, height=1) 
+        icon_label = tk.Label(social_frame, text=icon, bg="#007bff", width=2, height=1) 
         icon_label.pack(side="left", padx=3)
         
     # Các khối liên kết chính
@@ -337,7 +344,7 @@ def create_ui():
     # Input field
     tk.Entry(input_frame, width=25, font=("Arial", 9), relief="flat", borderwidth=0, bg="white").pack(side="left", padx=5)
     
-    subscribe_btn = tk.Button(input_frame, text="→",width=5, fg="white",bg= "#2041ff")
+    subscribe_btn = tk.Button(input_frame, text="→",width=5, fg="white",bg= "#1F3AB0")
     subscribe_btn.pack(side="left")
 
     root.mainloop()
