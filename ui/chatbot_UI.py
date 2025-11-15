@@ -54,6 +54,8 @@ class ChatApp(ctk.CTk):
         self.send_button = ctk.CTkButton(
             self.input_frame, 
             text="Send", 
+            fg_color="#1F3AB0",
+            text_color="white",
             width=50,
             command=self.send_message
         )
@@ -77,8 +79,8 @@ class ChatApp(ctk.CTk):
             self.suggestion_frame, 
             text="Find a university match",
             fg_color="white", # Màu nền
-            text_color="#3B82F6", # Màu chữ
-            border_color="#3B82F6", # Màu viền
+            text_color="#1F3AB0", # Màu chữ
+            border_color="#1F3AB0", # Màu viền
             border_width=1,
             hover_color="#E0E7FF",
             command=lambda: self.handle_suggestion("Find a university match")
@@ -89,8 +91,8 @@ class ChatApp(ctk.CTk):
             self.suggestion_frame, 
             text="Chat with a student ambassador",
             fg_color="white",
-            text_color="#3B82F6",
-            border_color="#3B82F6",
+            text_color="#1F3AB0",
+            border_color="#1F3AB0",
             border_width=1,
             hover_color="#E0E7FF",
             command=lambda: self.handle_suggestion("Chat with a student ambassador")
@@ -101,8 +103,8 @@ class ChatApp(ctk.CTk):
             self.suggestion_frame, 
             text="Get free counselling",
             fg_color="white",
-            text_color="#3B82F6",
-            border_color="#3B82F6",
+            text_color="#1F3AB0",
+            border_color="#1F3AB0",
             border_width=1,
             hover_color="#E0E7FF",
             command=lambda: self.handle_suggestion("Get free counselling")
@@ -154,7 +156,7 @@ class ChatApp(ctk.CTk):
             anchor = "w" # (West)
         else:
             # Tin nhắn của user (bên phải)
-            fg_color = "#3B82F6" 
+            fg_color = "#1F3AB0" 
             text_color = "#FFFFFF" 
             anchor = "e" # (East)
 
