@@ -1,61 +1,187 @@
-import tkinter as tk
-from tkinter import scrolledtext
+import customtkinter as ctk
 
-class ChatbotUI(tk.Frame):
-    def __init__(self, master=None):
-        super().__init__(master)
-        self.master = master
-        self.master.title("University Comparison - Chatbot")
-        self.master.geometry("500x600")
-        self.master.configure(bg="#F2F2F2")
+# Thiết lập giao diện chung
+ctk.set_appearance_mode("Light")  
+ctk.set_default_color_theme("blue")  
 
-        self.create_widgets()
+class ChatApp(ctk.CTk):
+    def __init__(self):
+        super().__init__()
 
-    def create_widgets(self):
-        # Title
-        tk.Label(self.master, text="Chatbot Hỗ Trợ Tư Vấn Du Học", font=("Arial", 16, "bold"), bg="#F2F2F2").pack(pady=10)
+        self.title("UC Bot")
+        self.geometry("400x600")
+        
+        self.grid_rowconfigure(1, weight=1)
+        self.grid_columnconfigure(0, weight=1)
 
-        # Chat display box
-        self.chat_display = scrolledtext.ScrolledText(self.master, wrap=tk.WORD, font=("Arial", 12))
-        self.chat_display.pack(padx=10, pady=5, fill=tk.BOTH, expand=True)
-        self.chat_display.configure(state='disabled')
+        # --- 1. Header Frame ---
+        self.header_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        self.header_frame.grid(row=0, column=0, sticky="ew", padx=10, pady=10)
+        
+        # Bạn có thể thêm logo UC Bot ở đây 
+        # self.logo = ctk.CTkImage(...) 
+        # self.logo_label = ctk.CTkLabel(self.header_frame, image=self.logo, text="")
+        # self.logo_label.pack()
 
-        # Frame bottom
-        bottom_frame = tk.Frame(self.master, bg="#F2F2F2")
-        bottom_frame.pack(pady=10, fill=tk.X)
+        self.bot_name_label = ctk.CTkLabel(
+            self.header_frame, 
+            text="UC Bot", 
+            font=ctk.CTkFont(size=18, weight="bold")
+        )
+        self.bot_name_label.pack()
 
-        # Entry box
-        self.entry = tk.Entry(bottom_frame, font=("Arial", 12))
-        self.entry.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
-        self.entry.bind("<Return>", self.send_message)
+        # Đường kẻ ngang
+        self.divider = ctk.CTkFrame(self, height=1, fg_color="gray")
+        self.divider.grid(row=0, column=0, sticky="sew", padx=10, pady=(35, 0))
 
-        # Send button
-        send_btn = tk.Button(bottom_frame, text="Gửi", command=self.send_message, font=("Arial", 12), bg="#4CAF50", fg="white")
-        send_btn.pack(side=tk.RIGHT, padx=5)
+
+        # --- 2. Khung Chat  ---
+        self.chat_frame = ctk.CTkScrollableFrame(self)
+        self.chat_frame.grid(row=1, column=0, sticky="nsew", padx=10, pady=10)
+
+        # --- 3. Khung Nhập Text ---
+        self.input_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        self.input_frame.grid(row=2, column=0, sticky="ew", padx=10, pady=10)
+        self.input_frame.grid_columnconfigure(0, weight=1)
+
+        self.entry = ctk.CTkEntry(
+            self.input_frame, 
+            placeholder_text="Type your message..."
+        )
+        self.entry.grid(row=0, column=0, sticky="ew", padx=(0, 10))
+        self.entry.bind("<Return>", self.send_message) # Gửi khi nhấn Enter
+
+        self.send_button = ctk.CTkButton(
+            self.input_frame, 
+            text="Send", 
+            width=50,
+            command=self.send_message
+        )
+        self.send_button.grid(row=0, column=1)
+
+        # --- Hiển thị tin nhắn chào mừng ---
+        self.show_welcome_message()
+
+    def show_welcome_message(self):
+        welcome_text = "Hey, I'm UC Bot (Beta)! University search feeling like 'too many tabs open'? I'll streamline that. Let me help you discover top universities, suggest suitable programmes, and even connect you with counsellors or student ambassadors ready to share real experiences and tips! What do you need today?"
+        
+        # Thêm tin nhắn của bot vào khung chat
+        self.add_message_to_chat("bot", welcome_text)
+
+        # Tạo khung chứa các nút gợi ý
+        self.suggestion_frame = ctk.CTkFrame(self.chat_frame, fg_color="transparent")
+        self.suggestion_frame.pack(anchor="w", fill="x", padx=10)
+
+        # Các nút gợi ý
+        btn1 = ctk.CTkButton(
+            self.suggestion_frame, 
+            text="Find a university match",
+            fg_color="white", # Màu nền
+            text_color="#3B82F6", # Màu chữ
+            border_color="#3B82F6", # Màu viền
+            border_width=1,
+            hover_color="#E0E7FF",
+            command=lambda: self.handle_suggestion("Find a university match")
+        )
+        btn1.pack(fill="x", pady=2)
+
+        btn2 = ctk.CTkButton(
+            self.suggestion_frame, 
+            text="Chat with a student ambassador",
+            fg_color="white",
+            text_color="#3B82F6",
+            border_color="#3B82F6",
+            border_width=1,
+            hover_color="#E0E7FF",
+            command=lambda: self.handle_suggestion("Chat with a student ambassador")
+        )
+        btn2.pack(fill="x", pady=2)
+
+        btn3 = ctk.CTkButton(
+            self.suggestion_frame, 
+            text="Get free counselling",
+            fg_color="white",
+            text_color="#3B82F6",
+            border_color="#3B82F6",
+            border_width=1,
+            hover_color="#E0E7FF",
+            command=lambda: self.handle_suggestion("Get free counselling")
+        )
+        btn3.pack(fill="x", pady=2)
+
+    def handle_suggestion(self, choice):
+        # 1. Thêm tin nhắn (lựa chọn của user) vào chat
+        self.add_message_to_chat("user", choice)
+        
+        # 2. Xóa các nút gợi ý
+        self.suggestion_frame.destroy()
+        
+        # 3. Lấy phản hồi từ bot (Đây là nơi gọi API Gemini)
+        self.get_bot_response(choice)
 
     def send_message(self, event=None):
-        user_msg = self.entry.get().strip()
-        if user_msg == "":
+        user_input = self.entry.get()
+        if user_input.strip() == "":
             return
 
-        # Display user message
-        self.chat_display.configure(state='normal')
-        self.chat_display.insert(tk.END, f"Bạn: {user_msg}\n")
-        self.chat_display.configure(state='disabled')
-        self.chat_display.see(tk.END)
+        # 1. Thêm tin nhắn của user vào chat
+        self.add_message_to_chat("user", user_input)
+        
+        # 2. Xóa nội dung trong ô nhập liệu
+        self.entry.delete(0, "end")
+        
+        # 3. (Nếu có) Xóa các nút gợi ý nếu user tự gõ
+        if hasattr(self, 'suggestion_frame') and self.suggestion_frame.winfo_exists():
+            self.suggestion_frame.destroy()
 
-        # Bot response
-        bot_reply = "abc xyz"  # Replace with actual chatbot logic
+        # 4. Lấy phản hồi từ bot 
+        self.get_bot_response(user_input)
 
-        self.chat_display.configure(state='normal')
-        self.chat_display.insert(tk.END, f"Chatbot: {bot_reply}\n")
-        self.chat_display.configure(state='disabled')
-        self.chat_display.see(tk.END)
+    def get_bot_response(self, user_input):
+        
+        # Giả lập phản hồi của bot
+        
+        response = f"Ok, let's talk about: '{user_input}'. (This is a simulated response)."
+        
+        # Thêm phản hồi của bot vào chat
+        self.add_message_to_chat("bot", response)
 
-        self.entry.delete(0, tk.END)
+    def add_message_to_chat(self, sender, message):
+        if sender == "bot":
+            # Tin nhắn của bot (bên trái)
+            fg_color = "#F0F0F0"
+            text_color = "#111111"
+            anchor = "w" # (West)
+        else:
+            # Tin nhắn của user (bên phải)
+            fg_color = "#3B82F6" 
+            text_color = "#FFFFFF" 
+            anchor = "e" # (East)
+
+        # Tạo một label cho tin nhắn
+        msg_label = ctk.CTkLabel(
+            self.chat_frame,
+            text=message,
+            fg_color=fg_color,
+            text_color=text_color,
+            corner_radius=10,
+            wraplength=300, # Tự động xuống hàng
+            justify="left" if sender == "bot" else "right",
+            padx=10,
+            pady=5
+        )
+        
+        # Dùng pack để căn lề trái/phải
+        msg_label.pack(anchor=anchor, pady=5, padx=10)
+        
+        # Tự động cuộn xuống dưới cùng
+        self.after(100, self.scroll_to_bottom)
+
+    def scroll_to_bottom(self):
+        # Hàm này đảm bảo khung chat luôn cuộn xuống tin nhắn mới nhất
+        self.chat_frame._parent_canvas.yview_moveto(1.0)
 
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    app = ChatbotUI(root)
-    root.mainloop()
+    app = ChatApp()
+    app.mainloop()
