@@ -3,24 +3,6 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 import requests 
 from io import BytesIO
-# def create_score_item(parent, label, score, max_width=150): # Đã đặt max_width mặc định 150
-#     item_frame = tk.Frame(parent, bg="white")
-#     item_frame.pack(side="left", padx=(0, 20))
-    
-#     tk.Label(item_frame, text=label, font=("Arial", 8), fg="#555", bg="white").pack(anchor="w")
-    
-#     bar_value_frame = tk.Frame(item_frame, bg="white")
-#     bar_value_frame.pack(anchor="w", pady=(3, 0))
-    
-#     # Bar chart
-#     bar_canvas = tk.Canvas(bar_value_frame, width=max_width, height=5, bg="#e0e0e0", highlightthickness=0)
-#     bar_canvas.pack(side="left")
-    
-#     # Tính toán chiều rộng thanh màu xanh (scale 100/100)
-#     bar_width = int((score / 100) * max_width)
-#     bar_canvas.create_rectangle(0, 0, bar_width, 5, fill="#1e90ff", outline="")
-    
-#     tk.Label(bar_value_frame, text=str(score), font=("Arial", 8, "bold"), fg="#333", bg="white", padx=5).pack(side="left")
 def create_ui():
     root = tk.Tk()
     root.title("UniCompare - Course Recommendation")
