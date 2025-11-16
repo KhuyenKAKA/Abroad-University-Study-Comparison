@@ -1,0 +1,697 @@
+import tkinter as tk
+from tkinter import ttk
+from PIL import Image, ImageTk
+import requests 
+from io import BytesIO
+# def create_score_item(parent, label, score, max_width=150): # Đã đặt max_width mặc định 150
+#     item_frame = tk.Frame(parent, bg="white")
+#     item_frame.pack(side="left", padx=(0, 20))
+    
+#     tk.Label(item_frame, text=label, font=("Arial", 8), fg="#555", bg="white").pack(anchor="w")
+    
+#     bar_value_frame = tk.Frame(item_frame, bg="white")
+#     bar_value_frame.pack(anchor="w", pady=(3, 0))
+    
+#     # Bar chart
+#     bar_canvas = tk.Canvas(bar_value_frame, width=max_width, height=5, bg="#e0e0e0", highlightthickness=0)
+#     bar_canvas.pack(side="left")
+    
+#     # Tính toán chiều rộng thanh màu xanh (scale 100/100)
+#     bar_width = int((score / 100) * max_width)
+#     bar_canvas.create_rectangle(0, 0, bar_width, 5, fill="#1e90ff", outline="")
+    
+#     tk.Label(bar_value_frame, text=str(score), font=("Arial", 8, "bold"), fg="#333", bg="white", padx=5).pack(side="left")
+def create_ui():
+    root = tk.Tk()
+    root.title("UniCompare - Course Recommendation")
+    root.geometry("1000x800")
+    
+    root.config(bg="#f8f9fa")
+
+    nav_frame = tk.Frame(root, bg="white", height=50)
+    nav_frame.pack(fill='x', padx=0, pady=0)
+
+    nav_frame.grid_columnconfigure(0, weight=0) 
+    nav_frame.grid_columnconfigure(1, weight=1) 
+    nav_frame.grid_columnconfigure(2, weight=0) 
+    nav_frame.grid_columnconfigure(3, weight=0) 
+
+    tk.Label(nav_frame, text="UniCompare", font=("Arial", 16, "bold"), fg="#1e90ff", bg="white").grid(row=0, column=0, padx=(20, 50), pady=10)
+    
+    menu_items = ["Rankings", "Discover", "Events", "Prepare", "Scholarships", "Chat To Students"]
+    # Để làm nổi bật "Rankings" như trong ảnh
+    tk.Button(nav_frame, text=menu_items[0], font=("Arial", 10, "bold"), bg="white", fg="#1e90ff", relief="flat").grid(row=0, column=1, padx=5, pady=10, sticky="e", in_=nav_frame) 
+    tk.Button(nav_frame, text=menu_items[1], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=2, padx=5, pady=10, sticky="e", in_=nav_frame)
+    tk.Button(nav_frame, text=menu_items[2], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=3, padx=5, pady=10, sticky="e", in_=nav_frame)
+    tk.Button(nav_frame, text=menu_items[3], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=4, padx=5, pady=10, sticky="e", in_=nav_frame)
+    tk.Button(nav_frame, text=menu_items[4], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=5, padx=5, pady=10, sticky="e", in_=nav_frame)
+    tk.Button(nav_frame, text=menu_items[5], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=6, padx=5, pady=10, sticky="e", in_=nav_frame)
+    
+    right_nav_frame = tk.Frame(nav_frame, bg="white")
+    right_nav_frame.grid(row=0, column=7, sticky="e", padx=(0, 20))
+
+    tk.Button(right_nav_frame, text="Free Counselling",foreground='white', background='#28a745', ).pack(side='left', padx=5)
+    
+    try:
+        # Giả sử bạn đã có file search.png trong thư mục assets
+        img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
+        # img = Image.open("assets/search.png")
+        img = img.resize((24, 24), Image.LANCZOS)
+        search_photo = ImageTk.PhotoImage(img)
+        tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
+    except FileNotFoundError:
+        tk.Label(right_nav_frame, text="🔍", font=("Arial", 16), bg="white").pack(side='left', padx=5)
+    
+    tk.Button(right_nav_frame, text="Login", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
+    tk.Button(right_nav_frame, text="Sign Up", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
+
+# main canvas se dung de lam khung keo scroll
+    main_canvas = tk.Canvas(root, bg="#f8f9fa")
+    main_canvas.pack(side="left", fill="both", expand=True)
+
+    scrollbar = ttk.Scrollbar(root, orient="vertical", command=main_canvas.yview)
+    scrollbar.pack(side="right", fill="y")
+
+    main_canvas.configure(yscrollcommand=scrollbar.set)
+    # content_frame de lam khung chinh cho noi dung
+    content_frame = tk.Frame(main_canvas, bg="#f8f9fa")
+
+    main_canvas.create_window((0, 0), window=content_frame, anchor="nw")
+
+    def on_frame_configure(event):
+        main_canvas.configure(scrollregion=main_canvas.bbox("all"))
+        main_canvas.itemconfigure(content_window, width=main_canvas.winfo_width())
+    def on_mouse_wheel(event):
+        main_canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+
+    content_frame.bind("<Configure>", on_frame_configure)
+    
+    def on_canvas_resize(event):
+        main_canvas.itemconfigure(content_window, width=event.width)
+
+    content_window = main_canvas.create_window((0, 0), window=content_frame, anchor="nw")
+    main_canvas.bind('<Configure>', on_canvas_resize)
+    main_canvas.bind_all("<MouseWheel>", on_mouse_wheel)
+    images_reference = []
+    
+    # ===============================================
+    # Phần Nội Dung Chính Bắt Đầu Tại Đây
+    # ===============================================
+    
+    frame_for_infro_frame = tk.Frame(content_frame, bg="#eaf4ff")
+    frame_for_infro_frame.pack(fill='x')
+
+    info_frame = tk.Frame(frame_for_infro_frame, bg="#eaf4ff",pady=40,padx=50)
+    info_frame.pack(fill="x", expand=True)
+    # info_frame.pack(fill="x")
+    
+    tk.Label(info_frame, text="UC World University Rankings 2025: Top global universities", 
+             font=("Arial", 20, "bold"), fg="#333", bg="#eaf4ff", justify='left', wraplength=550).pack(anchor="w", pady=(0, 10))
+    
+    description_text = "Discover the top universities around the world with the UC World University Rankings 2026. Over 1,500 of the world's top universities are included in the 2026 edition of the UC World University Rankings, with over 100 locations represented around the world... Read more"
+    tk.Label(info_frame, text=description_text, font=("Arial", 10), fg="#555", bg="#eaf4ff", justify='left', wraplength=550).pack(anchor="w", pady=(0, 15))
+    
+    # Khung Đăng ký
+    register_frame = tk.Frame(info_frame, bg="#4879ae")
+    register_frame.pack(anchor="w")
+    tk.Label(register_frame, text="Register for free site membership to access direct university comparisons and more", 
+             font=("Arial", 9), fg="#f8f9fa", bg="#4879ae").pack(side="left", pady=10)
+    tk.Button(register_frame, text="Register today!", fg="#1F3AB0", background="#eaf4ff", font=("Arial", 9, "bold"), relief='flat').pack(side="left", padx=10, pady=10)
+    
+    # 
+    main_content_frame = tk.Frame(content_frame, bg="#f8f9fa", padx=50, pady=10)
+    main_content_frame.pack(fill='x')
+    
+    # # Khung Tiêu Đề và Ảnh Minh Họa
+    header_frame = tk.Frame(main_content_frame, bg="#f8f9fa")
+    header_frame.pack(fill='x', pady=(0, 10))
+
+    # # Ảnh minh họa (Mô phỏng)
+    illustration_frame = tk.Frame(header_frame, bg="#f8f9fa")
+    illustration_frame.pack(side="right")
+    tk.Label(illustration_frame, text="", fg="gray", bg="#f8f9fa", font=("Arial", 8)).pack(padx=20)
+    
+    # Thanh công cụ và Tìm kiếm
+    toolbar_frame = tk.Frame(main_content_frame, bg="#f8f9fa")
+    toolbar_frame.pack(fill='x', pady=(10, 20))
+
+    # Nút Quick View và Table View
+    view_frame = tk.Frame(toolbar_frame, bg="#f8f9fa", bd=1, relief='solid')
+    view_frame.pack(side="left", padx=(0, 20))
+    tk.Button(view_frame, text="📊 Quick View", font=("Arial", 9), bg="#e0e0e0", relief='flat').pack(side="left", padx=(0, 1), pady=0)
+    tk.Button(view_frame, text="▦ Table View", font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=(1, 0), pady=0)
+    
+    # Trường tìm kiếm
+    search_entry_frame = tk.Frame(toolbar_frame, bg="white", bd=1, relief='solid')
+    search_entry_frame.pack(side="left", fill='y', padx=(0, 20))
+    tk.Label(search_entry_frame, image=search_photo, font=("Arial", 10), bg="white").pack(side="left", padx=5)
+    tk.Entry(search_entry_frame, width=30, font=("Arial", 10), relief='flat').pack(side="left", padx=5)
+
+    # Nút Apply Filters
+    tk.Button(toolbar_frame, text="Apply Filters", fg="white", background="#1e90ff", font=("Arial", 9, "bold"), relief='flat').pack(side="right")
+    number_of_Results = tk.Label(toolbar_frame, text="2 Results", font=("Arial", 10), fg="#555", bg="#f8f9fa") # Khoảng cách mô phỏng
+    number_of_Results.pack(side="right", padx=(100, 20))
+
+    # Dropdown "University rank (High to Low)"
+    rank_dropdown_frame = tk.Frame(toolbar_frame, bg="#f8f9fa")
+    rank_dropdown_frame.pack(side="right")
+    tk.Label(rank_dropdown_frame, text="Published on: 19 June 2025", font=("Arial", 8), fg="#555", bg="#f8f9fa").pack(side="left", padx=10)
+    
+    # tk.Label(rank_dropdown_frame, text="University rank (High to Low) ▼", font=("Arial", 9), fg="#333", bg="white", bd=1, relief='solid', padx=5, pady=2).pack(side="left")
+    selected_modes_filter = ["University rank(High to Low)", "University rank(Low to High)"]
+    selected_mode = tk.StringVar()
+    selected_mode.set("University rank(High to Low)")
+    selected_modes_filter_dropdown = tk.OptionMenu(rank_dropdown_frame,selected_mode,*selected_modes_filter)
+    selected_modes_filter_dropdown.pack(side='left',padx=5,pady=2)
+    # 
+    def render_university_list():
+        # Xóa cũ
+        for widget in unversities_card_frame.winfo_children():
+            widget.destroy()
+
+        per_page = results_per_page.get()
+        page = current_page.get()
+
+        start = (page - 1) * per_page
+        end = start + per_page
+
+        for data in universities_data[start:end]:
+            create_university_block(unversities_card_frame, data)
+
+        render_pagination_bar()
+
+
+
+    def on_sort_change(*args):
+        mode = selected_mode.get()
+
+        if mode == "University rank(High to Low)":
+            universities_data.sort(key=lambda x: x['overall_score'], reverse=True)
+        else:
+            universities_data.sort(key=lambda x: x['overall_score'])
+
+        # # Cập nhật rank theo thứ tự mới
+        # for idx, uni in enumerate(universities_data, start=1):
+        #     uni['rank'] = idx
+
+        render_university_list()
+
+    selected_mode.trace("w", on_sort_change)
+    # 
+
+    compare_list = {}
+    short_list = {}
+    # # Khối thông tin Trường Đại học
+    def create_university_block(parent,data):
+        uni_block = tk.Frame(parent, bg="white", bd=1, relief='solid', padx=20, pady=15)
+        uni_block.pack(fill='x', pady=15)
+
+        # Cột 1: Rank và Score
+        rank_score_frame = tk.Frame(uni_block, bg="white")
+        rank_score_frame.pack(side="left", padx=(0, 30))
+        
+        tk.Label(rank_score_frame, text="Rank", font=("Arial", 8), fg="#888", bg="white").pack(anchor="w")
+        tk.Label(rank_score_frame, text=data['rank'], font=("Arial", 28, "bold"), fg="#333", bg="white").pack(anchor="w")
+        
+        tk.Label(rank_score_frame, text="Overall Score:", font=("Arial", 9), fg="#888", bg="white").pack(anchor="w", pady=(10, 0))
+        tk.Label(rank_score_frame, text=data['overall_score'], font=("Arial", 14, "bold"), fg="#333", bg="white").pack(anchor="w")
+        
+        # Cột 2: Logo và Tên Trường
+        details_frame = tk.Frame(uni_block, bg="white")
+        details_frame.pack(side="left", fill='x', expand=True)
+
+        header_details_frame = tk.Frame(details_frame, bg="white")
+        header_details_frame.pack(fill='x', pady=(0, 10))
+
+        # Logo (Mô phỏng)
+        try:
+            # Sửa lỗi: Chuyển sang đường dẫn tương đối đơn giản hơn
+            response = requests.get(data['logo'])
+            image_data = BytesIO(response.content)
+            pil_image = Image.open(image_data)
+            pil_image = pil_image.resize((70, 70), Image.Resampling.LANCZOS)
+            tk_image = ImageTk.PhotoImage(pil_image)
+            logo_label = tk.Label(header_details_frame, image=tk_image, bg="white")
+            logo_label.pack(side="left", padx=(0, 10))
+            images_reference.append(tk_image) # Lưu reference
+        except FileNotFoundError:
+            tk.Label(header_details_frame, text="[Logo]", font=("Arial", 8), bg="white", fg="gray", width=5).pack(side="left", padx=(0, 10))
+        
+        name_loc_frame = tk.Frame(header_details_frame, bg="white")
+        name_loc_frame.pack(side="left", fill='y')
+        
+        tk.Label(name_loc_frame, text=data['name'], font=("Arial", 14, "bold"), fg="#1e90ff", bg="white").pack(anchor="w")
+        tk.Label(name_loc_frame, text=f'{data['city']}, {data['country']}', font=("Arial", 10), fg="#555", bg="white").pack(anchor="w")
+
+        # Nút Shortlist và Compare
+        action_frame = tk.Frame(header_details_frame, bg="white")
+        action_frame.pack(side="right")
+        # tk.Button(action_frame, text="Shortlist", font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=5)
+
+        
+        tk.Checkbutton(action_frame,variable=short_list[data['id']],text='ShortList',font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=5)
+
+        tk.Checkbutton(action_frame,variable=compare_list[data['id']],text='Compare',font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=5)
+        # tk.Button(action_frame, text="Compare", font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=5)
+
+        # Thanh tiêu chí - Tab Menu (Mới)
+        criteria_frame = tk.Frame(details_frame, bg="white")
+        criteria_frame.pack(fill='x', pady=(5, 15))
+
+        criteria_list = ["Research & Discovery", "Learning Experience", "Employability", "Global Engagement", "Sustainability"]
+
+        criteria_tabs = {}  # lưu cả button và underline
+
+        # Khung chứa thanh điểm
+        score_bar_container = tk.Frame(details_frame, bg="white")
+        score_bar_container.pack(fill='x', pady=(5, 0))
+
+        # Hàm click tab
+        def on_tab_click(selected):
+            # Reset tất cả tab
+            for key, (btn, underline) in criteria_tabs.items():
+                btn.config(bg="white", fg="#333")
+                underline.config(bg="white")
+
+            # Active tab được chọn
+            btn, underline = criteria_tabs[selected]
+            btn.config(bg="white", fg="#1e90ff")
+            underline.config(bg="#1e90ff")
+
+            # Reset score bar
+            for widget in score_bar_container.winfo_children():
+                widget.destroy()
+
+            # Hàm vẽ score bar
+            def create_score_item(parent, label, score, max_width=150):
+                item_frame = tk.Frame(parent, bg="white")
+                item_frame.pack(side="left", padx=20)
+
+                tk.Label(item_frame, text=label, font=("Arial", 8, "bold"), bg="white").pack(anchor="w")
+
+                bar = tk.Canvas(item_frame, width=max_width, height=6, bg="#e0e0e0", highlightthickness=0)
+                bar.pack(side="left")
+
+                w = int(score / 100 * max_width)
+                bar.create_rectangle(0, 0, w, 6, fill="#1e90ff", outline="")
+
+                tk.Label(item_frame, text=str(score), font=("Arial", 8), bg="white").pack(side="left", padx=5)
+
+            # Hiện nội dung theo tab
+            if selected == "Research & Discovery":
+                for score_type,score_current in data['score']['Research & Discovery'].items():
+                    create_score_item(score_bar_container, score_type, score_current)
+            elif selected == "Learning Experience":
+                for score_type,score_current in data['score']['Learning Experience'].items():
+                    create_score_item(score_bar_container, score_type, score_current)
+            elif selected == "Employability":
+                for score_type,score_current in data['score']['Employability'].items():
+                    create_score_item(score_bar_container, score_type, score_current)
+            elif selected == "Global Engagement":
+                for score_type,score_current in data['score']['Global Engagement'].items():
+                    create_score_item(score_bar_container, score_type, score_current)
+            else:
+                for score_type,score_current in data['score']['Sustainability'].items():
+                    create_score_item(score_bar_container, score_type, score_current)
+
+        # Tạo button + underline tách biệt
+        for name in criteria_list:
+            tab = tk.Frame(criteria_frame, bg="white")
+            tab.pack(side="left", padx=8)
+
+            btn = tk.Button(tab, text=name, font=("Arial", 9),
+                            bg="white", fg="#333", relief="flat",
+                            command=lambda c=name: on_tab_click(c))
+            btn.pack()
+
+            underline = tk.Frame(tab, height=2, bg="white")
+            underline.pack(fill='x')
+
+            criteria_tabs[name] = (btn, underline)
+
+        # Auto-select tab đầu tiên
+        on_tab_click(criteria_list[0])
+
+    # Dữ liệu mẫu
+    universities_data = [
+        {
+            'id':1,
+            'rank': 1,
+            'overall_score': 100,
+            'name': "Massachusetts Institute of Technology (MIT)",
+            'city': 'Cambridge',
+            'country': "United States",
+            'logo': "https://www.topuniversities.com/sites/default/files/massachusetts-institute-of-technology-mit_410_medium.jpg",
+            'score': {
+                "Research & Discovery":{
+                    "Citations per Faculty":100,
+                    "Academic Reputation":100
+                },
+                "Learning Experience":{
+                    "Faculty Student Ratio":98
+                },
+                "Employability":{
+                    "Employer Reputation": 98,
+                    "Graduate Outcomes": 95,
+                },
+                "Global Engagement":{
+                    "International Student Ratio": 98,
+                    "International Research Network": 95,
+                    "International Faculty Ratio": 95,
+                    "International Student Diversity": 95
+                },
+                "Sustainability":{
+                    "Sustainability Score": 95
+                }
+            }
+        },
+        {   
+            'id':2,
+            'rank': 2,
+            'overall_score': 99.636,
+            'name': "Imperial College London",
+            'city': 'London',
+            'country': "United Kingdom",
+            'logo': "https://www.topuniversities.com/sites/default/files/240430033452pm869301QS-Imperial-Logo-white-text-blue-background-90x90.jpg",
+            'score': {
+                "Research & Discovery":{
+                    "Citations per Faculty":100,
+                    "Academic Reputation":99.18
+                },
+                "Learning Experience":{
+                    "Faculty Student Ratio":98
+                },
+                "Employability":{
+                    "Employer Reputation": 98,
+                    "Graduate Outcomes": 95,
+                },
+                "Global Engagement":{
+                    "International Student Ratio": 98,
+                    "International Research Network": 95,
+                    "International Faculty Ratio": 95,
+                    "International Student Diversity": 95
+                },
+                "Sustainability":{
+                    "Sustainability Score": 95
+                }
+            }
+        },
+        {   
+            'id':3,
+            'rank': 3,
+            'overall_score': 99.636,
+            'name': "Imperial College London",
+            'city': 'London',
+            'country': "United Kingdom",
+            'logo': "https://www.topuniversities.com/sites/default/files/240430033452pm869301QS-Imperial-Logo-white-text-blue-background-90x90.jpg",
+            'score': {
+                "Research & Discovery":{
+                    "Citations per Faculty":100,
+                    "Academic Reputation":99.18
+                },
+                "Learning Experience":{
+                    "Faculty Student Ratio":98
+                },
+                "Employability":{
+                    "Employer Reputation": 98,
+                    "Graduate Outcomes": 95,
+                },
+                "Global Engagement":{
+                    "International Student Ratio": 98,
+                    "International Research Network": 95,
+                    "International Faculty Ratio": 95,
+                    "International Student Diversity": 95
+                },
+                "Sustainability":{
+                    "Sustainability Score": 95
+                }
+            }
+        },
+        {   
+            'id':4,
+            'rank': 4,
+            'overall_score': 99.636,
+            'name': "Imperial College London",
+            'city': 'London',
+            'country': "United Kingdom",
+            'logo': "https://www.topuniversities.com/sites/default/files/240430033452pm869301QS-Imperial-Logo-white-text-blue-background-90x90.jpg",
+            'score': {
+                "Research & Discovery":{
+                    "Citations per Faculty":100,
+                    "Academic Reputation":99.18
+                },
+                "Learning Experience":{
+                    "Faculty Student Ratio":98
+                },
+                "Employability":{
+                    "Employer Reputation": 98,
+                    "Graduate Outcomes": 95,
+                },
+                "Global Engagement":{
+                    "International Student Ratio": 98,
+                    "International Research Network": 95,
+                    "International Faculty Ratio": 95,
+                    "International Student Diversity": 95
+                },
+                "Sustainability":{
+                    "Sustainability Score": 95
+                }
+            }
+        },
+        {   
+            'id':5,
+            'rank': 5,
+            'overall_score': 99.636,
+            'name': "Imperial College London",
+            'city': 'London',
+            'country': "United Kingdom",
+            'logo': "https://www.topuniversities.com/sites/default/files/240430033452pm869301QS-Imperial-Logo-white-text-blue-background-90x90.jpg",
+            'score': {
+                "Research & Discovery":{
+                    "Citations per Faculty":100,
+                    "Academic Reputation":99.18
+                },
+                "Learning Experience":{
+                    "Faculty Student Ratio":98
+                },
+                "Employability":{
+                    "Employer Reputation": 98,
+                    "Graduate Outcomes": 95,
+                },
+                "Global Engagement":{
+                    "International Student Ratio": 98,
+                    "International Research Network": 95,
+                    "International Faculty Ratio": 95,
+                    "International Student Diversity": 95
+                },
+                "Sustainability":{
+                    "Sustainability Score": 95
+                }
+            }
+        },
+        {   
+            'id':6,
+            'rank': 6,
+            'overall_score': 99.636,
+            'name': "Imperial College London",
+            'city': 'London',
+            'country': "United Kingdom",
+            'logo': "https://www.topuniversities.com/sites/default/files/240430033452pm869301QS-Imperial-Logo-white-text-blue-background-90x90.jpg",
+            'score': {
+                "Research & Discovery":{
+                    "Citations per Faculty":100,
+                    "Academic Reputation":99.18
+                },
+                "Learning Experience":{
+                    "Faculty Student Ratio":98
+                },
+                "Employability":{
+                    "Employer Reputation": 98,
+                    "Graduate Outcomes": 95,
+                },
+                "Global Engagement":{
+                    "International Student Ratio": 98,
+                    "International Research Network": 95,
+                    "International Faculty Ratio": 95,
+                    "International Student Diversity": 95
+                },
+                "Sustainability":{
+                    "Sustainability Score": 95
+                }
+            }
+        }
+    ]
+    for data in universities_data:
+        shortList_var = tk.IntVar()
+        compare_var = tk.IntVar()
+        short_list[data['id']] = shortList_var
+        compare_list[data['id']] = compare_var
+    # Giả sử bạn có ảnh logo trong thư mục assets
+    unversities_card_frame = tk.Frame(content_frame, bg="#f8f9fa", padx=50, pady=10)
+    unversities_card_frame.pack(fill='x')
+
+    for data in universities_data:
+        create_university_block(unversities_card_frame,data)
+        # create_university_block(main_content_frame,data)    
+
+    # ===================== Phân trang =================
+    pagination_frame = tk.Frame(content_frame, bg="#f8f9fa")
+    pagination_frame.pack()
+
+    
+
+    def change_page(delta):
+        new_page = current_page.get() + delta
+        if 1 <= new_page <= get_total_pages():
+            current_page.set(new_page)
+            render_university_list()
+
+    def go_to_page(page):
+        current_page.set(page)
+        render_university_list()
+
+    def render_pagination_bar():
+        for widget in pagination_frame.winfo_children():
+            widget.destroy()
+
+        tk.Label(pagination_frame,text="Results per page:",bg="#f8f9fa",font=("Arial", 10, "bold")).pack(side="left", padx=10)
+        results_dropdown = tk.OptionMenu(
+            pagination_frame,
+            results_per_page,
+            *results_per_page_options,
+            command=lambda _: update_pagination()
+        )
+        results_dropdown.pack(side="left", padx=10)
+
+        total_pages = get_total_pages()
+        page = current_page.get()
+
+        # Prev button
+        tk.Button(
+            pagination_frame, text="← Prev",
+            state="normal" if page > 1 else "disabled",
+            command=lambda: change_page(-1)
+        ).pack(side="left", padx=5)
+
+        # Page numbers
+        for p in range(1, total_pages + 1):
+            btn = tk.Button(
+                pagination_frame, text=str(p),
+                width=3,
+                fg="white" if p == page else "black",
+                bg="#1e90ff" if p == page else "white",
+                command=lambda x=p: go_to_page(x)
+            )
+            btn.pack(side="left", padx=2)
+
+        # Next button
+        tk.Button(
+            pagination_frame, text="Next →",
+            state="normal" if page < total_pages else "disabled",
+            command=lambda: change_page(1)
+        ).pack(side="left", padx=5)
+
+
+    # Pagination states
+    results_per_page_options = [5, 10, 20, 50]
+    results_per_page = tk.IntVar(value=10) 
+    current_page = tk.IntVar(value=1)
+
+    def get_total_pages():
+        total = len(universities_data)
+        per_page = results_per_page.get()
+        return max(1, (total + per_page - 1) // per_page)
+
+    def update_pagination():
+        current_page.set(1)  # reset về page 1 mỗi khi đổi số lượng
+        render_university_list()
+    render_pagination_bar()
+
+    # ===============================================
+    # Phần Footer
+    # ===============================================
+    
+    footer_frame = tk.Frame(content_frame, bg="white", padx=50, pady=40)
+    footer_frame.pack(fill='x', pady=(20, 0))
+    
+    # Thiết lập lưới chính cho footer (5 cột chính)
+    for i in range(5):
+        footer_frame.grid_columnconfigure(i, weight=1 if i > 0 else 0) # Cột 0 là Logo, còn lại là menu
+
+    # Cột 0: Logo UniCompare (Mô phỏng)
+    tk.Label(footer_frame, text="UniCompare", font=("Arial", 14, "bold"), fg="#1e90ff", bg="white").grid(row=0, column=0, sticky="nw")
+    tk.Label(footer_frame, text="© QS Quacquarelli Symonds Limited 1994 - 2025. All rights reserved.", 
+             font=("Arial", 7), fg="gray", bg="white").grid(row=4, column=0, columnspan=2, sticky="sw", pady=(50, 0))
+    
+    # Cột 1, 2, 3, 4: Menu Links
+    menu_headers = ["About", "Contact", "Privacy", "Users"]
+    menu_row = 0
+    for col, header in enumerate(menu_headers):
+        tk.Label(footer_frame, text=header, font=("Arial", 10, "bold"), bg="white").grid(row=menu_row, column=col+1, sticky="w")
+        
+    # Phần "Follow us" và Social Icons
+    social_frame = tk.Frame(footer_frame, bg="white")
+    social_frame.grid(row=0, column=4, sticky="e")
+    
+    tk.Label(social_frame, text="Follow us", font=("Arial", 10, "bold"), bg="white").pack(side="left", padx=(0, 10))
+    
+    # Mô phỏng Social Icons (sử dụng Label với màu nền)
+    # social_icons = ["assets/104498_facebook_icon.png", 
+    #                 "assets/1161953_instagram_icon.png", 
+    #                 "assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
+    #                 "assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
+    social_icons = ["Abroad-University-Study-Comparison/assets/104498_facebook_icon.png", 
+                    "Abroad-University-Study-Comparison/assets/1161953_instagram_icon.png", 
+                    "Abroad-University-Study-Comparison/assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
+                    "Abroad-University-Study-Comparison/assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
+    for icon in social_icons:
+        try:
+            img = Image.open(icon)
+            img = img.resize((15, 15), Image.LANCZOS)
+            photo = ImageTk.PhotoImage(img)
+            # Dùng label thay vì nút để mô phỏng icon
+            icon_label = tk.Label(social_frame, image=photo, bg="#007bff") 
+            icon_label.pack(side="left", padx=3)
+            images_reference.append(photo)
+        except FileNotFoundError:
+             tk.Label(social_frame, text="[Icon]", font=("Arial", 7), bg="#007bff", fg="gray").pack(side="left", padx=3)
+        
+    # Các khối liên kết chính
+    link_blocks = [
+        ("For Students", ["Find courses", "Scholarships", "Events"]),
+        ("For Institution", ["List courses", "Advertise"]),
+        ("For Professionals", ["Career advice", "MBA rankings"])
+    ]
+    
+    # Đặt các khối liên kết vào hàng 2 và 3
+    for i, (header, links) in enumerate(link_blocks):
+        # Header
+        tk.Label(footer_frame, text=f"{header}", font=("Arial", 10, "bold"), bg="white").grid(row=2, column=i, sticky="nw", pady=(20, 5))
+        # Links
+        for j, link in enumerate(links):
+            tk.Label(footer_frame, text=link, font=("Arial", 9), fg="gray", bg="white").grid(row=3+j, column=i, sticky="nw")
+            
+    # Khối T&C, Data Copyright...
+    tk.Label(footer_frame, text="Cookies", font=("Arial", 10, "bold"), bg="white").grid(row=2, column=3, sticky="nw", pady=(20, 5))
+    tk.Label(footer_frame, text="Data Copyright", font=("Arial", 9), fg="gray", bg="white").grid(row=3, column=3, sticky="nw")
+    tk.Label(footer_frame, text="Terms & Conditions", font=("Arial", 9), fg="gray", bg="white").grid(row=4, column=3, sticky="nw")
+    
+    # Khối Subscribe
+    subscribe_frame = tk.Frame(footer_frame, bg="white")
+    subscribe_frame.grid(row=2, column=4, sticky="ne", pady=(20, 5))
+    
+    tk.Label(subscribe_frame, text="Subscribe to our newsletter", font=("Arial", 10, "bold"), bg="white").pack(anchor="e")
+    
+    input_frame = tk.Frame(subscribe_frame, bg="white", relief="solid", bd=1)
+    input_frame.pack(anchor="e", pady=5)
+    
+    # Input field
+    tk.Entry(input_frame, width=25, font=("Arial", 9), relief="flat", borderwidth=0, bg="white").pack(side="left", padx=5)
+    
+    subscribe_btn = tk.Button(input_frame, text="→",width=5, fg="white",bg= "#1F3AB0")
+    subscribe_btn.pack(side="left")
+
+    root.mainloop()
+
+if __name__ == "__main__":
+    create_ui()
