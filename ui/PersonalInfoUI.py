@@ -111,7 +111,7 @@ class PersonalInfoForm:
             tk.Label(sidebar, text=item, bg=bg_color, fg="#333",
                      font=("Segoe UI", 10), anchor="w", pady=12).pack(fill=tk.X, padx=20, pady=2)
 
-        submenu_items = ["> Đổi mật khẩu", "> Tùy chọn", "> Đóng tài khoản"]
+        submenu_items = ["> Đổi mật khẩu", "> Đăng xuất"]
         for item in submenu_items:
             tk.Label(sidebar, text=item, bg="#E7EFFE", fg="#555",
                      font=("Segoe UI", 9), anchor="w", pady=8).pack(fill=tk.X, padx=40, pady=1)
@@ -217,9 +217,6 @@ class PersonalInfoForm:
                   font=("Segoe UI", 10, "bold"), bd=0, padx=35, pady=12,
                   cursor="hand2", command=self.save_changes).pack(anchor="e", pady=(10, 0))
 
-        # ===============================================
-        # 4. FOOTER
-        # ===============================================
         self.create_new_footer(content_frame)
 
     def create_labeled_input(self, parent, label_text, column):
