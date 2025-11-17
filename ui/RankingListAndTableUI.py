@@ -117,11 +117,112 @@ def create_ui():
     toolbar_frame = tk.Frame(main_content_frame, bg="#f8f9fa")
     toolbar_frame.pack(fill='x', pady=(10, 20))
 
+    def render_table_view():
+        table_view.config(bg='white')
+        quick_view.config(bg='#f0f0f0')
+        global current_view_mode 
+        current_view_mode = 2
+        for widget in unversities_card_frame.winfo_children():
+            widget.destroy()
+
+        # Header Row
+        header = tk.Frame(unversities_card_frame, bg="#f0f0f0", bd=1, relief="solid")
+        header.pack(fill="x")
+
+        # headers = ["Rank", "Logo", "University", "Location", "Overall Score"]
+        # widths = [6, 10, 35, 25, 12]
+        Re_Dis_frame = tk.Frame(header, bg="white")
+        Re_Dis_frame.pack(side="left", fill='y')
+        tk.Label(Re_Dis_frame,text="Overall Rank",font=("Arial", 10, "bold"),bg="white", width=10).pack(side="left", padx=5, pady=5)
+        tk.Label(header,text="University",font=("Arial", 10, "bold"),bg="#f0f0f0", width=38).pack(side="left", padx=5, pady=5)
+        
+        Re_Dis_frame = tk.Frame(header, bg="white")
+        Re_Dis_frame.pack(side="left", fill='y')
+        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        upper_frame.pack(fill='y',padx=5,pady=5)
+        lower_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        lower_frame.pack(fill='y',padx=5,pady=5)
+        tk.Label(upper_frame, text='Reserach & Discovery', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
+        tk.Label(lower_frame, text='Citations\nper Faculty', font=("Arial", 8,), bg="white",width=10).pack(side="left")
+        tk.Label(lower_frame, text='Academic\nReputation', font=("Arial", 8), bg="white",width=10).pack(side="left")
+
+        Re_Dis_frame = tk.Frame(header, bg="#f0f0f0")
+        Re_Dis_frame.pack(side="left", fill='y')
+        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        upper_frame.pack(fill='y',padx=5,pady=5)
+        lower_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        lower_frame.pack(fill='y',padx=5,pady=5)
+        tk.Label(upper_frame, text='Learning Experience', font=("Arial", 10,), fg="#1e90ff", bg="#f0f0f0").pack()
+        tk.Label(lower_frame, text='Faculty Student\nRatio', font=("Arial", 8,), bg="#f0f0f0",width=15).pack(side="left")
+        
+        Re_Dis_frame = tk.Frame(header, bg="white")
+        Re_Dis_frame.pack(side="left", fill='y')
+        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        upper_frame.pack(fill='y',padx=5,pady=5)
+        lower_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        lower_frame.pack(fill='y',padx=5,pady=5)
+        tk.Label(upper_frame, text='Employability', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
+        tk.Label(lower_frame, text='Employer\nReputation', font=("Arial", 8,), bg="white",width=10).pack(side="left")
+        tk.Label(lower_frame, text='Graduate\nOutcomes', font=("Arial", 8,), bg="white",width=10).pack(side="left")
+        
+        Re_Dis_frame = tk.Frame(header, bg="#f0f0f0")
+        Re_Dis_frame.pack(side="left", fill='y')
+        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        upper_frame.pack(fill='y',padx=5,pady=5)
+        lower_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        lower_frame.pack(fill='y',padx=5,pady=5)
+        tk.Label(upper_frame, text='Global Engagement', font=("Arial", 10,), fg="#1e90ff", bg="#f0f0f0").pack()
+        tk.Label(lower_frame, text='International\nStudent Ratio', font=("Arial", 8,), bg="#f0f0f0",width=15).pack(side="left")
+        tk.Label(lower_frame, text='International\nResearch Network', font=("Arial", 8,), bg="#f0f0f0",width=15).pack(side="left")
+        tk.Label(lower_frame, text='International\nFaculty Ratio', font=("Arial", 8,), bg="#f0f0f0",width=15).pack(side="left")
+        tk.Label(lower_frame, text='International\nStudent Diversity', font=("Arial", 8,), bg="#f0f0f0",width=15).pack(side="left")
+        
+        Re_Dis_frame = tk.Frame(header, bg="white")
+        Re_Dis_frame.pack(side="left", fill='y')
+        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        upper_frame.pack(fill='y',padx=5,pady=5)
+        lower_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        lower_frame.pack(fill='y',padx=5,pady=5)
+        tk.Label(upper_frame, text='Sustainability', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
+        tk.Label(lower_frame, text='Sustainability\nScore', font=("Arial", 8,), bg="white",width=10).pack(side="left")
+        
+        per_page = results_per_page.get()
+        page = current_page.get()
+
+        start = (page - 1) * per_page
+        end = start + per_page
+        for data in universities_data[start:end]:
+            create_university_table_row(unversities_card_frame, data)
+        
+        render_pagination_bar()
+
+    def render_university_list():
+        # Xóa cũ
+        quick_view.config(bg='white')
+        table_view.config(bg='#f0f0f0')
+        global current_view_mode
+        current_view_mode = 1
+        for widget in unversities_card_frame.winfo_children():
+            widget.destroy()
+
+        per_page = results_per_page.get()
+        page = current_page.get()
+
+        start = (page - 1) * per_page
+        end = start + per_page
+
+        for data in universities_data[start:end]:
+            create_university_block(unversities_card_frame, data)
+
+        render_pagination_bar()
     # Nút Quick View và Table View
     view_frame = tk.Frame(toolbar_frame, bg="#f8f9fa", bd=1, relief='solid')
     view_frame.pack(side="left", padx=(0, 20))
-    tk.Button(view_frame, text="📊 Quick View", font=("Arial", 9), bg="#e0e0e0", relief='flat').pack(side="left", padx=(0, 1), pady=0)
-    tk.Button(view_frame, text="▦ Table View", font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=(1, 0), pady=0)
+    current_view_mode = 1
+    quick_view = tk.Button(view_frame, text="📊 Quick View",command=render_university_list, font=("Arial", 9), bg="white", relief='flat')
+    quick_view.pack(side="left", padx=(0, 1), pady=0)
+    table_view = tk.Button(view_frame, text="▦ Table View",command=render_table_view ,font=("Arial", 9), bg="#e0e0e0", relief='flat')
+    table_view.pack(side="left", padx=(1, 0), pady=0)
     
     # Trường tìm kiếm
     search_entry_frame = tk.Frame(toolbar_frame, bg="white", bd=1, relief='solid')
@@ -145,24 +246,6 @@ def create_ui():
     selected_mode.set("University rank(High to Low)")
     selected_modes_filter_dropdown = tk.OptionMenu(rank_dropdown_frame,selected_mode,*selected_modes_filter)
     selected_modes_filter_dropdown.pack(side='left',padx=5,pady=2)
-    # 
-    def render_university_list():
-        # Xóa cũ
-        for widget in unversities_card_frame.winfo_children():
-            widget.destroy()
-
-        per_page = results_per_page.get()
-        page = current_page.get()
-
-        start = (page - 1) * per_page
-        end = start + per_page
-
-        for data in universities_data[start:end]:
-            create_university_block(unversities_card_frame, data)
-
-        render_pagination_bar()
-
-
 
     def on_sort_change(*args):
         mode = selected_mode.get()
@@ -175,8 +258,12 @@ def create_ui():
         # # Cập nhật rank theo thứ tự mới
         # for idx, uni in enumerate(universities_data, start=1):
         #     uni['rank'] = idx
-
-        render_university_list()
+        global current_view_mode
+        if current_view_mode == 2:
+            render_table_view()
+        else:
+            render_university_list()
+            
 
     selected_mode.trace("w", on_sort_change)
     # 
@@ -313,6 +400,78 @@ def create_ui():
 
         # Auto-select tab đầu tiên
         on_tab_click(criteria_list[0])
+
+    def create_university_table_row(parent, data):
+        row = tk.Frame(parent, bg="white", bd=1, relief="solid", pady=5)
+        row.pack(fill="x")
+
+        # Rank
+        tk.Label(row, text=data["rank"], font=("Arial", 11, "bold"), bg="white", width=10).pack(side="left")
+
+        # # Logo
+        # try:
+        #     response = requests.get(data['logo'])
+        #     img = Image.open(BytesIO(response.content))
+        #     img = img.resize((40, 40), Image.Resampling.LANCZOS)
+        #     tk_img = ImageTk.PhotoImage(img)
+        #     images_reference.append(tk_img)
+        #     tk.Label(row, image=tk_img, bg="white").pack(side="left", padx=10)
+        # except:
+        #     tk.Label(row, text="[Logo]", bg="white", fg="gray", width=6).pack(side="left")
+
+        Re_Dis_frame = tk.Frame(row, bg="#f0f0f0")
+        Re_Dis_frame.pack(side="left", fill='y')
+        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        upper_frame.pack(fill='y',padx=5,pady=5)
+        lower_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        lower_frame.pack(fill='y',padx=5,pady=5)
+        tk.Label(upper_frame, text=data["name"], font=("Arial", 10,), fg="#1e90ff", bg="#f0f0f0",width=38).pack(side="left")
+        tk.Label(lower_frame, text=f"{data['city']}, {data['country']}", font=("Arial", 8,), bg="#f0f0f0",width=38).pack(side="left")
+
+        Re_Dis_frame = tk.Frame(row, bg="white")
+        Re_Dis_frame.pack(side="left", fill='y')
+        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        upper_frame.pack(fill='y',padx=5,pady=5)
+        for score_type,score_current in data['score']['Research & Discovery'].items():
+            tk.Label(upper_frame, text=f'{score_current}', font=("Arial", 8),
+                    bg="white", fg="#1e90ff", width=10)\
+                .pack(side="left")
+            
+        Re_Dis_frame = tk.Frame(row, bg="#f0f0f0")
+        Re_Dis_frame.pack(side="left", fill='y')
+        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        upper_frame.pack(fill='y',padx=5,pady=5)
+        for score_type,score_current in data['score']['Learning Experience'].items():
+            tk.Label(upper_frame, text=f'{score_current}', font=("Arial", 8),
+                    bg="#f0f0f0", fg="#1e90ff", width=20)\
+                .pack(side="left")
+            
+        Re_Dis_frame = tk.Frame(row, bg="white")
+        Re_Dis_frame.pack(side="left", fill='y')
+        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        upper_frame.pack(fill='y',padx=5,pady=5)
+        for score_type,score_current in data['score']['Employability'].items():
+            tk.Label(upper_frame, text=f'{score_current}', font=("Arial", 8),
+                    bg="white", fg="#1e90ff", width=10)\
+                .pack(side="left")
+            
+        Re_Dis_frame = tk.Frame(row, bg="#f0f0f0")
+        Re_Dis_frame.pack(side="left", fill='y')
+        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        upper_frame.pack(fill='y',padx=5,pady=5)
+        for score_type,score_current in data['score']['Global Engagement'].items():
+            tk.Label(upper_frame, text=f'{score_current}', font=("Arial", 8),
+                    bg="#f0f0f0", fg="#1e90ff", width=15)\
+                .pack(side="left")
+            
+        Re_Dis_frame = tk.Frame(row, bg="white")
+        Re_Dis_frame.pack(side="left", fill='y')
+        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        upper_frame.pack(fill='y',padx=5,pady=5)
+        for score_type,score_current in data['score']['Sustainability'].items():
+            tk.Label(upper_frame, text=f'{score_current}', font=("Arial", 8),
+                    bg="white", fg="#1e90ff", width=13)\
+                .pack(side="left")
 
     # Dữ liệu mẫu
     universities_data = [
@@ -523,14 +682,22 @@ def create_ui():
     
 
     def change_page(delta):
+        global current_view_mode
         new_page = current_page.get() + delta
         if 1 <= new_page <= get_total_pages():
             current_page.set(new_page)
-            render_university_list()
+            if current_view_mode == 2:
+                render_table_view()
+            else: 
+                render_university_list()
 
     def go_to_page(page):
         current_page.set(page)
-        render_university_list()
+        global current_view_mode
+        if current_view_mode == 2:
+            render_table_view()
+        else: 
+            render_university_list()
 
     def render_pagination_bar():
         for widget in pagination_frame.winfo_children():
@@ -586,7 +753,11 @@ def create_ui():
 
     def update_pagination():
         current_page.set(1)  # reset về page 1 mỗi khi đổi số lượng
-        render_university_list()
+        global current_view_mode
+        if current_view_mode == 2:
+            render_table_view()
+        else: 
+            render_university_list()
     render_pagination_bar()
 
     # ===============================================
