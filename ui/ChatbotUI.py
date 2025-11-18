@@ -58,7 +58,7 @@ class ChatApp(ctk.CTk):
         super().__init__()
 
         self.title("UC Bot - Tư vấn du học")
-        self.geometry("400x650")
+        self.geometry("400x550")
         
         self.grid_rowconfigure(1, weight=1)
         self.grid_columnconfigure(0, weight=1)
