@@ -3,7 +3,11 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 import requests 
 from io import BytesIO
+
 def create_ui():
+    global current_view_mode
+    current_view_mode = 1
+    global universities_data
     root = tk.Tk()
     root.title("UniCompare - Course Recommendation")
     root.geometry("1000x800")
@@ -36,8 +40,8 @@ def create_ui():
     
     try:
         # Giả sử bạn đã có file search.png trong thư mục assets
-        # img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
-        img = Image.open("assets/search.png")
+        img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
+        # img = Image.open("assets/search.png")
         img = img.resize((24, 24), Image.LANCZOS)
         search_photo = ImageTk.PhotoImage(img)
         tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
@@ -218,7 +222,7 @@ def create_ui():
     # Nút Quick View và Table View
     view_frame = tk.Frame(toolbar_frame, bg="#f8f9fa", bd=1, relief='solid')
     view_frame.pack(side="left", padx=(0, 20))
-    current_view_mode = 1
+    # current_view_mode = 1
     quick_view = tk.Button(view_frame, text="📊 Quick View",command=render_university_list, font=("Arial", 9), bg="white", relief='flat')
     quick_view.pack(side="left", padx=(0, 1), pady=0)
     table_view = tk.Button(view_frame, text="▦ Table View",command=render_table_view ,font=("Arial", 9), bg="#e0e0e0", relief='flat')
@@ -228,8 +232,9 @@ def create_ui():
     search_entry_frame = tk.Frame(toolbar_frame, bg="white", bd=1, relief='solid')
     search_entry_frame.pack(side="left", fill='y', padx=(0, 20))
     tk.Label(search_entry_frame, image=search_photo, font=("Arial", 10), bg="white").pack(side="left", padx=5)
-    tk.Entry(search_entry_frame, width=30, font=("Arial", 10), relief='flat').pack(side="left", padx=5)
-
+    entry_search = tk.Entry(search_entry_frame, width=30, font=("Arial", 10), relief='flat')
+    entry_search.pack(side="left", padx=5)
+    
     # Nút Apply Filters
     tk.Button(toolbar_frame, text="Apply Filters", fg="white", background="#1e90ff", font=("Arial", 9, "bold"), relief='flat').pack(side="right")
     number_of_Results = tk.Label(toolbar_frame, text="2 Results", font=("Arial", 10), fg="#555", bg="#f8f9fa") # Khoảng cách mô phỏng
@@ -408,17 +413,6 @@ def create_ui():
         # Rank
         tk.Label(row, text=data["rank"], font=("Arial", 11, "bold"), bg="white", width=10).pack(side="left")
 
-        # # Logo
-        # try:
-        #     response = requests.get(data['logo'])
-        #     img = Image.open(BytesIO(response.content))
-        #     img = img.resize((40, 40), Image.Resampling.LANCZOS)
-        #     tk_img = ImageTk.PhotoImage(img)
-        #     images_reference.append(tk_img)
-        #     tk.Label(row, image=tk_img, bg="white").pack(side="left", padx=10)
-        # except:
-        #     tk.Label(row, text="[Logo]", bg="white", fg="gray", width=6).pack(side="left")
-
         Re_Dis_frame = tk.Frame(row, bg="#f0f0f0")
         Re_Dis_frame.pack(side="left", fill='y')
         upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
@@ -473,195 +467,186 @@ def create_ui():
                     bg="white", fg="#1e90ff", width=13)\
                 .pack(side="left")
 
-    # Dữ liệu mẫu
-    universities_data = [
-        {
-            'id':1,
-            'rank': 1,
-            'overall_score': 100,
-            'name': "Massachusetts Institute of Technology (MIT)",
-            'city': 'Cambridge',
-            'country': "United States",
-            'logo': "https://www.topuniversities.com/sites/default/files/massachusetts-institute-of-technology-mit_410_medium.jpg",
-            'score': {
-                "Research & Discovery":{
-                    "Citations per Faculty":100,
-                    "Academic Reputation":100
-                },
-                "Learning Experience":{
-                    "Faculty Student Ratio":98
-                },
-                "Employability":{
-                    "Employer Reputation": 98,
-                    "Graduate Outcomes": 95,
-                },
-                "Global Engagement":{
-                    "International Student Ratio": 98,
-                    "International Research Network": 95,
-                    "International Faculty Ratio": 95,
-                    "International Student Diversity": 95
-                },
-                "Sustainability":{
-                    "Sustainability Score": 95
+    
+    def crawl_data():
+        import mysql.connector
+        import json
+        conn = mysql.connector.connect(
+            host="127.0.0.1",
+            user="user",       
+            password="Tung@09092004"  
+        )
+        cursor = conn.cursor()
+        cursor.execute("use universities_db")
+        # universities, country, 
+        querry = """
+        SELECT 
+            u.id,
+            u.rank_int,
+            u.overall_score,
+            u.name AS university_name,
+            u.city,
+            c.name AS country_name,
+            u.logo,
+            st.name AS score_type,
+            i.name AS indicator_name,
+            s.score
+        FROM universities u
+        JOIN countries c  ON u.country_id = c.id
+        JOIN scores s ON u.id = s.university_id
+        JOIN score_types st ON s.score_type_id = st.id
+        JOIN indicators i ON i.id = s.indicator_id
+        """
+        cursor.execute(querry)
+        crawl_data = cursor.fetchall()
+        crawl_data = sorted(crawl_data, key= lambda x:x[0])
+        universities_data = []
+        for i in range(int(len(crawl_data[0:500])/10)):
+            data = {
+                'id':None,
+                'rank': None,
+                'overall_score': None,
+                'name': None,
+                'city': None,
+                'country': None,
+                'logo': None,
+                'score': {
+                    "Research & Discovery":{
+                        "Citations per Faculty":None,
+                        "Academic Reputation":None
+                    },
+                    "Learning Experience":{
+                        "Faculty Student Ratio":None
+                    },
+                    "Employability":{
+                        "Employer Reputation": None,
+                        "Employment Outcomes": None,
+                    },
+                    "Global Engagement":{
+                        "International Student Ratio": None,
+                        "International Research Network": None,
+                        "International Faculty Ratio": None,
+                        "International Student Diversity": None
+                    },
+                    "Sustainability":{
+                        "Sustainability Score": None
+                    }
                 }
             }
-        },
-        {   
-            'id':2,
-            'rank': 2,
-            'overall_score': 99.636,
-            'name': "Imperial College London",
-            'city': 'London',
-            'country': "United Kingdom",
-            'logo': "https://www.topuniversities.com/sites/default/files/240430033452pm869301QS-Imperial-Logo-white-text-blue-background-90x90.jpg",
-            'score': {
-                "Research & Discovery":{
-                    "Citations per Faculty":100,
-                    "Academic Reputation":99.18
-                },
-                "Learning Experience":{
-                    "Faculty Student Ratio":98
-                },
-                "Employability":{
-                    "Employer Reputation": 98,
-                    "Graduate Outcomes": 95,
-                },
-                "Global Engagement":{
-                    "International Student Ratio": 98,
-                    "International Research Network": 95,
-                    "International Faculty Ratio": 95,
-                    "International Student Diversity": 95
-                },
-                "Sustainability":{
-                    "Sustainability Score": 95
+            for x in crawl_data[i*10:i*10+10]:
+                data['id'] = x[0]
+                data['rank'] = x[1]
+                data['overall_score'] = x[2]
+                data['name'] = x[3]
+                data['city'] = x[4]
+                data['country'] = x[5]
+                data['logo'] = x[6]
+                data['score'][x[7]][x[8]] = x[9]
+            universities_data.append(data)
+        for data in universities_data:
+            shortList_var = tk.IntVar()
+            compare_var = tk.IntVar()
+            short_list[data['id']] = shortList_var
+            compare_list[data['id']] = compare_var
+        return universities_data
+
+    def crawl_data_with_name(event):
+        name = entry_search.get()
+        import mysql.connector
+        conn = mysql.connector.connect(
+            host="127.0.0.1",
+            user="user",       
+            password="Tung@09092004"  
+        )
+        cursor = conn.cursor()
+        cursor.execute("use universities_db_clone")
+        # universities, country, 
+        where_condition = ""
+        if name.strip():
+            where_condition = "where u.name like '%"
+            for x in name:
+                where_condition+= x+"%"
+            where_condition+= "'"
+
+        querry = f"""
+        SELECT 
+            u.id,
+            u.rank_int,
+            u.overall_score,
+            u.name AS university_name,
+            u.city,
+            c.name AS country_name,
+            u.logo,
+            st.name AS score_type,
+            i.name AS indicator_name,
+            s.score
+        FROM universities u
+        JOIN countries c  ON u.country_id = c.id
+        JOIN scores s ON u.id = s.university_id
+        JOIN score_types st ON s.score_type_id = st.id
+        JOIN indicators i ON i.id = s.indicator_id
+        {where_condition}
+        """
+        cursor.execute(querry)
+        crawl_data = cursor.fetchall()
+        crawl_data = sorted(crawl_data, key= lambda x:x[0])
+        uni_data = []
+        end_data = min(len(crawl_data),500)
+        for i in range(int(len(crawl_data[0:end_data])/10)):
+            data = {
+                'id':None,
+                'rank': None,
+                'overall_score': None,
+                'name': None,
+                'city': None,
+                'country': None,
+                'logo': None,
+                'score': {
+                    "Research & Discovery":{
+                        "Citations per Faculty":None,
+                        "Academic Reputation":None
+                    },
+                    "Learning Experience":{
+                        "Faculty Student Ratio":None
+                    },
+                    "Employability":{
+                        "Employer Reputation": None,
+                        "Employment Outcomes": None,
+                    },
+                    "Global Engagement":{
+                        "International Student Ratio": None,
+                        "International Research Network": None,
+                        "International Faculty Ratio": None,
+                        "International Student Diversity": None
+                    },
+                    "Sustainability":{
+                        "Sustainability Score": None
+                    }
                 }
             }
-        },
-        {   
-            'id':3,
-            'rank': 3,
-            'overall_score': 99.636,
-            'name': "Imperial College London",
-            'city': 'London',
-            'country': "United Kingdom",
-            'logo': "https://www.topuniversities.com/sites/default/files/240430033452pm869301QS-Imperial-Logo-white-text-blue-background-90x90.jpg",
-            'score': {
-                "Research & Discovery":{
-                    "Citations per Faculty":100,
-                    "Academic Reputation":99.18
-                },
-                "Learning Experience":{
-                    "Faculty Student Ratio":98
-                },
-                "Employability":{
-                    "Employer Reputation": 98,
-                    "Graduate Outcomes": 95,
-                },
-                "Global Engagement":{
-                    "International Student Ratio": 98,
-                    "International Research Network": 95,
-                    "International Faculty Ratio": 95,
-                    "International Student Diversity": 95
-                },
-                "Sustainability":{
-                    "Sustainability Score": 95
-                }
-            }
-        },
-        {   
-            'id':4,
-            'rank': 4,
-            'overall_score': 99.636,
-            'name': "Imperial College London",
-            'city': 'London',
-            'country': "United Kingdom",
-            'logo': "https://www.topuniversities.com/sites/default/files/240430033452pm869301QS-Imperial-Logo-white-text-blue-background-90x90.jpg",
-            'score': {
-                "Research & Discovery":{
-                    "Citations per Faculty":100,
-                    "Academic Reputation":99.18
-                },
-                "Learning Experience":{
-                    "Faculty Student Ratio":98
-                },
-                "Employability":{
-                    "Employer Reputation": 98,
-                    "Graduate Outcomes": 95,
-                },
-                "Global Engagement":{
-                    "International Student Ratio": 98,
-                    "International Research Network": 95,
-                    "International Faculty Ratio": 95,
-                    "International Student Diversity": 95
-                },
-                "Sustainability":{
-                    "Sustainability Score": 95
-                }
-            }
-        },
-        {   
-            'id':5,
-            'rank': 5,
-            'overall_score': 99.636,
-            'name': "Imperial College London",
-            'city': 'London',
-            'country': "United Kingdom",
-            'logo': "https://www.topuniversities.com/sites/default/files/240430033452pm869301QS-Imperial-Logo-white-text-blue-background-90x90.jpg",
-            'score': {
-                "Research & Discovery":{
-                    "Citations per Faculty":100,
-                    "Academic Reputation":99.18
-                },
-                "Learning Experience":{
-                    "Faculty Student Ratio":98
-                },
-                "Employability":{
-                    "Employer Reputation": 98,
-                    "Graduate Outcomes": 95,
-                },
-                "Global Engagement":{
-                    "International Student Ratio": 98,
-                    "International Research Network": 95,
-                    "International Faculty Ratio": 95,
-                    "International Student Diversity": 95
-                },
-                "Sustainability":{
-                    "Sustainability Score": 95
-                }
-            }
-        },
-        {   
-            'id':6,
-            'rank': 6,
-            'overall_score': 99.636,
-            'name': "Imperial College London",
-            'city': 'London',
-            'country': "United Kingdom",
-            'logo': "https://www.topuniversities.com/sites/default/files/240430033452pm869301QS-Imperial-Logo-white-text-blue-background-90x90.jpg",
-            'score': {
-                "Research & Discovery":{
-                    "Citations per Faculty":100,
-                    "Academic Reputation":99.18
-                },
-                "Learning Experience":{
-                    "Faculty Student Ratio":98
-                },
-                "Employability":{
-                    "Employer Reputation": 98,
-                    "Graduate Outcomes": 95,
-                },
-                "Global Engagement":{
-                    "International Student Ratio": 98,
-                    "International Research Network": 95,
-                    "International Faculty Ratio": 95,
-                    "International Student Diversity": 95
-                },
-                "Sustainability":{
-                    "Sustainability Score": 95
-                }
-            }
-        }
-    ]
+            for x in crawl_data[i*10:i*10+10]:
+                data['id'] = x[0]
+                data['rank'] = x[1]
+                data['overall_score'] = x[2]
+                data['name'] = x[3]
+                data['city'] = x[4]
+                data['country'] = x[5]
+                data['logo'] = x[6]
+                data['score'][x[7]][x[8]] = x[9]
+            uni_data.append(data)
+        global universities_data
+        universities_data = uni_data
+        number_of_Results.config(text=f"{len(universities_data)} Results")
+        for data in universities_data:
+            shortList_var = tk.IntVar()
+            compare_var = tk.IntVar()
+            short_list[data['id']] = shortList_var
+            compare_list[data['id']] = compare_var
+        render_university_list()
+
+    entry_search.bind("<Return>", crawl_data_with_name)
+    universities_data = crawl_data()
+    number_of_Results.config(text=f"{len(universities_data)} Results")
     for data in universities_data:
         shortList_var = tk.IntVar()
         compare_var = tk.IntVar()
@@ -671,8 +656,7 @@ def create_ui():
     unversities_card_frame = tk.Frame(content_frame, bg="#f8f9fa", padx=50, pady=10)
     unversities_card_frame.pack(fill='x')
 
-    for data in universities_data:
-        create_university_block(unversities_card_frame,data)
+    
         # create_university_block(main_content_frame,data)    
 
     # ===================== Phân trang =================
@@ -760,6 +744,14 @@ def create_ui():
             render_university_list()
     render_pagination_bar()
 
+    per_page = results_per_page.get()
+    page = current_page.get()
+
+    start = (page - 1) * per_page
+    end = start + per_page
+
+    for data in universities_data[start:end]:
+        create_university_block(unversities_card_frame,data)
     # ===============================================
     # Phần Footer
     # ===============================================
