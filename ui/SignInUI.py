@@ -1,10 +1,19 @@
+
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from PIL import Image, ImageTk
+from ui.session import session
+from ui.HomePageUI import create_ui as home_page_ui
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-import sys, os
-from PIL import Image, ImageTk
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-# from controller import UserController
+from controller.AuthController import AuthController
+def open_main_menu():
+    if session["role_type"] == 2:
+        #adminui()
+        return
+    else:
+        home_page_ui()
 
 def create_ui():
     root = tk.Tk()
@@ -158,18 +167,20 @@ def create_ui():
 
     # Hàng 8: Nút "Đăng nhập"
     def on_signin_click():
-    #     email = entries[0].get()
-    #     password = entries[1].get()
+        email = entries[0].get()
+        password = entries[1].get()
         
-    #     # Gọi controller để kiểm tra đăng nhập
-    #     success, message = controller.login_user(email, password)
+        # Gọi controller để kiểm tra đăng nhập
+        success, message = AuthController.login(email, password)
         
-    #     if success:
-    #         messagebox.showinfo("Thành công", message)
-    #         entries[0].delete(0, tk.END)
-    #         entries[1].delete(0, tk.END)
-    #     else:
-    #         messagebox.showerror("Lỗi", message)
+        if success:
+            messagebox.showinfo("Thành công", message)
+            root.destroy()
+            open_main_menu()
+            entries[0].delete(0, tk.END)
+            entries[1].delete(0, tk.END)
+        else:
+            messagebox.showerror("Lỗi", message)
         return
     
     signin_button = tk.Button(right_frame, text="Đăng nhập", bg="#1F3AB0", fg="white", 
