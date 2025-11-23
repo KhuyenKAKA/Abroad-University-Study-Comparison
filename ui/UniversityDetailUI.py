@@ -44,15 +44,19 @@ def create_header(root):
     
     tk.Label(nav_frame, text="UniCompare", font=("Arial", 16, "bold"), fg="#1e90ff", bg="white").grid(row=0, column=0, padx=(20, 50), pady=10, sticky="w")
     
-    menu_items = ["Rankings", "Discover", "Events", "Prepare", "Scholarships", "Chat To Students"]
-    
-    for i, item in enumerate(menu_items):
-        tk.Button(nav_frame, text=item, font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=i+1, padx=5, pady=10, sticky="w")
+    menu_items = ["Xếp hạng", "Khám phá", "Sự kiện", "Chuẩn bị", "Học bổng", "Chat với AI"]
+    btnRankings =tk.Button(nav_frame, text=menu_items[0], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=1, padx=5, pady=10, sticky="e", in_=nav_frame)
+    btnDiscover = tk.Button(nav_frame, text=menu_items[1], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=2, padx=5, pady=10, sticky="e", in_=nav_frame)
+    btnEvents = tk.Button(nav_frame, text=menu_items[2], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=3, padx=5, pady=10, sticky="e", in_=nav_frame)
+    btnPrepare = tk.Button(nav_frame, text=menu_items[3], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=4, padx=5, pady=10, sticky="e", in_=nav_frame)
+    btnScholarships = tk.Button(nav_frame, text=menu_items[4], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=5, padx=5, pady=10, sticky="e", in_=nav_frame)
+    btnChatToStudents = tk.Button(nav_frame, text=menu_items[5], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=6, padx=5, pady=10, sticky="e", in_=nav_frame)
+
     
     right_nav_frame = tk.Frame(nav_frame, bg="white")
     right_nav_frame.grid(row=0, column=7, sticky="e", padx=(0, 20))
 
-    tk.Button(right_nav_frame, text="Free Counselling", foreground='white', background='#28a745', relief="flat").pack(side='left', padx=5)
+    tk.Button(right_nav_frame, text="Tư vấn miễn phí", foreground='white', background='#28a745', relief="flat").pack(side='left', padx=5)
     
     search_path = "assets/search.png"
     try:
@@ -67,8 +71,8 @@ def create_header(root):
     except Exception:
         tk.Label(right_nav_frame, text="🔍", font=("Arial", 16), bg="white").pack(side='left', padx=5)
     
-    tk.Button(right_nav_frame, text="Login", foreground='white', background="#1F3AB0", relief="flat").pack(side='left', padx=5)
-    tk.Button(right_nav_frame, text="Sign Up", foreground='white', background="#1F3AB0", relief="flat").pack(side='left', padx=5)
+    tk.Button(right_nav_frame, text="Đăng nhập", foreground='white', background="#1F3AB0", relief="flat").pack(side='left', padx=5)
+    tk.Button(right_nav_frame, text="Đăng ký", foreground='white', background="#1F3AB0", relief="flat").pack(side='left', padx=5)
 
 # ===============================================
 # Hàm tạo Footer
