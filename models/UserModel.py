@@ -21,10 +21,10 @@ class UserModel:
         hashed_password = UserModel.hash_password(password)
         cursor.execute(sql, (first_name, last_name, email, hashed_password, now, now, role_type))
         conn.commit()
-
+        new_user_id = cursor.lastrowid
         cursor.close()
         conn.close()
-        return True
+        return True, new_user_id
     @staticmethod
     def delete_user(user_id):
         conn = get_connection()
@@ -146,3 +146,23 @@ class UserModel:
 
         except Exception as e:
             return False, f"Lỗi DB: {str(e)}"
+    def get_pass_by_id(user_id):
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, password FROM users WHERE id = %s", (user_id,))
+        row = cursor.fetchone()
+
+        if row:
+            return {"id": row[0], "password": row[1]}
+        return None
+
+    def update_password(user_id, new_hash):
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET password = %s WHERE id = %s", (new_hash, user_id))
+        conn.commit()
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return True, "Cập nhật mật khẩu thành công"
+        

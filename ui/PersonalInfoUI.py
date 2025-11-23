@@ -6,6 +6,7 @@ from PIL import Image, ImageTk
 import ui.session as session_data
 from controller.UserController import UserController
 from controller.CountryController import CountryController
+from controller.AuthController import AuthController
 user_now = UserController.get_current_user()
 from datetime import datetime, date
 class PersonalInfoForm:
@@ -334,26 +335,88 @@ class PersonalInfoForm:
 
     def logout_action(self):
         if messagebox.askyesno("Xác nhận", "Bạn có chắc chắn muốn đăng xuất không?"):
+            AuthController.logout()
+            from ui.HomePageUI import create_ui as create_ui
             self.root.destroy()
+            create_ui()
+            print(session_data.session)
 
+    # 
     def show_change_password(self):
         for widget in self.main_content.winfo_children():
             widget.destroy()
 
-        tk.Label(self.main_content, text="Đổi mật khẩu", bg="#f5f7fa", font=("Segoe UI", 22, "bold")).pack(anchor="w",
-                                                                                                           pady=(0, 25))
+        tk.Label(self.main_content, text="Đổi mật khẩu",
+                bg="#f5f7fa", font=("Segoe UI", 22, "bold")).pack(anchor="w", pady=(0, 25))
+
         pass_form = tk.Frame(self.main_content, bg="#f5f7fa")
         pass_form.pack(fill='both', expand=True)
 
-        for label in ["Mật khẩu hiện tại*", "Mật khẩu mới*", "Xác nhận mật khẩu mới*"]:
+        labels = ["Mật khẩu hiện tại*", "Mật khẩu mới*", "Xác nhận mật khẩu mới*"]
+        self.password_entries = []  # LƯU ENTRY LẠI
+
+        for label in labels:
             container = tk.Frame(pass_form, bg="#f5f7fa")
             container.pack(fill=tk.X, pady=(0, 15))
-            tk.Label(container, text=label, bg="#f5f7fa", font=("Segoe UI", 9)).pack(anchor="w", pady=(0, 5))
-            tk.Entry(container, show="*", font=("Segoe UI", 10), relief="solid", bd=0, highlightthickness=1).pack(
-                fill="x", ipady=10)
 
-        tk.Button(pass_form, text="Cập nhật", bg="#1F3AB0", fg="white", font=("Segoe UI", 10, "bold"), padx=35, pady=12,
-                  command=lambda: messagebox.showinfo("Success", "Đổi mật khẩu thành công")).pack(anchor="w", pady=20)
+            tk.Label(container, text=label, bg="#f5f7fa", font=("Segoe UI", 9)).pack(anchor="w", pady=(0, 5))
+
+            entry = tk.Entry(container, show="*", font=("Segoe UI", 10),
+                            relief="solid", bd=0, highlightthickness=1)
+            entry.pack(fill="x", ipady=10)
+
+            self.password_entries.append(entry)
+
+        tk.Button(
+            pass_form,
+            text="Cập nhật",
+            bg="#1F3AB0",
+            fg="white",
+            font=("Segoe UI", 10, "bold"),
+            padx=35,
+            pady=12,
+            command=self.update_password
+        ).pack(anchor="w", pady=20)
+
+    def update_password(self):
+        current_pw = self.password_entries[0].get().strip()
+        new_pw = self.password_entries[1].get().strip()
+        confirm_pw = self.password_entries[2].get().strip()
+
+        # 1. Kiểm tra nhập đủ
+        if not current_pw or not new_pw or not confirm_pw:
+            messagebox.showerror("Lỗi", "Vui lòng nhập đầy đủ thông tin.")
+            return
+
+        # 2. Kiểm tra xác nhận mật khẩu
+        if new_pw != confirm_pw:
+            messagebox.showerror("Lỗi", "Mật khẩu mới và xác nhận không khớp.")
+            return
+
+        # 3. Lấy hash mật khẩu hiện tại từ DB
+        user_id = session_data.session.get("user_id")
+        user_pass = UserController.get_pass_by_id(user_id)
+        if not user_pass:
+            messagebox.showerror("Lỗi", "Không tìm thấy tài khoản.")
+            return
+
+        stored_hashed_pw = user_pass['password']  # mật khẩu hash trong DB
+
+        # 4. Xác thực mật khẩu hiện tại
+        if not UserController.verify_password(current_pw, stored_hashed_pw):
+            messagebox.showerror("Lỗi", "Mật khẩu hiện tại không chính xác.")
+            return
+
+        # 5. Hash mật khẩu mới
+        new_hashed_pw = UserController.hash_password(new_pw)
+
+        # 6. Update mật khẩu trong DB
+        success, msg = UserController.update_password(user_id, new_hashed_pw)
+        if not success:
+            messagebox.showerror("Lỗi", f"Cập nhật mật khẩu thất bại: {msg}")
+            return
+        else:
+            messagebox.showinfo("Thành công",msg)
 
     def open_academic_view(self):
         try:

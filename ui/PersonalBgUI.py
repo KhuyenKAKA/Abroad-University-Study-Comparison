@@ -1,12 +1,18 @@
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import tkinter as tk
 from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
-
-
+import ui.session as session_data
+from controller.StudyBGController import StudyBGController
+from controller.UserController import UserController 
+from controller.AuthController import AuthController
 class AcademicInfoForm:
     def __init__(self, root):
         self.root = root
         self.root.title("UniCompare - Lý lịch học tập")
+        self.study_bg = StudyBGController.get_current_user_bg()
+        print("Loaded study background:", self.study_bg)
 
         for widget in self.root.winfo_children():
             widget.destroy()
@@ -15,7 +21,24 @@ class AcademicInfoForm:
         self.root.configure(bg="#f8f9fa")
         self.is_submenu_visible = False
         self.images_reference = []
+        self.level_entry = None
+        self.major_entry = None
+        self.academic_rate_entry = None
+        self.gpa_entry = None       
+        self.graduate_year_entry = None
+        self.act_entry = None
+        self.gmat_entry = None
+        self.sat_entry = None
+        self.cat_entry = None
+        self.gre_entry = None
+        self.stat_entry = None
+        self.inter_bac_entry = None
+        self.ielts_entry = None
+        self.toefl_entry = None
+        self.pearson_entry = None
+        self.cam_entry = None
         self.create_layout()
+        self.fill_data()
 
     def create_layout(self):
         # header/nar
@@ -109,17 +132,17 @@ class AcademicInfoForm:
         qual_frame.pack(fill=tk.X, pady=(0, 15))
         qual_frame.columnconfigure(0, weight=1)
         qual_frame.columnconfigure(1, weight=1)
-        self.create_labeled_input(qual_frame, "Trình độ cao nhất", 0)
-        self.create_labeled_input(qual_frame, "Chuyên ngành", 1)
+        self.level_entry = self.create_labeled_input(qual_frame, "Trình độ cao nhất", 0)
+        self.major_entry = self.create_labeled_input(qual_frame, "Chuyên ngành", 1)
 
         score_frame = tk.Frame(self.main_content, bg="#f5f7fa")
         score_frame.pack(fill=tk.X, pady=(0, 15))
         score_frame.columnconfigure(0, weight=1)
         score_frame.columnconfigure(1, weight=1)
         score_frame.columnconfigure(2, weight=1)
-        self.create_labeled_input(score_frame, "Xếp loại", 0)
-        self.create_labeled_input(score_frame, "Điểm số", 1)
-        self.create_labeled_input(score_frame, "Năm tốt nghiệp", 2)
+        self.academic_rate_entry = self.create_labeled_input(score_frame, "Xếp loại", 0)
+        self.gpa_entry = self.create_labeled_input(score_frame, "Điểm số", 1)
+        self.graduate_year_entry = self.create_labeled_input(score_frame, "Năm tốt nghiệp", 2)
 
         # --- Điểm thi học thuật ---
         tk.Label(self.main_content, text="ĐIỂM THI HỌC THUẬT", bg="#f5f7fa", fg="#666",
@@ -127,16 +150,16 @@ class AcademicInfoForm:
 
         test_frame1 = tk.Frame(self.main_content, bg="#f5f7fa")
         test_frame1.pack(anchor="w", pady=(0, 15))
-        self.create_score_box(test_frame1, "ACT", width=8)
-        self.create_score_box(test_frame1, "GMAT", width=8)
-        self.create_score_box(test_frame1, "SAT", width=8)
-        self.create_score_box(test_frame1, "CAT", width=8)
-        self.create_score_box(test_frame1, "GRE", width=8)
-        self.create_score_box(test_frame1, "STAT", width=8)
+        self.act_entry = self.create_score_box(test_frame1, "ACT", width=8)
+        self.gmat_entry = self.create_score_box(test_frame1, "GMAT", width=8)
+        self.sat_entry = self.create_score_box(test_frame1, "SAT", width=8)
+        self.cat_entry = self.create_score_box(test_frame1, "CAT", width=8)
+        self.gre_entry = self.create_score_box(test_frame1, "GRE", width=8)
+        self.stat_entry = self.create_score_box(test_frame1, "STAT", width=8)
 
         test_frame2 = tk.Frame(self.main_content, bg="#f5f7fa")
         test_frame2.pack(anchor="w", pady=(0, 15))
-        self.create_score_box(test_frame2, "International Baccalaureat", width=25)
+        self.inter_bac_entry = self.create_score_box(test_frame2, "International Baccalaureat", width=25)
 
         # --- Điểm thi tiếng Anh ---
         tk.Label(self.main_content, text="ĐIỂM THI TIẾNG ANH", bg="#f5f7fa", fg="#666",
@@ -144,15 +167,13 @@ class AcademicInfoForm:
 
         english_frame = tk.Frame(self.main_content, bg="#f5f7fa")
         english_frame.pack(anchor="w", pady=(0, 15))
-        self.create_score_box(english_frame, "IELTS", width=10)
-        self.create_score_box(english_frame, "TOEFL", width=10)
-        self.create_score_box(english_frame, "Pearson Test", width=15)
-        self.create_score_box(english_frame, "Cambridge Advanced Test", width=25)
+        self.ielts_entry = self.create_score_box(english_frame, "IELTS", width=10)
+        self.toefl_entry = self.create_score_box(english_frame, "TOEFL", width=10)
+        self.pearson_entry = self.create_score_box(english_frame, "Pearson Test", width=15)
+        self.cam_entry = self.create_score_box(english_frame, "Cambridge Advanced Test", width=25)
 
         tk.Button(self.main_content, text="Lưu thay đổi", bg="#1F3AB0", fg="white", font=("Segoe UI", 10, "bold"), bd=0,
-                  padx=35, pady=12, cursor="hand2",
-                  command=lambda: messagebox.showinfo("Thành công", "Đã lưu thay đổi thành công!")).pack(anchor="e",
-                                                                                                         pady=(20, 0))
+                  padx=35, pady=12, cursor="hand2",command=self.save_changes).pack(anchor="e", pady=(20, 0))
 
         self.create_new_footer(content_frame)
 
@@ -234,26 +255,108 @@ class AcademicInfoForm:
 
     def logout_action(self):
         if messagebox.askyesno("Xác nhận", "Bạn có chắc chắn muốn đăng xuất không?"):
+            AuthController.logout()
+            from ui.HomePageUI import create_ui as create_ui
             self.root.destroy()
+            create_ui()
+            print(session_data.session)
+            
 
+
+    # def show_change_password(self):
+    #     for widget in self.main_content.winfo_children():
+    #         widget.destroy()
+
+    #     tk.Label(self.main_content, text="Đổi mật khẩu", bg="#f5f7fa", font=("Segoe UI", 22, "bold")).pack(anchor="w",
+    #                                                                                                        pady=(0, 25))
+    #     pass_form = tk.Frame(self.main_content, bg="#f5f7fa")
+    #     pass_form.pack(fill='both', expand=True)
+
+    #     for label in ["Mật khẩu hiện tại*", "Mật khẩu mới*", "Xác nhận mật khẩu mới*"]:
+    #         container = tk.Frame(pass_form, bg="#f5f7fa")
+    #         container.pack(fill=tk.X, pady=(0, 15))
+    #         tk.Label(container, text=label, bg="#f5f7fa", font=("Segoe UI", 9)).pack(anchor="w", pady=(0, 5))
+    #         tk.Entry(container, show="*", font=("Segoe UI", 10), relief="solid", bd=0, highlightthickness=1).pack(
+    #             fill="x", ipady=10)
+
+    #     tk.Button(pass_form, text="Cập nhật", bg="#1F3AB0", fg="white", font=("Segoe UI", 10, "bold"), padx=35, pady=12,
+    #               command=lambda: messagebox.showinfo("Success", "Đổi mật khẩu thành công")).pack(anchor="w", pady=20)
     def show_change_password(self):
         for widget in self.main_content.winfo_children():
             widget.destroy()
 
-        tk.Label(self.main_content, text="Đổi mật khẩu", bg="#f5f7fa", font=("Segoe UI", 22, "bold")).pack(anchor="w",
-                                                                                                           pady=(0, 25))
+        tk.Label(self.main_content, text="Đổi mật khẩu",
+                bg="#f5f7fa", font=("Segoe UI", 22, "bold")).pack(anchor="w", pady=(0, 25))
+
         pass_form = tk.Frame(self.main_content, bg="#f5f7fa")
         pass_form.pack(fill='both', expand=True)
 
-        for label in ["Mật khẩu hiện tại*", "Mật khẩu mới*", "Xác nhận mật khẩu mới*"]:
+        labels = ["Mật khẩu hiện tại*", "Mật khẩu mới*", "Xác nhận mật khẩu mới*"]
+        self.password_entries = []  # LƯU ENTRY LẠI
+
+        for label in labels:
             container = tk.Frame(pass_form, bg="#f5f7fa")
             container.pack(fill=tk.X, pady=(0, 15))
-            tk.Label(container, text=label, bg="#f5f7fa", font=("Segoe UI", 9)).pack(anchor="w", pady=(0, 5))
-            tk.Entry(container, show="*", font=("Segoe UI", 10), relief="solid", bd=0, highlightthickness=1).pack(
-                fill="x", ipady=10)
 
-        tk.Button(pass_form, text="Cập nhật", bg="#1F3AB0", fg="white", font=("Segoe UI", 10, "bold"), padx=35, pady=12,
-                  command=lambda: messagebox.showinfo("Success", "Đổi mật khẩu thành công")).pack(anchor="w", pady=20)
+            tk.Label(container, text=label, bg="#f5f7fa", font=("Segoe UI", 9)).pack(anchor="w", pady=(0, 5))
+
+            entry = tk.Entry(container, show="*", font=("Segoe UI", 10),
+                            relief="solid", bd=0, highlightthickness=1)
+            entry.pack(fill="x", ipady=10)
+
+            self.password_entries.append(entry)
+
+        tk.Button(
+            pass_form,
+            text="Cập nhật",
+            bg="#1F3AB0",
+            fg="white",
+            font=("Segoe UI", 10, "bold"),
+            padx=35,
+            pady=12,
+            command=self.update_password
+        ).pack(anchor="w", pady=20)
+
+    def update_password(self):
+        current_pw = self.password_entries[0].get().strip()
+        new_pw = self.password_entries[1].get().strip()
+        confirm_pw = self.password_entries[2].get().strip()
+
+        # 1. Kiểm tra nhập đủ
+        if not current_pw or not new_pw or not confirm_pw:
+            messagebox.showerror("Lỗi", "Vui lòng nhập đầy đủ thông tin.")
+            return
+
+        # 2. Kiểm tra xác nhận mật khẩu
+        if new_pw != confirm_pw:
+            messagebox.showerror("Lỗi", "Mật khẩu mới và xác nhận không khớp.")
+            return
+
+        # 3. Lấy hash mật khẩu hiện tại từ DB
+        user_id = session_data.session.get("user_id")
+        user_pass = UserController.get_pass_by_id(user_id)
+        if not user_pass:
+            messagebox.showerror("Lỗi", "Không tìm thấy tài khoản.")
+            return
+
+        stored_hashed_pw = user_pass['password']  # mật khẩu hash trong DB
+
+        # 4. Xác thực mật khẩu hiện tại
+        if not UserController.verify_password(current_pw, stored_hashed_pw):
+            messagebox.showerror("Lỗi", "Mật khẩu hiện tại không chính xác.")
+            return
+
+        # 5. Hash mật khẩu mới
+        new_hashed_pw = UserController.hash_password(new_pw)
+
+        # 6. Update mật khẩu trong DB
+        success, msg = UserController.update_password(user_id, new_hashed_pw)
+        if not success:
+            messagebox.showerror("Lỗi", f"Cập nhật mật khẩu thất bại: {msg}")
+            return
+        else:
+            messagebox.showinfo("Thành công",msg)
+
 
     def go_back_to_personal(self):
         try:
@@ -262,7 +365,134 @@ class AcademicInfoForm:
         except ImportError:
             messagebox.showerror("Lỗi", "Không tìm thấy file main.py")
 
+    def fill_data(self):
+        """Populate entries from self.user (dict) if available"""
+        if not self.study_bg:
+            return
+        u = self.study_bg
+        # user dict keys are expected to match DB columns
+        try:
+            if u.get('level') is not None:
+                self.level_entry.delete(0, tk.END)
+                self.level_entry.insert(0, u.get('level') or "")
 
+
+            if u.get('major') is not None:
+                self.major_entry.delete(0, tk.END)
+                self.major_entry.insert(0, u.get('major') or "")
+
+
+            if u.get('academic_rate') is not None:
+                self.academic_rate_entry.delete(0, tk.END)
+                self.academic_rate_entry.insert(0, u.get('academic_rate') or "")
+
+
+            if u.get('gpa') is not None:
+                self.gpa_entry.delete(0, tk.END)
+                self.gpa_entry.insert(0, u.get('gpa') or "")
+
+
+            if u.get('graduate_year') is not None:
+                self.graduate_year_entry.delete(0, tk.END)
+                self.graduate_year_entry.insert(0, u.get('graduate_year') or "")
+
+            if u.get('act'):
+                self.act_entry.delete(0, tk.END)
+                self.act_entry.insert(0, u.get('act') or "")
+
+
+            if u.get('gmat') is not None:
+                self.gmat_entry.delete(0, tk.END)
+                self.gmat_entry.insert(0, u.get('gmat') or "")
+
+
+            if u.get('sat') is not None:
+                self.sat_entry.delete(0, tk.END)
+                self.sat_entry.insert(0, u.get('sat') or "")
+
+
+            if u.get('cat') is not None:
+                self.cat_entry.delete(0, tk.END)
+                self.cat_entry.insert(0, u.get('cat') or "")
+
+
+            if u.get('gre') is not None:
+                self.gre_entry.delete(0, tk.END)
+                self.gre_entry.insert(0, u.get('gre') or "")
+
+
+            if u.get('stat') is not None:
+                self.stat_entry.delete(0, tk.END)
+                self.stat_entry.insert(0, u.get('stat') or "")
+
+
+            if u.get('ielts') is not None:
+                self.ielts_entry.delete(0, tk.END)
+                self.ielts_entry.insert(0, u.get('ielts') or "")
+            if u.get('toefl') is not None:
+                self.toefl_entry.delete(0, tk.END)
+                self.toefl_entry.insert(0, u.get('toefl') or "")    
+            if u.get('pearson_test') is not None:
+                self.pearson_entry.delete(0, tk.END)
+                self.pearson_entry.insert(0, u.get('pearson_test') or "")
+            if u.get('cam_adv_test') is not None:
+                self.cam_entry.delete(0, tk.END)
+                self.cam_entry.insert(0, u.get('cam_adv_test') or "")
+            if u.get('inter_bac') is not None:
+                self.inter_bac_entry.delete(0, tk.END)
+                self.inter_bac_entry.insert(0, u.get('inter_bac') or "")
+        except Exception as e:
+            print("Lỗi khi fill dữ liệu study bg:", e)
+    def save_changes(self):
+        """Save study background changes to database"""
+        try:
+            payload = {
+                'level': self.level_entry.get().strip() or None,
+                'major': self.major_entry.get().strip() or None,
+                'academic_rate': self.academic_rate_entry.get().strip() or None,
+
+                'gpa': to_float(self.gpa_entry.get().strip()),
+                'graduate_year': to_int(self.graduate_year_entry.get().strip()),
+
+                'act': to_float(self.act_entry.get().strip()),
+                'gmat': to_float(self.gmat_entry.get().strip()),
+                'sat': to_float(self.sat_entry.get().strip()),
+                'cat': to_float(self.cat_entry.get().strip()),
+                'gre': to_float(self.gre_entry.get().strip()),
+                'stat': to_float(self.stat_entry.get().strip()),
+
+                'ielts': to_float(self.ielts_entry.get().strip()),
+                'toefl': to_float(self.toefl_entry.get().strip()),
+                'pearson_test': to_float(self.pearson_entry.get().strip()),
+                'cam_adv_test': to_float(self.cam_entry.get().strip()),
+                'inter_bac': to_float(self.inter_bac_entry.get().strip()),
+
+                'user_id': session_data.session.get("user_id")
+            }
+
+
+            print("\nPayload study_bg:", payload)
+
+            # Gọi controller cập nhật
+            success, msg = StudyBGController.update_bg(payload)
+
+            if success:
+                messagebox.showinfo("Thành công", msg)
+
+                # load lại study background mới
+                self.study_bg = StudyBGController.get_current_user_bg()
+                self.fill_data()
+            else:
+                messagebox.showerror("Lỗi", msg)
+
+        except Exception as e:
+            messagebox.showerror("Lỗi", f"Không thể lưu thay đổi!\n{e}")
+            print("Lỗi save_changes study bg:", e)
+def to_float(value):
+    return float(value) if value not in ("", None) else None
+
+def to_int(value):
+    return int(value) if value not in ("", None) else None
 if __name__ == "__main__":
     root = tk.Tk()
     app = AcademicInfoForm(root)

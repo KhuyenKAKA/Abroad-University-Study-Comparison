@@ -177,14 +177,17 @@ def create_ui():
         
         if success:
             messagebox.showinfo("Thành công", message)
-            root.destroy()
-            open_main_menu()
+
+            # Nếu bạn muốn clear entry trước khi đóng cửa sổ
             entries[0].delete(0, tk.END)
             entries[1].delete(0, tk.END)
+
+            root.destroy()          # đóng cửa sổ
+            open_main_menu()        # mở giao diện mới
+
         else:
             messagebox.showerror("Lỗi", message)
-        return
-    
+
     signin_button = tk.Button(right_frame, text="Đăng nhập", bg="#1F3AB0", fg="white", 
                              font=("Arial", 11, "bold"), bd=0, padx=10, pady=8, 
                              command=on_signin_click)

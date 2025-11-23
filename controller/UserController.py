@@ -1,6 +1,7 @@
 from models.UserModel import UserModel
 import re
 import ui.session as session_data
+from controller.StudyBGController import StudyBGController
 class UserController:
     @staticmethod
     def add_user(first_name, last_name, email, password, confirm_password):
@@ -30,10 +31,14 @@ class UserController:
             return False, "Password phải ≥ 6 ký tự"
         # -- Thêm user --
         try:
-            UserModel.create_user(first_name, last_name, email, password)
+            success, user_id = UserModel.create_user(first_name, last_name, email, password)
+            if not success:
+                return False, "Đăng ký không thành công, vui lòng thử lại!" 
+            StudyBGController.create_bg(user_id)
             return True, " Đăng ký thành công!"
         except Exception as e:
             return False, f"Lỗi DB: {str(e)}"
+        
     def update_user(data):
         return UserModel.update_user(data)
     def get_user_by_email(email):
@@ -47,6 +52,14 @@ class UserController:
             return None
         user = UserModel.get_user_by_id(user_id)
         return user
+    def get_pass_by_id(user_id):
+        return UserModel.get_pass_by_id(user_id)
+    def verify_password(plain_password, hashed_password):
+        return UserModel.verify_password(plain_password, hashed_password)
+    def hash_password(password):
+        return UserModel.hash_password(password)
+    def update_password(user_id, new_hashed_password):
+        return UserModel.update_password(user_id, new_hashed_password)
 
 def validate_email(email):
     """Kiểm tra định dạng email hợp lệ"""
