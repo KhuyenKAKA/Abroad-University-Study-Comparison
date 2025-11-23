@@ -15,7 +15,13 @@ line_data = [
     {"name": "Trường 2", "SAT": 1250, "GRE": 315, "GMAT": 650, "ACT": 28, "ATAR": 80, "GPA": 3.2, "TOEFL": 100, "IELTS": 7.0},
     {"name": "Trường 3", "SAT": 1100, "GRE": 300, "GMAT": 580, "ACT": 26, "ATAR": 75, "GPA": 3.0, "TOEFL": 90, "IELTS": 6.0},
 ]
-
+table_data = [
+    {"name": "MIT",                         "fee": 100, "scholarship": 100,     "domestic": 100, "international": 100, "total_stu": 11500, "ug_rate": 60, "pg_rate": 40, "inter_total": 30, "inter_ug_rate": 20, "inter_pg_rate": 10},
+    {"name": "Imperial College London",     "fee": 95,  "scholarship": 99.6,    "domestic": 99.3, "international": 100, "total_stu": 19000, "ug_rate": 55, "pg_rate": 45, "inter_total": 35, "inter_ug_rate": 25, "inter_pg_rate": 10},
+    {"name": "Stanford University",         "fee": 98,  "scholarship": 98.5,    "domestic": 99.5, "international": 95, "total_stu": 17000, "ug_rate": 50, "pg_rate": 50, "inter_total": 25, "inter_ug_rate": 15, "inter_pg_rate": 10},
+    {"name": "ETH Zurich",                  "fee": 90,  "scholarship": 95,      "domestic": 100, "international": 90, "total_stu": 24000, "ug_rate": 65, "pg_rate": 35, "inter_total": 40, "inter_ug_rate": 30, "inter_pg_rate": 10},
+    {"name": "National University of SGP",  "fee": 92,  "scholarship": 97,      "domestic": 95, "international": 98, "total_stu": 35000, "ug_rate": 70, "pg_rate": 30, "inter_total": 20, "inter_ug_rate": 10, "inter_pg_rate": 10}
+]
 criteria = ["SAT", "GRE", "GMAT", "ACT", "ATAR", "GPA", "TOEFL", "IELTS"]
 def create_ui():
 
@@ -49,8 +55,8 @@ def create_ui():
     tk.Button(right_nav_frame, text="Tư vấn miễn phí",foreground='white', background='#28a745', ).pack(side='left', padx=5)
     
     try:
-        # img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
-        img = Image.open("assets/search.png")
+        img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
+        # img = Image.open("assets/search.png")
         img = img.resize((24, 24), Image.LANCZOS)
         search_photo = ImageTk.PhotoImage(img)
         tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
@@ -94,14 +100,198 @@ def create_ui():
     content_frame.grid_rowconfigure(2, weight=0) # Hàng 2: Footer (Weight 0 so it doesn't grow)
     content_frame.grid_columnconfigure(0, weight=1)
 
+    unversities_card_frame = tk.Frame(content_frame, bg="#f8f9fa", padx=50, pady=10)
+    unversities_card_frame.pack(fill='x')
+    def create_university_table_row(parent, data):
+        header = tk.Frame(unversities_card_frame, bg="#f0f0f0", bd=1, relief="solid")
+        header.pack(fill="x")
+
+        # # headers = ["Rank", "Logo", "University", "Location", "Overall Score"]
+        # # widths = [6, 10, 35, 25, 12]
+        # Re_Dis_frame = tk.Frame(header, bg="white")
+        # Re_Dis_frame.pack(side="left", fill='y')
+        # tk.Label(Re_Dis_frame,text="Overall Rank",font=("Arial", 10, "bold"),bg="white", width=10).pack(side="left", padx=5, pady=5)
+        tk.Label(header,text=data['name'],font=("Arial", 10, "bold"),bg="#f0f0f0", width=38).pack(side="left", padx=5, pady=5)
+        
+        Re_Dis_frame = tk.Frame(header, bg="white")
+        Re_Dis_frame.pack(side="left", fill='y')
+        # upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        # upper_frame.pack(fill='y',padx=5,pady=5)
+        fee_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        fee_frame.pack(fill='y',padx=5,pady=5,side='left')
+        tk.Label(fee_frame, text=data['fee'], font=("Arial", 8,), bg="white",width=10).pack(side="left")
+
+        Re_Dis_frame = tk.Frame(header, bg= '#f0f0f0')
+        Re_Dis_frame.pack(side="left", fill='y')
+        # tk.Label(upper_frame, text='Reserach & Discovery', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
+        Scholarship_frame = tk.Frame(Re_Dis_frame,bg= '#f0f0f0')
+        Scholarship_frame.pack(fill='y',padx=5,pady=5,side='left')
+        tk.Label(Scholarship_frame, text=data['scholarship'], font=("Arial", 8), bg= '#f0f0f0',width=10).pack(side="left")
+
+        Re_Dis_frame = tk.Frame(header, bg="white")
+        Re_Dis_frame.pack(side="left", fill='y')
+        # upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        # upper_frame.pack(fill='y',padx=5,pady=5)
+        fee_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        fee_frame.pack(fill='y',padx=5,pady=5,side='left')
+        tk.Label(fee_frame, text=data['domestic'], font=("Arial", 8,), bg="white",width=13).pack(side="left")
+
+        Re_Dis_frame = tk.Frame(header, bg= '#f0f0f0')
+        Re_Dis_frame.pack(side="left", fill='y')
+        # tk.Label(upper_frame, text='Reserach & Discovery', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
+        Scholarship_frame = tk.Frame(Re_Dis_frame,bg= '#f0f0f0')
+        Scholarship_frame.pack(fill='y',padx=5,pady=5,side='left')
+        tk.Label(Scholarship_frame, text=data['international'], font=("Arial", 8), bg= '#f0f0f0',width=13).pack(side="left")
+        
+        Re_Dis_frame = tk.Frame(header, bg="white")
+        Re_Dis_frame.pack(side="left", fill='y')
+        # upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        # upper_frame.pack(fill='y',padx=5,pady=5)
+        fee_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        fee_frame.pack(fill='y',padx=5,pady=5,side='left')
+        tk.Label(fee_frame, text=data['total_stu'], font=("Arial", 8,), bg="white",width=10).pack(side="left")
+
+        Re_Dis_frame = tk.Frame(header, bg= '#f0f0f0')
+        Re_Dis_frame.pack(side="left", fill='y')
+        # tk.Label(upper_frame, text='Reserach & Discovery', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
+        Scholarship_frame = tk.Frame(Re_Dis_frame,bg= '#f0f0f0')
+        Scholarship_frame.pack(fill='y',padx=5,pady=5,side='left')
+        tk.Label(Scholarship_frame, text=data['ug_rate'], font=("Arial", 8), bg= '#f0f0f0',width=15).pack(side="left")
+        
+        Re_Dis_frame = tk.Frame(header, bg="white")
+        Re_Dis_frame.pack(side="left", fill='y')
+        # upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        # upper_frame.pack(fill='y',padx=5,pady=5)
+        fee_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        fee_frame.pack(fill='y',padx=5,pady=5,side='left')
+        tk.Label(fee_frame, text=data['pg_rate'], font=("Arial", 8,), bg="white",width=20).pack(side="left")
+
+        Re_Dis_frame = tk.Frame(header, bg= '#f0f0f0')
+        Re_Dis_frame.pack(side="left", fill='y')
+        # tk.Label(upper_frame, text='Reserach & Discovery', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
+        Scholarship_frame = tk.Frame(Re_Dis_frame,bg= '#f0f0f0')
+        Scholarship_frame.pack(fill='y',padx=5,pady=5,side='left')
+        tk.Label(Scholarship_frame, text=data['inter_total'], font=("Arial", 8), bg= '#f0f0f0',width=15).pack(side="left")
+        
+        Re_Dis_frame = tk.Frame(header, bg="white")
+        Re_Dis_frame.pack(side="left", fill='y')
+        # upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        # upper_frame.pack(fill='y',padx=5,pady=5)
+        fee_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        fee_frame.pack(fill='y',padx=5,pady=5,side='left')
+        tk.Label(fee_frame, text=data['inter_ug_rate'], font=("Arial", 8,), bg="white",width=10).pack(side="left")
+
+        Re_Dis_frame = tk.Frame(header, bg= '#f0f0f0')
+        Re_Dis_frame.pack(side="left", fill='y')
+        # tk.Label(upper_frame, text='Reserach & Discovery', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
+        Scholarship_frame = tk.Frame(Re_Dis_frame,bg= '#f0f0f0')
+        Scholarship_frame.pack(fill='y',padx=5,pady=5,side='left')
+        tk.Label(Scholarship_frame, text=data['inter_pg_rate'], font=("Arial", 8), bg= '#f0f0f0',width=25).pack(side="left")
+
+
+    def render_table_view():
+        for widget in unversities_card_frame.winfo_children():
+            widget.destroy()
+
+        # Header Row
+        header = tk.Frame(unversities_card_frame, bg="#f0f0f0", bd=1, relief="solid")
+        header.pack(fill="x")
+
+        # # headers = ["Rank", "Logo", "University", "Location", "Overall Score"]
+        # # widths = [6, 10, 35, 25, 12]
+        # Re_Dis_frame = tk.Frame(header, bg="white")
+        # Re_Dis_frame.pack(side="left", fill='y')
+        # tk.Label(Re_Dis_frame,text="Overall Rank",font=("Arial", 10, "bold"),bg="white", width=10).pack(side="left", padx=5, pady=5)
+        tk.Label(header,text="Trường đại học",font=("Arial", 10, "bold"),bg="#f0f0f0", width=38).pack(side="left", padx=5, pady=5)
+        
+        Re_Dis_frame = tk.Frame(header, bg="white")
+        Re_Dis_frame.pack(side="left", fill='y')
+        # upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        # upper_frame.pack(fill='y',padx=5,pady=5)
+        fee_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        fee_frame.pack(fill='y',padx=5,pady=5,side='left')
+        tk.Label(fee_frame, text='Học phí', font=("Arial", 8,), bg="white",width=10).pack(side="left")
+
+        Re_Dis_frame = tk.Frame(header, bg= '#f0f0f0')
+        Re_Dis_frame.pack(side="left", fill='y')
+        # tk.Label(upper_frame, text='Reserach & Discovery', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
+        Scholarship_frame = tk.Frame(Re_Dis_frame,bg= '#f0f0f0')
+        Scholarship_frame.pack(fill='y',padx=5,pady=5,side='left')
+        tk.Label(Scholarship_frame, text='Học bổng', font=("Arial", 8), bg= '#f0f0f0',width=10).pack(side="left")
+
+        Re_Dis_frame = tk.Frame(header, bg="white")
+        Re_Dis_frame.pack(side="left", fill='y')
+        # upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        # upper_frame.pack(fill='y',padx=5,pady=5)
+        fee_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        fee_frame.pack(fill='y',padx=5,pady=5,side='left')
+        tk.Label(fee_frame, text='Tỉ lệ sinh viên\nnội địa', font=("Arial", 8,), bg="white",width=13).pack(side="left")
+
+        Re_Dis_frame = tk.Frame(header, bg= '#f0f0f0')
+        Re_Dis_frame.pack(side="left", fill='y')
+        # tk.Label(upper_frame, text='Reserach & Discovery', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
+        Scholarship_frame = tk.Frame(Re_Dis_frame,bg= '#f0f0f0')
+        Scholarship_frame.pack(fill='y',padx=5,pady=5,side='left')
+        tk.Label(Scholarship_frame, text='Tỉ lệ sinh viên\nquốc tế', font=("Arial", 8), bg= '#f0f0f0',width=13).pack(side="left")
+        
+        Re_Dis_frame = tk.Frame(header, bg="white")
+        Re_Dis_frame.pack(side="left", fill='y')
+        # upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        # upper_frame.pack(fill='y',padx=5,pady=5)
+        fee_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        fee_frame.pack(fill='y',padx=5,pady=5,side='left')
+        tk.Label(fee_frame, text='Tổng số\nsinh viên', font=("Arial", 8,), bg="white",width=10).pack(side="left")
+
+        Re_Dis_frame = tk.Frame(header, bg= '#f0f0f0')
+        Re_Dis_frame.pack(side="left", fill='y')
+        # tk.Label(upper_frame, text='Reserach & Discovery', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
+        Scholarship_frame = tk.Frame(Re_Dis_frame,bg= '#f0f0f0')
+        Scholarship_frame.pack(fill='y',padx=5,pady=5,side='left')
+        tk.Label(Scholarship_frame, text='Số lượng sinh viên', font=("Arial", 8), bg= '#f0f0f0',width=15).pack(side="left")
+        
+        Re_Dis_frame = tk.Frame(header, bg="white")
+        Re_Dis_frame.pack(side="left", fill='y')
+        # upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        # upper_frame.pack(fill='y',padx=5,pady=5)
+        fee_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        fee_frame.pack(fill='y',padx=5,pady=5,side='left')
+        tk.Label(fee_frame, text='Số lượng người học\nsau đại học', font=("Arial", 8,), bg="white",width=20).pack(side="left")
+
+        Re_Dis_frame = tk.Frame(header, bg= '#f0f0f0')
+        Re_Dis_frame.pack(side="left", fill='y')
+        # tk.Label(upper_frame, text='Reserach & Discovery', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
+        Scholarship_frame = tk.Frame(Re_Dis_frame,bg= '#f0f0f0')
+        Scholarship_frame.pack(fill='y',padx=5,pady=5,side='left')
+        tk.Label(Scholarship_frame, text='Tổng số sinh\nviên quốc tế', font=("Arial", 8), bg= '#f0f0f0',width=15).pack(side="left")
+        
+        Re_Dis_frame = tk.Frame(header, bg="white")
+        Re_Dis_frame.pack(side="left", fill='y')
+        # upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        # upper_frame.pack(fill='y',padx=5,pady=5)
+        fee_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        fee_frame.pack(fill='y',padx=5,pady=5,side='left')
+        tk.Label(fee_frame, text='Sinh viên\nquốc tế', font=("Arial", 8,), bg="white",width=10).pack(side="left")
+
+        Re_Dis_frame = tk.Frame(header, bg= '#f0f0f0')
+        Re_Dis_frame.pack(side="left", fill='y')
+        # tk.Label(upper_frame, text='Reserach & Discovery', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
+        Scholarship_frame = tk.Frame(Re_Dis_frame,bg= '#f0f0f0')
+        Scholarship_frame.pack(fill='y',padx=5,pady=5,side='left')
+        tk.Label(Scholarship_frame, text='Lượng người học chương\ntrình sau đại học quốc tế', font=("Arial", 8), bg= '#f0f0f0',width=25).pack(side="left")
+
+        for data in table_data:
+            create_university_table_row(unversities_card_frame, data)
+
+    render_table_view()
+
 
     frame_table = tk.Frame(content_frame, bg="#e8f0fe") 
 
-    frame_table.grid(row=0, column=0, sticky="nsew") 
+    frame_table.pack(fill='x') 
 
     frame_chart = tk.Frame(content_frame, bg="#dfe7fd")
 
-    frame_chart.grid(row=1, column=0, sticky="nsew") 
+    frame_chart.pack(fill='x') 
 
     draw_chart_in_frame(frame_chart, criteria, line_data)
 
@@ -111,7 +301,7 @@ def create_ui():
 
     footer_frame = tk.Frame(content_frame, bg="white", padx=50, pady=40)
 
-    footer_frame.grid(row=2, column=0, sticky="ew", pady=(10, 0))
+    footer_frame.pack(fill='x', pady=(20, 0))
     for i in range(5):
         footer_frame.grid_columnconfigure(i, weight=1 if i > 0 else 0) # Cột 0 là Logo, còn lại là menu
 
@@ -133,14 +323,14 @@ def create_ui():
     tk.Label(social_frame, text="Follow us", font=("Arial", 10, "bold"), bg="white").pack(side="left", padx=(0, 10))
     
     # Mô phỏng Social Icons (sử dụng Label với màu nền)
-    # social_icons = ["Abroad-University-Study-Comparison/assets/104498_facebook_icon.png", 
-    #                 "Abroad-University-Study-Comparison/assets/1161953_instagram_icon.png", 
-    #                 "Abroad-University-Study-Comparison/assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
-    #                 "Abroad-University-Study-Comparison/assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
-    social_icons = ["assets/104498_facebook_icon.png", 
-                    "assets/1161953_instagram_icon.png", 
-                    "assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
-                    "assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
+    social_icons = ["Abroad-University-Study-Comparison/assets/104498_facebook_icon.png", 
+                    "Abroad-University-Study-Comparison/assets/1161953_instagram_icon.png", 
+                    "Abroad-University-Study-Comparison/assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
+                    "Abroad-University-Study-Comparison/assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
+    # social_icons = ["assets/104498_facebook_icon.png", 
+    #                 "assets/1161953_instagram_icon.png", 
+    #                 "assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
+    #                 "assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
     
     for icon in social_icons:
         img = Image.open(icon)
