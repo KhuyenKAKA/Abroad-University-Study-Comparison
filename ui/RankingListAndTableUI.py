@@ -1,9 +1,15 @@
+import sys
+import os
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+)
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
 import requests 
 from io import BytesIO
-
+from controller.UniversityController import UniversityController
+from tkinter import messagebox as mess
 def create_ui():
     global current_view_mode
     current_view_mode = 1
@@ -40,8 +46,8 @@ def create_ui():
     
     try:
         # Giả sử bạn đã có file search.png trong thư mục assets
-        img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
-        # img = Image.open("assets/search.png")
+        # img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
+        img = Image.open("assets/search.png")
         img = img.resize((24, 24), Image.LANCZOS)
         search_photo = ImageTk.PhotoImage(img)
         tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
@@ -219,6 +225,15 @@ def create_ui():
             create_university_block(unversities_card_frame, data)
 
         render_pagination_bar()
+    
+    def take_compare_universities():
+        global compare_list
+        checked_list = [v for v in compare_list if compare_list[v].get()]
+        if len(checked_list)>1: 
+            pass
+        else:
+            mess.showwarning("Thông báo","Hãy chọn trường đại học để so sánh!")
+
     # Nút Quick View và Table View
     view_frame = tk.Frame(toolbar_frame, bg="#f8f9fa", bd=1, relief='solid')
     view_frame.pack(side="left", padx=(0, 20))
@@ -235,7 +250,8 @@ def create_ui():
     entry_search = tk.Entry(search_entry_frame, width=30, font=("Arial", 10), relief='flat')
     entry_search.pack(side="left", padx=5)
     
-    # Nút Apply Filters
+    # Nút Apply Filters & Compare
+    tk.Button(toolbar_frame, text="So sánh",command=take_compare_universities, fg="white", background="#0013e9", font=("Arial", 9, "bold"), relief='flat').pack(side="right",padx=(20,0))
     tk.Button(toolbar_frame, text="Apply Filters", fg="white", background="#1e90ff", font=("Arial", 9, "bold"), relief='flat').pack(side="right")
     number_of_Results = tk.Label(toolbar_frame, text="2 Results", font=("Arial", 10), fg="#555", bg="#f8f9fa") # Khoảng cách mô phỏng
     number_of_Results.pack(side="right", padx=(100, 20))
@@ -272,10 +288,21 @@ def create_ui():
 
     selected_mode.trace("w", on_sort_change)
     # 
-
+    global compare_list
+    global short_list
     compare_list = {}
     short_list = {}
     # # Khối thông tin Trường Đại học
+    def check_number_of_compare(current_compare):
+        global compare_list
+        checked = sum(v.get() for v in compare_list.values())
+        if checked > 5:
+            current_compare.set(0)
+            mess.showwarning("Đạt số lượng so sánh tối đa là 5!","Không thêm được các trường nữa")
+            
+    def link_to_detail(event,id):
+        pass
+    
     def create_university_block(parent,data):
         uni_block = tk.Frame(parent, bg="white", bd=1, relief='solid', padx=20, pady=15)
         uni_block.pack(fill='x', pady=15)
@@ -288,8 +315,11 @@ def create_ui():
         tk.Label(rank_score_frame, text=data['rank'], font=("Arial", 28, "bold"), fg="#333", bg="white").pack(anchor="w")
         
         tk.Label(rank_score_frame, text="Overall Score:", font=("Arial", 9), fg="#888", bg="white").pack(anchor="w", pady=(10, 0))
-        tk.Label(rank_score_frame, text=data['overall_score'], font=("Arial", 14, "bold"), fg="#333", bg="white").pack(anchor="w")
-        
+        if data['overall_score'] != 0.0:
+            tk.Label(rank_score_frame, text=data['overall_score'], font=("Arial", 14, "bold"), fg="#333", bg="white").pack(anchor="w")
+        else:
+            tk.Label(rank_score_frame, text="Không có dữ liệu", font=("Arial", 14, "bold"), fg="#333", bg="white").pack(anchor="w")
+
         # Cột 2: Logo và Tên Trường
         details_frame = tk.Frame(uni_block, bg="white")
         details_frame.pack(side="left", fill='x', expand=True)
@@ -314,7 +344,9 @@ def create_ui():
         name_loc_frame = tk.Frame(header_details_frame, bg="white")
         name_loc_frame.pack(side="left", fill='y')
         
-        tk.Label(name_loc_frame, text=data['name'], font=("Arial", 14, "bold"), fg="#1e90ff", bg="white").pack(anchor="w")
+        university_name = tk.Label(name_loc_frame, text=data['name'], font=("Arial", 14, "bold"), fg="#1e90ff", bg="white")
+        university_name.pack(anchor="w")
+        university_name.bind("<Button-1>",lambda event: link_to_detail(event,data['id']))
         tk.Label(name_loc_frame, text=f'{data['city']}, {data['country']}', font=("Arial", 10), fg="#555", bg="white").pack(anchor="w")
 
         # Nút Shortlist và Compare
@@ -323,9 +355,8 @@ def create_ui():
         # tk.Button(action_frame, text="Shortlist", font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=5)
 
         
-        tk.Checkbutton(action_frame,variable=short_list[data['id']],text='ShortList',font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=5)
-
-        tk.Checkbutton(action_frame,variable=compare_list[data['id']],text='Compare',font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=5)
+        tk.Checkbutton(action_frame,variable=short_list[data['id']], text='ShortList',font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=5)
+        tk.Checkbutton(action_frame,variable=compare_list[data['id']], command=lambda v=compare_list[data['id']]: check_number_of_compare(v), text='Compare',font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=5)
         # tk.Button(action_frame, text="Compare", font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=5)
 
         # Thanh tiêu chí - Tab Menu (Mới)
@@ -469,80 +500,12 @@ def create_ui():
 
     
     def crawl_data():
-        import mysql.connector
-        import json
-        conn = mysql.connector.connect(
-            host="127.0.0.1",
-            user="user",       
-            password="Tung@09092004"  
-        )
-        cursor = conn.cursor()
-        cursor.execute("use universities_db")
-        # universities, country, 
-        querry = """
-        SELECT 
-            u.id,
-            u.rank_int,
-            u.overall_score,
-            u.name AS university_name,
-            u.city,
-            c.name AS country_name,
-            u.logo,
-            st.name AS score_type,
-            i.name AS indicator_name,
-            s.score
-        FROM universities u
-        JOIN countries c  ON u.country_id = c.id
-        JOIN scores s ON u.id = s.university_id
-        JOIN score_types st ON s.score_type_id = st.id
-        JOIN indicators i ON i.id = s.indicator_id
-        """
-        cursor.execute(querry)
-        crawl_data = cursor.fetchall()
-        crawl_data = sorted(crawl_data, key= lambda x:x[0])
-        universities_data = []
-        for i in range(int(len(crawl_data[0:500])/10)):
-            data = {
-                'id':None,
-                'rank': None,
-                'overall_score': None,
-                'name': None,
-                'city': None,
-                'country': None,
-                'logo': None,
-                'score': {
-                    "Research & Discovery":{
-                        "Citations per Faculty":None,
-                        "Academic Reputation":None
-                    },
-                    "Learning Experience":{
-                        "Faculty Student Ratio":None
-                    },
-                    "Employability":{
-                        "Employer Reputation": None,
-                        "Employment Outcomes": None,
-                    },
-                    "Global Engagement":{
-                        "International Student Ratio": None,
-                        "International Research Network": None,
-                        "International Faculty Ratio": None,
-                        "International Student Diversity": None
-                    },
-                    "Sustainability":{
-                        "Sustainability Score": None
-                    }
-                }
-            }
-            for x in crawl_data[i*10:i*10+10]:
-                data['id'] = x[0]
-                data['rank'] = x[1]
-                data['overall_score'] = x[2]
-                data['name'] = x[3]
-                data['city'] = x[4]
-                data['country'] = x[5]
-                data['logo'] = x[6]
-                data['score'][x[7]][x[8]] = x[9]
-            universities_data.append(data)
+        # from models.UniversityModel import UniversityModel
+        universities_data = UniversityController.get_all_university()
+        global short_list
+        global compare_list
+        short_list = {}
+        compare_list = {}
         for data in universities_data:
             shortList_var = tk.IntVar()
             compare_var = tk.IntVar()
@@ -552,91 +515,14 @@ def create_ui():
 
     def crawl_data_with_name(event):
         name = entry_search.get()
-        import mysql.connector
-        conn = mysql.connector.connect(
-            host="127.0.0.1",
-            user="user",       
-            password="Tung@09092004"  
-        )
-        cursor = conn.cursor()
-        cursor.execute("use universities_db_clone")
-        # universities, country, 
-        where_condition = ""
-        if name.strip():
-            where_condition = "where u.name like '%"
-            for x in name:
-                where_condition+= x+"%"
-            where_condition+= "'"
-
-        querry = f"""
-        SELECT 
-            u.id,
-            u.rank_int,
-            u.overall_score,
-            u.name AS university_name,
-            u.city,
-            c.name AS country_name,
-            u.logo,
-            st.name AS score_type,
-            i.name AS indicator_name,
-            s.score
-        FROM universities u
-        JOIN countries c  ON u.country_id = c.id
-        JOIN scores s ON u.id = s.university_id
-        JOIN score_types st ON s.score_type_id = st.id
-        JOIN indicators i ON i.id = s.indicator_id
-        {where_condition}
-        """
-        cursor.execute(querry)
-        crawl_data = cursor.fetchall()
-        crawl_data = sorted(crawl_data, key= lambda x:x[0])
-        uni_data = []
-        end_data = min(len(crawl_data),500)
-        for i in range(int(len(crawl_data[0:end_data])/10)):
-            data = {
-                'id':None,
-                'rank': None,
-                'overall_score': None,
-                'name': None,
-                'city': None,
-                'country': None,
-                'logo': None,
-                'score': {
-                    "Research & Discovery":{
-                        "Citations per Faculty":None,
-                        "Academic Reputation":None
-                    },
-                    "Learning Experience":{
-                        "Faculty Student Ratio":None
-                    },
-                    "Employability":{
-                        "Employer Reputation": None,
-                        "Employment Outcomes": None,
-                    },
-                    "Global Engagement":{
-                        "International Student Ratio": None,
-                        "International Research Network": None,
-                        "International Faculty Ratio": None,
-                        "International Student Diversity": None
-                    },
-                    "Sustainability":{
-                        "Sustainability Score": None
-                    }
-                }
-            }
-            for x in crawl_data[i*10:i*10+10]:
-                data['id'] = x[0]
-                data['rank'] = x[1]
-                data['overall_score'] = x[2]
-                data['name'] = x[3]
-                data['city'] = x[4]
-                data['country'] = x[5]
-                data['logo'] = x[6]
-                data['score'][x[7]][x[8]] = x[9]
-            uni_data.append(data)
+        uni_data = UniversityController.search_by_name(name)
         global universities_data
         universities_data = uni_data
         number_of_Results.config(text=f"{len(universities_data)} Results")
+        global short_list
+        global compare_list
+        short_list = {}
+        compare_list = {}
         for data in universities_data:
             shortList_var = tk.IntVar()
             compare_var = tk.IntVar()
