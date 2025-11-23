@@ -1,11 +1,19 @@
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import tkinter as tk
 from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
-
-
+import ui.session as session_data
+from controller.UserController import UserController
+from controller.CountryController import CountryController
+user_now = UserController.get_current_user()
+from datetime import datetime, date
 class PersonalInfoForm:
     def __init__(self, root):
         self.root = root
+        self.user = UserController.get_current_user()
+        print("Current user data:", self.user)
+
         self.root.title("UniCompare - Thông tin cá nhân")
 
         for widget in self.root.winfo_children():
@@ -15,11 +23,27 @@ class PersonalInfoForm:
         self.root.configure(bg="#f8f9fa")
 
         # Variables
-        self.gender_var = tk.StringVar()
+        self.gender_var =  tk.IntVar()
+        self.gender_var.set(0)  #
         self.different_nationality = tk.BooleanVar()
         self.images_reference = []
         self.is_submenu_visible = False
+
+        #data
+        self.first_name_entry = None
+        self.last_name_entry = None
+        self.email_entry = None
+        self.phone_entry = None
+        self.country_entry = None
+        self.dob_entry = None
+        self.postal_entry = None
+        self.ethnic_entry = None
+        self.main_lang_entry = None
+        self.add_lang_entry = None
+        self.special_entry =   None
         self.create_layout()
+
+        self.fill_user_data()
 
     def create_layout(self):
         nav_frame = tk.Frame(self.root, bg="white", height=50)
@@ -153,20 +177,20 @@ class PersonalInfoForm:
         row1.pack(fill=tk.X, pady=(0, 15))
         row1.columnconfigure(0, weight=1)
         row1.columnconfigure(1, weight=1)
-        self.create_labeled_input(row1, "Họ*", 0)
-        self.create_labeled_input(row1, "Tên*", 1)
+        self.first_name_entry = self.create_labeled_input(row1, "Họ*", 0)
+        self.last_name_entry = self.create_labeled_input(row1, "Tên*", 1)
 
         row2 = tk.Frame(form_frame, bg="#f5f7fa")
         row2.pack(fill=tk.X, pady=(0, 15))
         row2.columnconfigure(0, weight=1)
         row2.columnconfigure(1, weight=1)
-        self.create_labeled_input(row2, "Mã quốc gia*", 0)
-        self.create_labeled_input(row2, "Số điện thoại*", 1)
+        self.country_entry = self.create_labeled_input(row2, "Mã quốc gia*", 0)
+        self.phone_entry = self.create_labeled_input(row2, "Số điện thoại*", 1)
 
         row3 = tk.Frame(form_frame, bg="#f5f7fa")
         row3.pack(fill=tk.X, pady=(0, 15))
         row3.columnconfigure(0, weight=1)
-        self.create_labeled_input(row3, "Email ID*", 0)
+        self.email_entry = self.create_labeled_input(row3, "Email ID*", 0)
 
         gender_frame = tk.Frame(form_frame, bg="#f5f7fa")
         gender_frame.pack(fill=tk.X, pady=(10, 15), anchor="w")
@@ -175,28 +199,24 @@ class PersonalInfoForm:
                                                                                                                    10))
         gender_buttons = tk.Frame(gender_frame, bg="#f5f7fa")
         gender_buttons.pack(anchor="w")
-        tk.Radiobutton(gender_buttons, text="Nam", variable=self.gender_var, value="Male", bg="#f5f7fa",
+        tk.Radiobutton(gender_buttons, text="Nam", variable=self.gender_var, value=0, bg="#f5f7fa",
                        font=("Segoe UI", 10), activebackground="#f5f7fa", selectcolor="#fff").pack(side=tk.LEFT,
                                                                                                    padx=(0, 30))
-        tk.Radiobutton(gender_buttons, text="Nữ", variable=self.gender_var, value="Female", bg="#f5f7fa",
+        tk.Radiobutton(gender_buttons, text="Nữ", variable=self.gender_var, value=1, bg="#f5f7fa",
                        font=("Segoe UI", 10), activebackground="#f5f7fa", selectcolor="#fff").pack(side=tk.LEFT)
 
         row4 = tk.Frame(form_frame, bg="#f5f7fa")
         row4.pack(fill=tk.X, pady=(0, 15))
         row4.columnconfigure(0, weight=1)
         row4.columnconfigure(1, weight=1)
-        self.create_labeled_input(row4, "Ngày sinh", 0)
-        self.create_labeled_input(row4, "Mã bưu điện", 1)
+        self.dob_entry = self.create_labeled_input(row4, "Ngày sinh (dd-mm-yyyy)", 0)
+        self.postal_entry = self.create_labeled_input(row4, "Mã bưu điện", 1)
 
         row5 = tk.Frame(form_frame, bg="#f5f7fa")
         row5.pack(fill=tk.X, pady=(0, 15))
         row5.columnconfigure(0, weight=1)
         row5.columnconfigure(1, weight=1)
-        self.create_labeled_input(row5, "Tôi sống ở*", 0)
-        check_container = tk.Frame(row5, bg="#f5f7fa")
-        check_container.grid(row=0, column=1, sticky="w", padx=(15, 0))
-        tk.Checkbutton(check_container, text="Đánh dấu nếu bạn có quốc tịch khác", variable=self.different_nationality,
-                       bg="#f5f7fa", font=("Segoe UI", 9), activebackground="#f5f7fa").pack(anchor="w", pady=(25, 0))
+ 
 
         tk.Label(form_frame, text="DÂN TỘC/ NGÔN NGỮ", bg="#f5f7fa", fg="#666", font=("Segoe UI", 9, "bold")).pack(
             anchor="w", pady=(10, 10))
@@ -205,15 +225,15 @@ class PersonalInfoForm:
         row6.pack(fill=tk.X, pady=(0, 15))
         row6.columnconfigure(0, weight=1)
         row6.columnconfigure(1, weight=1)
-        self.create_labeled_input(row6, "Dân tộc", 0)
-        self.create_labeled_input(row6, "Ngôn ngữ chính", 1)
+        self.ethnic_entry = self.create_labeled_input(row6, "Dân tộc", 0)
+        self.main_lang_entry = self.create_labeled_input(row6, "Ngôn ngữ chính", 1)
 
         row7 = tk.Frame(form_frame, bg="#f5f7fa")
         row7.pack(fill=tk.X, pady=(0, 25))
         row7.columnconfigure(0, weight=1)
         row7.columnconfigure(1, weight=1)
-        self.create_labeled_input(row7, "Ngôn ngữ phụ", 0)
-        self.create_labeled_input(row7, "Diện đặc biệt*", 1)
+        self.add_lang_entry = self.create_labeled_input(row7, "Ngôn ngữ phụ", 0)
+        self.special_entry = self.create_labeled_input(row7, "Diện đặc biệt*", 1)
 
         tk.Button(form_frame, text="Lưu thay đổi", bg="#1F3AB0", fg="white", font=("Segoe UI", 10, "bold"), bd=0,
                   padx=35, pady=12, cursor="hand2", command=self.save_changes).pack(anchor="e", pady=(10, 0))
@@ -232,6 +252,24 @@ class PersonalInfoForm:
                          highlightcolor="#ddd", highlightbackground="#ddd")
         entry.pack(fill=tk.X, ipady=10)
         return entry
+
+    # def create_labeled_input(self, parent, label_text, column, variable): # Thêm tham số variable
+    #     container = tk.Frame(parent, bg="#f5f7fa")
+    #     container.grid(row=0, column=column, sticky="ew", padx=(0 if column == 0 else 15, 0))
+    #     tk.Label(container, text=label_text, bg="#f5f7fa", fg="#666", font=("Segoe UI", 9), anchor="w").pack(
+    #         anchor="w",
+    #         pady=(0, 5)
+    #     )
+    #     entry = tk.Entry(container, 
+    #                     font=("Segoe UI", 10), 
+    #                     bd=0, 
+    #                     relief=tk.SOLID, 
+    #                     highlightthickness=1,
+    #                     highlightcolor="#ddd", 
+    #                     highlightbackground="#ddd",
+    #                     textvariable=variable) # ⬅️ Gán StringVar vào đây
+    #     entry.pack(fill=tk.X, ipady=10)
+    #     return entry
 
     def create_new_footer(self, parent):
         footer_frame = tk.Frame(parent, bg="white", padx=50, pady=40)
@@ -285,8 +323,6 @@ class PersonalInfoForm:
             side="left", padx=5)
         tk.Button(input_frame, text="→", width=5, fg="white", bg="#1F3AB0").pack(side="left")
 
-    def save_changes(self):
-        messagebox.showinfo("Thành công", "Đã lưu thay đổi thành công!")
 
     def toggle_submenu(self):
         if self.is_submenu_visible:
@@ -326,6 +362,151 @@ class PersonalInfoForm:
         except ImportError:
             messagebox.showerror("Lỗi", "Không tìm thấy file education.py")
 
+    def fill_user_data(self):
+        """Populate entries from self.user (dict) if available"""
+        if not self.user:
+            return
+        u = self.user
+        # user dict keys are expected to match DB columns
+        try:
+            if u.get('first_name') is not None:
+                self.first_name_entry.delete(0, tk.END)
+                self.first_name_entry.insert(0, u.get('first_name') or "")
+
+
+            if u.get('last_name') is not None:
+                self.last_name_entry.delete(0, tk.END)
+                self.last_name_entry.insert(0, u.get('last_name') or "")
+
+
+            if u.get('email') is not None:
+                self.email_entry.delete(0, tk.END)
+                self.email_entry.insert(0, u.get('email') or "")
+
+
+            if u.get('phone_number') is not None:
+                self.phone_entry.delete(0, tk.END)
+                self.phone_entry.insert(0, u.get('phone_number') or "")
+
+
+            if u.get('country_id') is not None:
+                self.country_entry.delete(0, tk.END)
+                c_id = u.get('country_id')
+                country_name = CountryController.get_name_by_id(c_id)
+                print("country_name:", country_name)
+                self.country_entry.insert(0, str(country_name['name'] or ""))
+
+
+            if u.get('gender'):
+                self.gender_var.set(u.get('gender'))
+
+
+            if u.get('dob') is not None:
+                self.dob_entry.delete(0, tk.END)
+                date_str = convert_date_ymd_to_dmy(u.get('dob'))
+                print("Converted date:", date_str)
+                self.dob_entry.insert(0, str(convert_date_ymd_to_dmy(u.get('dob'))or ""))
+
+
+            if u.get('postal_code') is not None:
+                self.postal_entry.delete(0, tk.END)
+                self.postal_entry.insert(0, u.get('postal_code') or "")
+
+
+            if u.get('ethnic_group') is not None:
+                self.ethnic_entry.delete(0, tk.END)
+                self.ethnic_entry.insert(0, u.get('ethnic_group') or "")
+
+
+            if u.get('main_lang') is not None:
+                self.main_lang_entry.delete(0, tk.END)
+                self.main_lang_entry.insert(0, u.get('main_lang') or "")
+
+
+            if u.get('add_lang') is not None:
+                self.add_lang_entry.delete(0, tk.END)
+                self.add_lang_entry.insert(0, u.get('add_lang') or "")
+
+
+            if u.get('special') is not None:
+                self.special_entry.delete(0, tk.END)
+                self.special_entry.insert(0, u.get('special') or "")
+        except Exception as e:
+            print("Lỗi khi fill dữ liệu user:", e)
+    
+    def save_changes(self):
+        first_name = self.first_name_entry.get().strip()
+        last_name = self.last_name_entry.get().strip()
+        email = self.email_entry.get().strip()
+
+        if email:
+            existing_user = UserController.get_user_by_email(email)
+            if existing_user and (not self.user or existing_user != self.user.get('id')):
+                messagebox.showerror("Lỗi", "Email đã được sử dụng bởi người dùng khác.")
+                return
+        if not first_name or not last_name or not email:
+            messagebox.showerror("Lỗi", "Họ, tên và email là bắt buộc.")
+            return
+        country_name = self.country_entry.get().strip()
+        country_id = None
+        if country_name:
+            country_id = CountryController.get_id_by_name(country_name)
+            if isinstance(country_id, dict):
+                 country_id = country_id.get("id")
+        dob = None 
+        if self.dob_entry.get().strip():
+            try:
+                dob = self.dob_entry.get().strip()
+                day, month, year = map(int, dob.split('-'))
+                dob = datetime(year, month, day).date()
+            except ValueError:
+                messagebox.showerror("Lỗi", "Ngày sinh không đúng định dạng dd-mm-yyyy.")
+                return
+        payload = {
+        'id': self.user.get('id') if self.user else None,
+        'first_name': first_name,
+        'last_name': last_name,
+        'email': email,
+        'phone_number': self.phone_entry.get().strip(),
+        'country_id': country_id,
+        'gender': int(self.gender_var.get()),
+        'dob': dob,
+        'postal_code': self.postal_entry.get().strip(),
+        'ethnic_group': self.ethnic_entry.get().strip(),
+        'main_lang': self.main_lang_entry.get().strip(),
+        'add_lang': self.add_lang_entry.get().strip(),
+        'special': self.special_entry.get().strip()
+        }
+        print("Payload to update:", payload)
+         # Call controller to update
+        success, msg = UserController.update_user(payload)
+
+        if success:
+            messagebox.showinfo("Thành công", msg)
+            self.user = UserController.get_current_user()
+            self.fill_user_data()
+        else:
+            messagebox.showerror("Lỗi", msg)
+
+    # ví dụ thêm:
+
+def convert_date_ymd_to_dmy(dob):
+    """Chuyển YYYY-MM-DD -> DD/MM/YYYY, hỗ trợ cả datetime.date và datetime"""
+    if dob is None:
+        return ""
+
+    # Nếu là kiểu datetime.date hoặc datetime
+    if isinstance(dob, (datetime, date)):
+        return dob.strftime("%d-%m-%Y")
+
+    # Nếu là chuỗi
+    if isinstance(dob, str):
+        try:
+            parsed = datetime.strptime(dob, "%Y-%m-%d")
+            return parsed.strftime("%d-%m-%Y")
+        except ValueError:
+            return ""  # sai format chuỗi
+    return ""
 
 def main():
     root = tk.Tk()

@@ -1,5 +1,5 @@
 from models.UserModel import UserModel
-from ui.session import session
+import ui.session as session_data
 
 class AuthController:
 
@@ -14,16 +14,15 @@ class AuthController:
             return False, "Sai mật khẩu!"
 
         # Lưu session
-        session["is_logged_in"] = True
-        session["user_id"] = user["id"]
-        session["role_type"] = user["role_type"]
-        session["name"] = f'{user["first_name"]} {user["last_name"]}'
-
+        session_data.session["is_logged_in"] = True
+        session_data.session["user_id"] = user["id"]
+        session_data.session["role_type"] = user["role_type"]
+        session_data.session["name"] = f'{user["first_name"]} {user["last_name"]}' # DEBUG
         return True, "Đăng nhập thành công!"
 
     @staticmethod
     def logout():
-        session["is_logged_in"] = False
-        session["user_id"] = None
-        session["role_type"] = None
-        session["name"] = None
+        session_data.session["is_logged_in"] = False
+        session_data.session["user_id"] = None
+        session_data.session["role_type"] = None
+        session_data.session["name"] = None

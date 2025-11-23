@@ -1,5 +1,6 @@
 from models.UserModel import UserModel
 import re
+import ui.session as session_data
 class UserController:
     @staticmethod
     def add_user(first_name, last_name, email, password, confirm_password):
@@ -33,7 +34,19 @@ class UserController:
             return True, " Đăng ký thành công!"
         except Exception as e:
             return False, f"Lỗi DB: {str(e)}"
-    
+    def update_user(data):
+        return UserModel.update_user(data)
+    def get_user_by_email(email):
+        country_id = UserModel.get_user_by_email(email)
+        if isinstance(country_id, dict):
+            id = country_id.get("id")
+        return id
+    def get_current_user():
+        user_id = session_data.session.get("user_id")
+        if user_id is None:
+            return None
+        user = UserModel.get_user_by_id(user_id)
+        return user
 
 def validate_email(email):
     """Kiểm tra định dạng email hợp lệ"""

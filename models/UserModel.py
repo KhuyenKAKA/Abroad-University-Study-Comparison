@@ -55,6 +55,22 @@ class UserModel:
         except Exception as err:
             print(f"Lỗi: {err}")
             return None
+    @staticmethod
+    def get_user_by_id(id):
+        """Lấy thông tin người dùng theo email"""
+        try:
+            conn = get_connection()
+            cursor = conn.cursor(dictionary=True)
+            
+            cursor.execute('SELECT * FROM users WHERE id = %s', (id,))
+            user = cursor.fetchone()
+            
+            cursor.close()
+            conn.close()
+            return user
+        except Exception as err:
+            print(f"Lỗi: {err}")
+            return None
 
     def get_all_users(self):
         """Lấy tất cả người dùng"""
@@ -78,3 +94,55 @@ class UserModel:
 
     def verify_password(password, hashed_password):
             return bcrypt.checkpw(password.encode(), hashed_password.encode())
+    
+    def update_user(data):
+
+        if not data.get("id"):
+            return False, "Không tìm thấy ID người dùng"
+
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+
+            sql = """
+                UPDATE users SET
+                    first_name=%s,
+                    last_name=%s,
+                    email=%s,
+                    phone_number=%s,
+                    country_id=%s,
+                    gender=%s,
+                    dob=%s,
+                    postal_code=%s,
+                    ethnic_group=%s,
+                    main_lang=%s,
+                    add_lang=%s,
+                    special=%s,
+                    update_date=NOW()
+                WHERE id=%s
+            """
+
+            cursor.execute(sql, (
+                data["first_name"],
+                data["last_name"],
+                data["email"],
+                data["phone_number"],
+                data["country_id"],
+                data["gender"],
+                data["dob"],
+                data["postal_code"],
+                data["ethnic_group"],
+                data["main_lang"],
+                data["add_lang"],
+                data["special"],
+                data["id"]
+            ))
+
+            conn.commit()
+            cursor.close()
+            conn.close()
+
+            return True, "Cập nhật thông tin thành công!"
+
+        except Exception as e:
+            return False, f"Lỗi DB: {str(e)}"

@@ -2,20 +2,22 @@
 import sys, os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from PIL import Image, ImageTk
-from ui.session import session
+import ui.session as session_data
 from ui.HomePageUI import create_ui as home_page_ui
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from controller.AuthController import AuthController
 def open_main_menu():
-    if session["role_type"] == 2:
+    if session_data.session["role_type"] == 2:
         #adminui()
         return
     else:
         home_page_ui()
+        print(session_data.session["user_id"])
 
 def create_ui():
+    print(session_data.session["user_id"])
     root = tk.Tk()
     root.title("UniCompare - Course Recommendation")
     root.geometry("1000x800")
