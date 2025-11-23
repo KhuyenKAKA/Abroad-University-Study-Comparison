@@ -1,12 +1,23 @@
+
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from PIL import Image, ImageTk
+import ui.session as session_data
+from ui.HomePageUI import create_ui as home_page_ui
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-import sys, os
-from PIL import Image, ImageTk
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-# from controller import UserController
+from controller.AuthController import AuthController
+def open_main_menu():
+    if session_data.session["role_type"] == 2:
+        #adminui()
+        return
+    else:
+        home_page_ui()
+        print(session_data.session["user_id"])
 
 def create_ui():
+    print(session_data.session["user_id"])
     root = tk.Tk()
     root.title("UniCompare - Course Recommendation")
     root.geometry("1000x800")
@@ -158,20 +169,25 @@ def create_ui():
 
     # Hàng 8: Nút "Đăng nhập"
     def on_signin_click():
-    #     email = entries[0].get()
-    #     password = entries[1].get()
+        email = entries[0].get()
+        password = entries[1].get()
         
-    #     # Gọi controller để kiểm tra đăng nhập
-    #     success, message = controller.login_user(email, password)
+        # Gọi controller để kiểm tra đăng nhập
+        success, message = AuthController.login(email, password)
         
-    #     if success:
-    #         messagebox.showinfo("Thành công", message)
-    #         entries[0].delete(0, tk.END)
-    #         entries[1].delete(0, tk.END)
-    #     else:
-    #         messagebox.showerror("Lỗi", message)
-        return
-    
+        if success:
+            messagebox.showinfo("Thành công", message)
+
+            # Nếu bạn muốn clear entry trước khi đóng cửa sổ
+            entries[0].delete(0, tk.END)
+            entries[1].delete(0, tk.END)
+
+            root.destroy()          # đóng cửa sổ
+            open_main_menu()        # mở giao diện mới
+
+        else:
+            messagebox.showerror("Lỗi", message)
+
     signin_button = tk.Button(right_frame, text="Đăng nhập", bg="#1F3AB0", fg="white", 
                              font=("Arial", 11, "bold"), bd=0, padx=10, pady=8, 
                              command=on_signin_click)

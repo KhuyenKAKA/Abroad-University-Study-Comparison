@@ -1,9 +1,19 @@
+import sys
+import os
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+)
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
 import requests 
 from io import BytesIO
+from controller.UniversityController import UniversityController
+from tkinter import messagebox as mess
 def create_ui():
+    global current_view_mode
+    current_view_mode = 1
+    global universities_data
     root = tk.Tk()
     root.title("UniCompare - Course Recommendation")
     root.geometry("1000x800")
@@ -215,10 +225,19 @@ def create_ui():
             create_university_block(unversities_card_frame, data)
 
         render_pagination_bar()
+    
+    def take_compare_universities():
+        global compare_list
+        checked_list = [v for v in compare_list if compare_list[v].get()]
+        if len(checked_list)>1: 
+            pass
+        else:
+            mess.showwarning("Thông báo","Hãy chọn trường đại học để so sánh!")
+
     # Nút Quick View và Table View
     view_frame = tk.Frame(toolbar_frame, bg="#f8f9fa", bd=1, relief='solid')
     view_frame.pack(side="left", padx=(0, 20))
-    current_view_mode = 1
+    # current_view_mode = 1
     quick_view = tk.Button(view_frame, text="📊 Quick View",command=render_university_list, font=("Arial", 9), bg="white", relief='flat')
     quick_view.pack(side="left", padx=(0, 1), pady=0)
     table_view = tk.Button(view_frame, text="▦ Table View",command=render_table_view ,font=("Arial", 9), bg="#e0e0e0", relief='flat')
@@ -228,9 +247,11 @@ def create_ui():
     search_entry_frame = tk.Frame(toolbar_frame, bg="white", bd=1, relief='solid')
     search_entry_frame.pack(side="left", fill='y', padx=(0, 20))
     tk.Label(search_entry_frame, image=search_photo, font=("Arial", 10), bg="white").pack(side="left", padx=5)
-    tk.Entry(search_entry_frame, width=30, font=("Arial", 10), relief='flat').pack(side="left", padx=5)
-
-    # Nút Apply Filters
+    entry_search = tk.Entry(search_entry_frame, width=30, font=("Arial", 10), relief='flat')
+    entry_search.pack(side="left", padx=5)
+    
+    # Nút Apply Filters & Compare
+    tk.Button(toolbar_frame, text="So sánh",command=take_compare_universities, fg="white", background="#0013e9", font=("Arial", 9, "bold"), relief='flat').pack(side="right",padx=(20,0))
     tk.Button(toolbar_frame, text="Apply Filters", fg="white", background="#1e90ff", font=("Arial", 9, "bold"), relief='flat').pack(side="right")
     number_of_Results = tk.Label(toolbar_frame, text="2 Results", font=("Arial", 10), fg="#555", bg="#f8f9fa") # Khoảng cách mô phỏng
     number_of_Results.pack(side="right", padx=(100, 20))
@@ -267,10 +288,21 @@ def create_ui():
 
     selected_mode.trace("w", on_sort_change)
     # 
-
+    global compare_list
+    global short_list
     compare_list = {}
     short_list = {}
     # # Khối thông tin Trường Đại học
+    def check_number_of_compare(current_compare):
+        global compare_list
+        checked = sum(v.get() for v in compare_list.values())
+        if checked > 5:
+            current_compare.set(0)
+            mess.showwarning("Đạt số lượng so sánh tối đa là 5!","Không thêm được các trường nữa")
+            
+    def link_to_detail(event,id):
+        pass
+    
     def create_university_block(parent,data):
         uni_block = tk.Frame(parent, bg="white", bd=1, relief='solid', padx=20, pady=15)
         uni_block.pack(fill='x', pady=15)
@@ -283,8 +315,11 @@ def create_ui():
         tk.Label(rank_score_frame, text=data['rank'], font=("Arial", 28, "bold"), fg="#333", bg="white").pack(anchor="w")
         
         tk.Label(rank_score_frame, text="Overall Score:", font=("Arial", 9), fg="#888", bg="white").pack(anchor="w", pady=(10, 0))
-        tk.Label(rank_score_frame, text=data['overall_score'], font=("Arial", 14, "bold"), fg="#333", bg="white").pack(anchor="w")
-        
+        if data['overall_score'] != 0.0:
+            tk.Label(rank_score_frame, text=data['overall_score'], font=("Arial", 14, "bold"), fg="#333", bg="white").pack(anchor="w")
+        else:
+            tk.Label(rank_score_frame, text="Không có dữ liệu", font=("Arial", 14, "bold"), fg="#333", bg="white").pack(anchor="w")
+
         # Cột 2: Logo và Tên Trường
         details_frame = tk.Frame(uni_block, bg="white")
         details_frame.pack(side="left", fill='x', expand=True)
@@ -309,7 +344,9 @@ def create_ui():
         name_loc_frame = tk.Frame(header_details_frame, bg="white")
         name_loc_frame.pack(side="left", fill='y')
         
-        tk.Label(name_loc_frame, text=data['name'], font=("Arial", 14, "bold"), fg="#1e90ff", bg="white").pack(anchor="w")
+        university_name = tk.Label(name_loc_frame, text=data['name'], font=("Arial", 14, "bold"), fg="#1e90ff", bg="white")
+        university_name.pack(anchor="w")
+        university_name.bind("<Button-1>",lambda event: link_to_detail(event,data['id']))
         tk.Label(name_loc_frame, text=f'{data['city']}, {data['country']}', font=("Arial", 10), fg="#555", bg="white").pack(anchor="w")
 
         # Nút Shortlist và Compare
@@ -318,9 +355,8 @@ def create_ui():
         # tk.Button(action_frame, text="Shortlist", font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=5)
 
         
-        tk.Checkbutton(action_frame,variable=short_list[data['id']],text='ShortList',font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=5)
-
-        tk.Checkbutton(action_frame,variable=compare_list[data['id']],text='Compare',font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=5)
+        tk.Checkbutton(action_frame,variable=short_list[data['id']], text='ShortList',font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=5)
+        tk.Checkbutton(action_frame,variable=compare_list[data['id']], command=lambda v=compare_list[data['id']]: check_number_of_compare(v), text='Compare',font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=5)
         # tk.Button(action_frame, text="Compare", font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=5)
 
         # Thanh tiêu chí - Tab Menu (Mới)
@@ -408,17 +444,6 @@ def create_ui():
         # Rank
         tk.Label(row, text=data["rank"], font=("Arial", 11, "bold"), bg="white", width=10).pack(side="left")
 
-        # # Logo
-        # try:
-        #     response = requests.get(data['logo'])
-        #     img = Image.open(BytesIO(response.content))
-        #     img = img.resize((40, 40), Image.Resampling.LANCZOS)
-        #     tk_img = ImageTk.PhotoImage(img)
-        #     images_reference.append(tk_img)
-        #     tk.Label(row, image=tk_img, bg="white").pack(side="left", padx=10)
-        # except:
-        #     tk.Label(row, text="[Logo]", bg="white", fg="gray", width=6).pack(side="left")
-
         Re_Dis_frame = tk.Frame(row, bg="#f0f0f0")
         Re_Dis_frame.pack(side="left", fill='y')
         upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
@@ -473,195 +498,41 @@ def create_ui():
                     bg="white", fg="#1e90ff", width=13)\
                 .pack(side="left")
 
-    # Dữ liệu mẫu
-    universities_data = [
-        {
-            'id':1,
-            'rank': 1,
-            'overall_score': 100,
-            'name': "Massachusetts Institute of Technology (MIT)",
-            'city': 'Cambridge',
-            'country': "United States",
-            'logo': "https://www.topuniversities.com/sites/default/files/massachusetts-institute-of-technology-mit_410_medium.jpg",
-            'score': {
-                "Research & Discovery":{
-                    "Citations per Faculty":100,
-                    "Academic Reputation":100
-                },
-                "Learning Experience":{
-                    "Faculty Student Ratio":98
-                },
-                "Employability":{
-                    "Employer Reputation": 98,
-                    "Graduate Outcomes": 95,
-                },
-                "Global Engagement":{
-                    "International Student Ratio": 98,
-                    "International Research Network": 95,
-                    "International Faculty Ratio": 95,
-                    "International Student Diversity": 95
-                },
-                "Sustainability":{
-                    "Sustainability Score": 95
-                }
-            }
-        },
-        {   
-            'id':2,
-            'rank': 2,
-            'overall_score': 99.636,
-            'name': "Imperial College London",
-            'city': 'London',
-            'country': "United Kingdom",
-            'logo': "https://www.topuniversities.com/sites/default/files/240430033452pm869301QS-Imperial-Logo-white-text-blue-background-90x90.jpg",
-            'score': {
-                "Research & Discovery":{
-                    "Citations per Faculty":100,
-                    "Academic Reputation":99.18
-                },
-                "Learning Experience":{
-                    "Faculty Student Ratio":98
-                },
-                "Employability":{
-                    "Employer Reputation": 98,
-                    "Graduate Outcomes": 95,
-                },
-                "Global Engagement":{
-                    "International Student Ratio": 98,
-                    "International Research Network": 95,
-                    "International Faculty Ratio": 95,
-                    "International Student Diversity": 95
-                },
-                "Sustainability":{
-                    "Sustainability Score": 95
-                }
-            }
-        },
-        {   
-            'id':3,
-            'rank': 3,
-            'overall_score': 99.636,
-            'name': "Imperial College London",
-            'city': 'London',
-            'country': "United Kingdom",
-            'logo': "https://www.topuniversities.com/sites/default/files/240430033452pm869301QS-Imperial-Logo-white-text-blue-background-90x90.jpg",
-            'score': {
-                "Research & Discovery":{
-                    "Citations per Faculty":100,
-                    "Academic Reputation":99.18
-                },
-                "Learning Experience":{
-                    "Faculty Student Ratio":98
-                },
-                "Employability":{
-                    "Employer Reputation": 98,
-                    "Graduate Outcomes": 95,
-                },
-                "Global Engagement":{
-                    "International Student Ratio": 98,
-                    "International Research Network": 95,
-                    "International Faculty Ratio": 95,
-                    "International Student Diversity": 95
-                },
-                "Sustainability":{
-                    "Sustainability Score": 95
-                }
-            }
-        },
-        {   
-            'id':4,
-            'rank': 4,
-            'overall_score': 99.636,
-            'name': "Imperial College London",
-            'city': 'London',
-            'country': "United Kingdom",
-            'logo': "https://www.topuniversities.com/sites/default/files/240430033452pm869301QS-Imperial-Logo-white-text-blue-background-90x90.jpg",
-            'score': {
-                "Research & Discovery":{
-                    "Citations per Faculty":100,
-                    "Academic Reputation":99.18
-                },
-                "Learning Experience":{
-                    "Faculty Student Ratio":98
-                },
-                "Employability":{
-                    "Employer Reputation": 98,
-                    "Graduate Outcomes": 95,
-                },
-                "Global Engagement":{
-                    "International Student Ratio": 98,
-                    "International Research Network": 95,
-                    "International Faculty Ratio": 95,
-                    "International Student Diversity": 95
-                },
-                "Sustainability":{
-                    "Sustainability Score": 95
-                }
-            }
-        },
-        {   
-            'id':5,
-            'rank': 5,
-            'overall_score': 99.636,
-            'name': "Imperial College London",
-            'city': 'London',
-            'country': "United Kingdom",
-            'logo': "https://www.topuniversities.com/sites/default/files/240430033452pm869301QS-Imperial-Logo-white-text-blue-background-90x90.jpg",
-            'score': {
-                "Research & Discovery":{
-                    "Citations per Faculty":100,
-                    "Academic Reputation":99.18
-                },
-                "Learning Experience":{
-                    "Faculty Student Ratio":98
-                },
-                "Employability":{
-                    "Employer Reputation": 98,
-                    "Graduate Outcomes": 95,
-                },
-                "Global Engagement":{
-                    "International Student Ratio": 98,
-                    "International Research Network": 95,
-                    "International Faculty Ratio": 95,
-                    "International Student Diversity": 95
-                },
-                "Sustainability":{
-                    "Sustainability Score": 95
-                }
-            }
-        },
-        {   
-            'id':6,
-            'rank': 6,
-            'overall_score': 99.636,
-            'name': "Imperial College London",
-            'city': 'London',
-            'country': "United Kingdom",
-            'logo': "https://www.topuniversities.com/sites/default/files/240430033452pm869301QS-Imperial-Logo-white-text-blue-background-90x90.jpg",
-            'score': {
-                "Research & Discovery":{
-                    "Citations per Faculty":100,
-                    "Academic Reputation":99.18
-                },
-                "Learning Experience":{
-                    "Faculty Student Ratio":98
-                },
-                "Employability":{
-                    "Employer Reputation": 98,
-                    "Graduate Outcomes": 95,
-                },
-                "Global Engagement":{
-                    "International Student Ratio": 98,
-                    "International Research Network": 95,
-                    "International Faculty Ratio": 95,
-                    "International Student Diversity": 95
-                },
-                "Sustainability":{
-                    "Sustainability Score": 95
-                }
-            }
-        }
-    ]
+    
+    def crawl_data():
+        # from models.UniversityModel import UniversityModel
+        universities_data = UniversityController.get_all_university()
+        global short_list
+        global compare_list
+        short_list = {}
+        compare_list = {}
+        for data in universities_data:
+            shortList_var = tk.IntVar()
+            compare_var = tk.IntVar()
+            short_list[data['id']] = shortList_var
+            compare_list[data['id']] = compare_var
+        return universities_data
+
+    def crawl_data_with_name(event):
+        name = entry_search.get()
+        uni_data = UniversityController.search_by_name(name)
+        global universities_data
+        universities_data = uni_data
+        number_of_Results.config(text=f"{len(universities_data)} Results")
+        global short_list
+        global compare_list
+        short_list = {}
+        compare_list = {}
+        for data in universities_data:
+            shortList_var = tk.IntVar()
+            compare_var = tk.IntVar()
+            short_list[data['id']] = shortList_var
+            compare_list[data['id']] = compare_var
+        render_university_list()
+
+    entry_search.bind("<Return>", crawl_data_with_name)
+    universities_data = crawl_data()
+    number_of_Results.config(text=f"{len(universities_data)} Results")
     for data in universities_data:
         shortList_var = tk.IntVar()
         compare_var = tk.IntVar()
@@ -671,8 +542,7 @@ def create_ui():
     unversities_card_frame = tk.Frame(content_frame, bg="#f8f9fa", padx=50, pady=10)
     unversities_card_frame.pack(fill='x')
 
-    for data in universities_data:
-        create_university_block(unversities_card_frame,data)
+    
         # create_university_block(main_content_frame,data)    
 
     # ===================== Phân trang =================
@@ -760,6 +630,14 @@ def create_ui():
             render_university_list()
     render_pagination_bar()
 
+    per_page = results_per_page.get()
+    page = current_page.get()
+
+    start = (page - 1) * per_page
+    end = start + per_page
+
+    for data in universities_data[start:end]:
+        create_university_block(unversities_card_frame,data)
     # ===============================================
     # Phần Footer
     # ===============================================
