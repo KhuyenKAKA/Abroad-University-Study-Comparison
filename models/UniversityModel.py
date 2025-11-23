@@ -8,7 +8,7 @@ class UniversityModel:
             password="Tung@09092004"  
         )
         cursor = conn.cursor()
-        cursor.execute("use universities_db")
+        cursor.execute("use universities_db_clone")
         # universities, country, 
         querry = """
         SELECT 
@@ -166,3 +166,83 @@ class UniversityModel:
                 data['score'][x[7]][x[8]] = x[9]
             uni_data.append(data)
         return uni_data
+
+    def create_new_university(data):
+        import mysql.connector
+        conn = mysql.connector.connect(
+            host="127.0.0.1",
+            user="user",       
+            password="Tung@09092004"  
+        )
+        cursor = conn.cursor()
+        cursor.execute("use universities_db_clone")
+        
+    
+
+structure_sample_data = {
+    "id": None, #int
+    "name": None, #varchar
+    "region": None, #varchar
+    "country_id": None, #int
+    "city": None, #varchar
+    "logo": None, #varchar
+    "overall_score": None, #float
+    'score': {
+        "Research & Discovery":{
+            "Citations per Faculty":None, #(rank_int, score) 
+            "Academic Reputation":None #(rank_int, score)
+        },
+        "Learning Experience":{
+            "Faculty Student Ratio":None #(rank_int, score)
+        },
+        "Employability":{
+            "Employer Reputation": None, #(rank_int, score)
+            "Employment Outcomes": None, #(rank_int, score)
+        },
+        "Global Engagement":{
+            "International Student Ratio": None, #(rank_int, score)
+            "International Research Network": None, #(rank_int, score)
+            "International Faculty Ratio": None, #(rank_int, score)
+            "International Student Diversity": None #(rank_int, score)
+        },
+        "Sustainability":{
+            "Sustainability Score": None #(rank_int, score)
+        }
+    },
+    "entry_degree_requirement": {
+        "General": {
+            "SAT": None,  #int
+            "GRE": None,  #int
+            "GMAT" : None, #int
+            "ACT": None, #float
+            "ATAR": None, #float
+            "GPA": None, #float
+            "TOEFL": None,  #int
+            "IELTS": None #float
+        },
+        "Master": {
+            "SAT": None,  #int
+            "GRE": None,  #int
+            "GMAT" : None, #int
+            "ACT": None, #float
+            "ATAR": None, #float
+            "GPA": None, #float
+            "TOEFL": None,  #int
+            "IELTS": None #float
+        }
+    },
+    "detail_infors": {
+        'fee': None, #int
+        'scholarship': None,  #int
+        'domestic': None,  #int
+        'internaltional': None, #int
+        'english_test': None, #varchar
+        'academic_test': None, #varchar
+        'total_stu': None, #int
+        'ug_rate': None, #float
+        'pg_rate': None, #float
+        'inter_total': None, #int
+        'inter_ug_rate': None, #float
+        'inter_pg_rate': None #float
+    }
+}

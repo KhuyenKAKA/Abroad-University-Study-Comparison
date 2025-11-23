@@ -46,8 +46,8 @@ def create_ui():
     
     try:
         # Giả sử bạn đã có file search.png trong thư mục assets
-        img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
-        # img = Image.open("assets/search.png")
+        # img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
+        img = Image.open("assets/search.png")
         img = img.resize((24, 24), Image.LANCZOS)
         search_photo = ImageTk.PhotoImage(img)
         tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
@@ -90,25 +90,25 @@ def create_ui():
     # Phần Nội Dung Chính Bắt Đầu Tại Đây
     # ===============================================
     
-    # frame_for_infro_frame = tk.Frame(content_frame, bg="#eaf4ff")
-    # frame_for_infro_frame.pack(fill='x')
+    frame_for_infro_frame = tk.Frame(content_frame, bg="#eaf4ff")
+    frame_for_infro_frame.pack(fill='x')
 
-    # info_frame = tk.Frame(frame_for_infro_frame, bg="#eaf4ff",pady=40,padx=50)
-    # info_frame.pack(fill="x", expand=True)
-    # # info_frame.pack(fill="x")
+    info_frame = tk.Frame(frame_for_infro_frame, bg="#eaf4ff",pady=40,padx=50)
+    info_frame.pack(fill="x", expand=True)
+    # info_frame.pack(fill="x")
     
-    # tk.Label(info_frame, text="UC World University Rankings 2025: Top global universities", 
-    #          font=("Arial", 20, "bold"), fg="#333", bg="#eaf4ff", justify='left', wraplength=550).pack(anchor="w", pady=(0, 10))
+    tk.Label(info_frame, text="UC World University Rankings 2025: Top global universities", 
+             font=("Arial", 20, "bold"), fg="#333", bg="#eaf4ff", justify='left', wraplength=550).pack(anchor="w", pady=(0, 10))
     
-    # description_text = "Discover the top universities around the world with the UC World University Rankings 2026. Over 1,500 of the world's top universities are included in the 2026 edition of the UC World University Rankings, with over 100 locations represented around the world... Read more"
-    # tk.Label(info_frame, text=description_text, font=("Arial", 10), fg="#555", bg="#eaf4ff", justify='left', wraplength=550).pack(anchor="w", pady=(0, 15))
+    description_text = "Discover the top universities around the world with the UC World University Rankings 2026. Over 1,500 of the world's top universities are included in the 2026 edition of the UC World University Rankings, with over 100 locations represented around the world... Read more"
+    tk.Label(info_frame, text=description_text, font=("Arial", 10), fg="#555", bg="#eaf4ff", justify='left', wraplength=550).pack(anchor="w", pady=(0, 15))
     
-    # # Khung Đăng ký
-    # register_frame = tk.Frame(info_frame, bg="#4879ae")
-    # register_frame.pack(anchor="w")
-    # tk.Label(register_frame, text="Register for free site membership to access direct university comparisons and more", 
-    #          font=("Arial", 9), fg="#f8f9fa", bg="#4879ae").pack(side="left", pady=10)
-    # tk.Button(register_frame, text="Register today!", fg="#1F3AB0", background="#eaf4ff", font=("Arial", 9, "bold"), relief='flat').pack(side="left", padx=10, pady=10)
+    # Khung Đăng ký
+    register_frame = tk.Frame(info_frame, bg="#4879ae")
+    register_frame.pack(anchor="w")
+    tk.Label(register_frame, text="Register for free site membership to access direct university comparisons and more", 
+             font=("Arial", 9), fg="#f8f9fa", bg="#4879ae").pack(side="left", pady=10)
+    tk.Button(register_frame, text="Register today!", fg="#1F3AB0", background="#eaf4ff", font=("Arial", 9, "bold"), relief='flat').pack(side="left", padx=10, pady=10)
     
     # 
     main_content_frame = tk.Frame(content_frame, bg="#f8f9fa", padx=50, pady=10)
@@ -251,9 +251,9 @@ def create_ui():
     entry_search.pack(side="left", padx=5)
     
     # Nút Apply Filters & Compare
-    # tk.Button(toolbar_frame, text="So sánh",command=take_compare_universities, fg="white", background="#0013e9", font=("Arial", 9, "bold"), relief='flat').pack(side="right",padx=(20,0))
-    # tk.Button(toolbar_frame, text="Apply Filters", fg="white", background="#1e90ff", font=("Arial", 9, "bold"), relief='flat').pack(side="right")
-    number_of_Results = tk.Label(toolbar_frame, text="2 Results", font=("Arial", 15, "bold"), fg="#555", bg="#f8f9fa") # Khoảng cách mô phỏng
+    tk.Button(toolbar_frame, text="So sánh",command=take_compare_universities, fg="white", background="#0013e9", font=("Arial", 9, "bold"), relief='flat').pack(side="right",padx=(20,0))
+    tk.Button(toolbar_frame, text="Apply Filters", fg="white", background="#1e90ff", font=("Arial", 9, "bold"), relief='flat').pack(side="right")
+    number_of_Results = tk.Label(toolbar_frame, text="2 Results", font=("Arial", 10), fg="#555", bg="#f8f9fa") # Khoảng cách mô phỏng
     number_of_Results.pack(side="right", padx=(100, 20))
 
     # Dropdown "University rank (High to Low)"
@@ -262,31 +262,31 @@ def create_ui():
     tk.Label(rank_dropdown_frame, text="Published on: 19 June 2025", font=("Arial", 8), fg="#555", bg="#f8f9fa").pack(side="left", padx=10)
     
     # tk.Label(rank_dropdown_frame, text="University rank (High to Low) ▼", font=("Arial", 9), fg="#333", bg="white", bd=1, relief='solid', padx=5, pady=2).pack(side="left")
-    # selected_modes_filter = ["University rank(High to Low)", "University rank(Low to High)"]
-    # selected_mode = tk.StringVar()
-    # selected_mode.set("University rank(High to Low)")
-    # selected_modes_filter_dropdown = tk.OptionMenu(rank_dropdown_frame,selected_mode,*selected_modes_filter)
-    # selected_modes_filter_dropdown.pack(side='left',padx=5,pady=2)
+    selected_modes_filter = ["University rank(High to Low)", "University rank(Low to High)"]
+    selected_mode = tk.StringVar()
+    selected_mode.set("University rank(High to Low)")
+    selected_modes_filter_dropdown = tk.OptionMenu(rank_dropdown_frame,selected_mode,*selected_modes_filter)
+    selected_modes_filter_dropdown.pack(side='left',padx=5,pady=2)
 
-    # def on_sort_change(*args):
-    #     mode = selected_mode.get()
+    def on_sort_change(*args):
+        mode = selected_mode.get()
 
-    #     if mode == "University rank(High to Low)":
-    #         universities_data.sort(key=lambda x: x['overall_score'], reverse=True)
-    #     else:
-    #         universities_data.sort(key=lambda x: x['overall_score'])
+        if mode == "University rank(High to Low)":
+            universities_data.sort(key=lambda x: x['overall_score'], reverse=True)
+        else:
+            universities_data.sort(key=lambda x: x['overall_score'])
 
-    #     # # Cập nhật rank theo thứ tự mới
-    #     # for idx, uni in enumerate(universities_data, start=1):
-    #     #     uni['rank'] = idx
-    #     global current_view_mode
-    #     if current_view_mode == 2:
-    #         render_table_view()
-    #     else:
-    #         render_university_list()
+        # # Cập nhật rank theo thứ tự mới
+        # for idx, uni in enumerate(universities_data, start=1):
+        #     uni['rank'] = idx
+        global current_view_mode
+        if current_view_mode == 2:
+            render_table_view()
+        else:
+            render_university_list()
             
 
-    # selected_mode.trace("w", on_sort_change)
+    selected_mode.trace("w", on_sort_change)
     # 
     global compare_list
     global short_list
