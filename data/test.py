@@ -14,6 +14,7 @@ def create_ui():
     global current_view_mode
     current_view_mode = 1
     global universities_data
+    global user_data
     root = tk.Tk()
     root.title("UniCompare - Course Recommendation")
     root.geometry("1000x800")
@@ -89,27 +90,6 @@ def create_ui():
     # ===============================================
     # Phần Nội Dung Chính Bắt Đầu Tại Đây
     # ===============================================
-    
-    # frame_for_infro_frame = tk.Frame(content_frame, bg="#eaf4ff")
-    # frame_for_infro_frame.pack(fill='x')
-
-    # info_frame = tk.Frame(frame_for_infro_frame, bg="#eaf4ff",pady=40,padx=50)
-    # info_frame.pack(fill="x", expand=True)
-    # # info_frame.pack(fill="x")
-    
-    # tk.Label(info_frame, text="UC World University Rankings 2025: Top global universities", 
-    #          font=("Arial", 20, "bold"), fg="#333", bg="#eaf4ff", justify='left', wraplength=550).pack(anchor="w", pady=(0, 10))
-    
-    # description_text = "Discover the top universities around the world with the UC World University Rankings 2026. Over 1,500 of the world's top universities are included in the 2026 edition of the UC World University Rankings, with over 100 locations represented around the world... Read more"
-    # tk.Label(info_frame, text=description_text, font=("Arial", 10), fg="#555", bg="#eaf4ff", justify='left', wraplength=550).pack(anchor="w", pady=(0, 15))
-    
-    # # Khung Đăng ký
-    # register_frame = tk.Frame(info_frame, bg="#4879ae")
-    # register_frame.pack(anchor="w")
-    # tk.Label(register_frame, text="Register for free site membership to access direct university comparisons and more", 
-    #          font=("Arial", 9), fg="#f8f9fa", bg="#4879ae").pack(side="left", pady=10)
-    # tk.Button(register_frame, text="Register today!", fg="#1F3AB0", background="#eaf4ff", font=("Arial", 9, "bold"), relief='flat').pack(side="left", padx=10, pady=10)
-    
     # 
     main_content_frame = tk.Frame(content_frame, bg="#f8f9fa", padx=50, pady=10)
     main_content_frame.pack(fill='x')
@@ -127,86 +107,39 @@ def create_ui():
     toolbar_frame = tk.Frame(main_content_frame, bg="#f8f9fa")
     toolbar_frame.pack(fill='x', pady=(10, 20))
 
+    def on_click_detail(id):
+        pass
+
+    def on_click_update(id):
+        pass 
+
+    def on_click_delete_university(id):
+        pass
+    
+    def on_click_delete_user(id):
+        pass
+
     def render_table_view():
-        table_view.config(bg='white')
-        quick_view.config(bg='#f0f0f0')
-        global current_view_mode 
+        btn_add.config(text="Thêm tài khoản người dùng")
+        quick_view.config(bg='white')
+        table_view.config(bg='#f0f0f0')
+        global current_view_mode
         current_view_mode = 2
         for widget in unversities_card_frame.winfo_children():
             widget.destroy()
-
-        # Header Row
-        header = tk.Frame(unversities_card_frame, bg="#f0f0f0", bd=1, relief="solid")
-        header.pack(fill="x")
-
-        # headers = ["Rank", "Logo", "University", "Location", "Overall Score"]
-        # widths = [6, 10, 35, 25, 12]
-        Re_Dis_frame = tk.Frame(header, bg="white")
-        Re_Dis_frame.pack(side="left", fill='y')
-        tk.Label(Re_Dis_frame,text="Overall Rank",font=("Arial", 10, "bold"),bg="white", width=10).pack(side="left", padx=5, pady=5)
-        tk.Label(header,text="University",font=("Arial", 10, "bold"),bg="#f0f0f0", width=38).pack(side="left", padx=5, pady=5)
-        
-        Re_Dis_frame = tk.Frame(header, bg="white")
-        Re_Dis_frame.pack(side="left", fill='y')
-        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        upper_frame.pack(fill='y',padx=5,pady=5)
-        lower_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        lower_frame.pack(fill='y',padx=5,pady=5)
-        tk.Label(upper_frame, text='Reserach & Discovery', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
-        tk.Label(lower_frame, text='Citations\nper Faculty', font=("Arial", 8,), bg="white",width=10).pack(side="left")
-        tk.Label(lower_frame, text='Academic\nReputation', font=("Arial", 8), bg="white",width=10).pack(side="left")
-
-        Re_Dis_frame = tk.Frame(header, bg="#f0f0f0")
-        Re_Dis_frame.pack(side="left", fill='y')
-        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        upper_frame.pack(fill='y',padx=5,pady=5)
-        lower_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        lower_frame.pack(fill='y',padx=5,pady=5)
-        tk.Label(upper_frame, text='Learning Experience', font=("Arial", 10,), fg="#1e90ff", bg="#f0f0f0").pack()
-        tk.Label(lower_frame, text='Faculty Student\nRatio', font=("Arial", 8,), bg="#f0f0f0",width=15).pack(side="left")
-        
-        Re_Dis_frame = tk.Frame(header, bg="white")
-        Re_Dis_frame.pack(side="left", fill='y')
-        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        upper_frame.pack(fill='y',padx=5,pady=5)
-        lower_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        lower_frame.pack(fill='y',padx=5,pady=5)
-        tk.Label(upper_frame, text='Employability', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
-        tk.Label(lower_frame, text='Employer\nReputation', font=("Arial", 8,), bg="white",width=10).pack(side="left")
-        tk.Label(lower_frame, text='Graduate\nOutcomes', font=("Arial", 8,), bg="white",width=10).pack(side="left")
-        
-        Re_Dis_frame = tk.Frame(header, bg="#f0f0f0")
-        Re_Dis_frame.pack(side="left", fill='y')
-        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        upper_frame.pack(fill='y',padx=5,pady=5)
-        lower_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        lower_frame.pack(fill='y',padx=5,pady=5)
-        tk.Label(upper_frame, text='Global Engagement', font=("Arial", 10,), fg="#1e90ff", bg="#f0f0f0").pack()
-        tk.Label(lower_frame, text='International\nStudent Ratio', font=("Arial", 8,), bg="#f0f0f0",width=15).pack(side="left")
-        tk.Label(lower_frame, text='International\nResearch Network', font=("Arial", 8,), bg="#f0f0f0",width=15).pack(side="left")
-        tk.Label(lower_frame, text='International\nFaculty Ratio', font=("Arial", 8,), bg="#f0f0f0",width=15).pack(side="left")
-        tk.Label(lower_frame, text='International\nStudent Diversity', font=("Arial", 8,), bg="#f0f0f0",width=15).pack(side="left")
-        
-        Re_Dis_frame = tk.Frame(header, bg="white")
-        Re_Dis_frame.pack(side="left", fill='y')
-        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        upper_frame.pack(fill='y',padx=5,pady=5)
-        lower_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        lower_frame.pack(fill='y',padx=5,pady=5)
-        tk.Label(upper_frame, text='Sustainability', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
-        tk.Label(lower_frame, text='Sustainability\nScore', font=("Arial", 8,), bg="white",width=10).pack(side="left")
         
         per_page = results_per_page.get()
         page = current_page.get()
 
         start = (page - 1) * per_page
         end = start + per_page
-        for data in universities_data[start:end]:
-            create_university_table_row(unversities_card_frame, data)
+        for stt, data in enumerate(user_data[start:end], start=1):
+            create_university_table_row(unversities_card_frame, data, stt)
         
         render_pagination_bar()
 
     def render_university_list():
+        btn_add.config(text="Thêm trường đại học")
         # Xóa cũ
         quick_view.config(bg='white')
         table_view.config(bg='#f0f0f0')
@@ -238,9 +171,9 @@ def create_ui():
     view_frame = tk.Frame(toolbar_frame, bg="#f8f9fa", bd=1, relief='solid')
     view_frame.pack(side="left", padx=(0, 20))
     # current_view_mode = 1
-    quick_view = tk.Button(view_frame, text="📊 Quick View",command=render_university_list, font=("Arial", 9), bg="white", relief='flat')
+    quick_view = tk.Button(view_frame, text="Danh sách trường",width=30,command=render_university_list, font=("Arial", 9), bg="white", relief='flat')
     quick_view.pack(side="left", padx=(0, 1), pady=0)
-    table_view = tk.Button(view_frame, text="▦ Table View",command=render_table_view ,font=("Arial", 9), bg="#e0e0e0", relief='flat')
+    table_view = tk.Button(view_frame, text="Danh sách tài khoản",width=30,command=render_table_view ,font=("Arial", 9), bg="#e0e0e0", relief='flat')
     table_view.pack(side="left", padx=(1, 0), pady=0)
     
     # Trường tìm kiếm
@@ -252,7 +185,8 @@ def create_ui():
     
     # Nút Apply Filters & Compare
     # tk.Button(toolbar_frame, text="So sánh",command=take_compare_universities, fg="white", background="#0013e9", font=("Arial", 9, "bold"), relief='flat').pack(side="right",padx=(20,0))
-    # tk.Button(toolbar_frame, text="Apply Filters", fg="white", background="#1e90ff", font=("Arial", 9, "bold"), relief='flat').pack(side="right")
+    btn_add = tk.Button(toolbar_frame, text="Thêm trường đại học", fg="white", background="#1e90ff", font=("Arial", 9, "bold"), relief='flat')
+    btn_add.pack(side="right")
     number_of_Results = tk.Label(toolbar_frame, text="2 Results", font=("Arial", 15, "bold"), fg="#555", bg="#f8f9fa") # Khoảng cách mô phỏng
     number_of_Results.pack(side="right", padx=(100, 20))
 
@@ -309,16 +243,16 @@ def create_ui():
 
         # Cột 1: Rank và Score
         rank_score_frame = tk.Frame(uni_block, bg="white")
-        rank_score_frame.pack(side="left", padx=(0, 30))
+        rank_score_frame.pack(side="left", padx=(150, 150))
         
-        tk.Label(rank_score_frame, text="Rank", font=("Arial", 8), fg="#888", bg="white").pack(anchor="w")
+        # tk.Label(rank_score_frame, text="Rank", font=("Arial", 8), fg="#888", bg="white").pack(anchor="w")
         tk.Label(rank_score_frame, text=data['rank'], font=("Arial", 28, "bold"), fg="#333", bg="white").pack(anchor="w")
         
-        tk.Label(rank_score_frame, text="Overall Score:", font=("Arial", 9), fg="#888", bg="white").pack(anchor="w", pady=(10, 0))
-        if data['overall_score'] != 0.0:
-            tk.Label(rank_score_frame, text=data['overall_score'], font=("Arial", 14, "bold"), fg="#333", bg="white").pack(anchor="w")
-        else:
-            tk.Label(rank_score_frame, text="Không có dữ liệu", font=("Arial", 14, "bold"), fg="#333", bg="white").pack(anchor="w")
+        # tk.Label(rank_score_frame, text="Overall Score:", font=("Arial", 9), fg="#888", bg="white").pack(anchor="w", pady=(10, 0))
+        # if data['overall_score'] != 0.0:
+        #     tk.Label(rank_score_frame, text=data['overall_score'], font=("Arial", 14, "bold"), fg="#333", bg="white").pack(anchor="w")
+        # else:
+        #     tk.Label(rank_score_frame, text="Không có dữ liệu", font=("Arial", 14, "bold"), fg="#333", bg="white").pack(anchor="w")
 
         # Cột 2: Logo và Tên Trường
         details_frame = tk.Frame(uni_block, bg="white")
@@ -337,13 +271,15 @@ def create_ui():
             tk_image = ImageTk.PhotoImage(pil_image)
             logo_label = tk.Label(header_details_frame, image=tk_image, bg="white")
             logo_label.pack(side="left", padx=(0, 10))
+            # logo_label.pack(padx=(0, 10))
             images_reference.append(tk_image) # Lưu reference
         except FileNotFoundError:
             tk.Label(header_details_frame, text="[Logo]", font=("Arial", 8), bg="white", fg="gray", width=5).pack(side="left", padx=(0, 10))
         
         name_loc_frame = tk.Frame(header_details_frame, bg="white")
         name_loc_frame.pack(side="left", fill='y')
-        
+        # name_loc_frame.pack(fill='y')
+
         university_name = tk.Label(name_loc_frame, text=data['name'], font=("Arial", 14, "bold"), fg="#1e90ff", bg="white")
         university_name.pack(anchor="w")
         university_name.bind("<Button-1>",lambda event: link_to_detail(event,data['id']))
@@ -354,149 +290,85 @@ def create_ui():
         action_frame.pack(side="right")
         # tk.Button(action_frame, text="Shortlist", font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=5)
 
+        img = Image.open("Abroad-University-Study-Comparison/assets/detail_icon.png")
+        # img = Image.open("assets/detail_icon.png")
+        img = img.resize((24, 24), Image.LANCZOS)
+        detail_photo = ImageTk.PhotoImage(img)
+        # tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
+        tk.Button(action_frame, command=lambda name=data['id']: on_click_detail(name), image=detail_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
+        images_reference.append(detail_photo)
+
+        img = Image.open("Abroad-University-Study-Comparison/assets/updates_icon.png")
+        # img = Image.open("assets/updates_icon.png")
+        img = img.resize((24, 24), Image.LANCZOS)
+        update_photo = ImageTk.PhotoImage(img)
+        # tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
+        tk.Button(action_frame, command= lambda name=data['id']: on_click_update(name), image=update_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
+        images_reference.append(update_photo)
+
+        img = Image.open("Abroad-University-Study-Comparison/assets/delete_icon.png")
+        # img = Image.open("assets/delete_icon.png")
+        img = img.resize((24, 24), Image.LANCZOS)
+        delete_photo = ImageTk.PhotoImage(img)
+        # tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
+        tk.Button(action_frame, command= lambda name=data['id']: on_click_delete_university(name), image=delete_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
+        images_reference.append(delete_photo)    
+
+
+    def create_university_table_row(parent, data, stt):
+        uni_block = tk.Frame(parent, bg="white", bd=1, relief='solid', padx=20, pady=15)
+        uni_block.pack(fill='x', pady=15)
+
+        # Cột 1: Rank và Score
+        rank_score_frame = tk.Frame(uni_block, bg="white")
+        rank_score_frame.pack(side="left", padx=(150, 150))
         
-        tk.Checkbutton(action_frame,variable=short_list[data['id']], text='ShortList',font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=5)
-        tk.Checkbutton(action_frame,variable=compare_list[data['id']], command=lambda v=compare_list[data['id']]: check_number_of_compare(v), text='Compare',font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=5)
-        # tk.Button(action_frame, text="Compare", font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=5)
+        # tk.Label(rank_score_frame, text="Rank", font=("Arial", 8), fg="#888", bg="white").pack(anchor="w")
+        tk.Label(rank_score_frame, text=stt, font=("Arial", 28, "bold"), fg="#333", bg="white").pack(anchor="w")
 
-        # Thanh tiêu chí - Tab Menu (Mới)
-        criteria_frame = tk.Frame(details_frame, bg="white")
-        criteria_frame.pack(fill='x', pady=(5, 15))
+        # Cột 2: Logo và Tên Trường
+        details_frame = tk.Frame(uni_block, bg="white")
+        details_frame.pack(side="left", fill='x', expand=True)
 
-        criteria_list = ["Research & Discovery", "Learning Experience", "Employability", "Global Engagement", "Sustainability"]
+        header_details_frame = tk.Frame(details_frame, bg="white")
+        header_details_frame.pack(fill='x', pady=(0, 10))
 
-        criteria_tabs = {}  # lưu cả button và underline
+        name_loc_frame = tk.Frame(header_details_frame, bg="white")
+        name_loc_frame.pack(side="left", fill='y')
+        # name_loc_frame.pack(fill='y')
 
-        # Khung chứa thanh điểm
-        score_bar_container = tk.Frame(details_frame, bg="white")
-        score_bar_container.pack(fill='x', pady=(5, 0))
+        user_name = tk.Label(name_loc_frame, text=data['name']+"_"+data['id'], font=("Arial", 14, "bold"), fg="#1e90ff", bg="white")
+        user_name.pack(anchor="w")
+        tk.Label(name_loc_frame, text=f'Ngày tạo: {data['datetime']}', font=("Arial", 10), fg="#555", bg="white").pack(anchor="w")
 
-        # Hàm click tab
-        def on_tab_click(selected):
-            # Reset tất cả tab
-            for key, (btn, underline) in criteria_tabs.items():
-                btn.config(bg="white", fg="#333")
-                underline.config(bg="white")
+        # Nút Shortlist và Compare
+        action_frame = tk.Frame(header_details_frame, bg="white")
+        action_frame.pack(side="right")
+        # tk.Button(action_frame, text="Shortlist", font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=5)
 
-            # Active tab được chọn
-            btn, underline = criteria_tabs[selected]
-            btn.config(bg="white", fg="#1e90ff")
-            underline.config(bg="#1e90ff")
+        # img = Image.open("Abroad-University-Study-Comparison/assets/detail_icon.png")
+        # # img = Image.open("assets/detail_icon.png")
+        # img = img.resize((24, 24), Image.LANCZOS)
+        # detail_photo = ImageTk.PhotoImage(img)
+        # # tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
+        # tk.Button(action_frame, command=lambda name=data['id']: on_click_detail(name), image=detail_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
+        # images_reference.append(detail_photo)
 
-            # Reset score bar
-            for widget in score_bar_container.winfo_children():
-                widget.destroy()
+        # img = Image.open("Abroad-University-Study-Comparison/assets/updates_icon.png")
+        # # img = Image.open("assets/updates_icon.png")
+        # img = img.resize((24, 24), Image.LANCZOS)
+        # update_photo = ImageTk.PhotoImage(img)
+        # # tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
+        # tk.Button(action_frame, command= lambda name=data['id']: on_click_update(name), image=update_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
+        # images_reference.append(update_photo)
 
-            # Hàm vẽ score bar
-            def create_score_item(parent, label, score, max_width=150):
-                item_frame = tk.Frame(parent, bg="white")
-                item_frame.pack(side="left", padx=20)
-
-                tk.Label(item_frame, text=label, font=("Arial", 8, "bold"), bg="white").pack(anchor="w")
-
-                bar = tk.Canvas(item_frame, width=max_width, height=6, bg="#e0e0e0", highlightthickness=0)
-                bar.pack(side="left")
-
-                w = int(score / 100 * max_width)
-                bar.create_rectangle(0, 0, w, 6, fill="#1e90ff", outline="")
-
-                tk.Label(item_frame, text=str(score), font=("Arial", 8), bg="white").pack(side="left", padx=5)
-
-            # Hiện nội dung theo tab
-            if selected == "Research & Discovery":
-                for score_type,score_current in data['score']['Research & Discovery'].items():
-                    create_score_item(score_bar_container, score_type, score_current)
-            elif selected == "Learning Experience":
-                for score_type,score_current in data['score']['Learning Experience'].items():
-                    create_score_item(score_bar_container, score_type, score_current)
-            elif selected == "Employability":
-                for score_type,score_current in data['score']['Employability'].items():
-                    create_score_item(score_bar_container, score_type, score_current)
-            elif selected == "Global Engagement":
-                for score_type,score_current in data['score']['Global Engagement'].items():
-                    create_score_item(score_bar_container, score_type, score_current)
-            else:
-                for score_type,score_current in data['score']['Sustainability'].items():
-                    create_score_item(score_bar_container, score_type, score_current)
-
-        # Tạo button + underline tách biệt
-        for name in criteria_list:
-            tab = tk.Frame(criteria_frame, bg="white")
-            tab.pack(side="left", padx=8)
-
-            btn = tk.Button(tab, text=name, font=("Arial", 9),
-                            bg="white", fg="#333", relief="flat",
-                            command=lambda c=name: on_tab_click(c))
-            btn.pack()
-
-            underline = tk.Frame(tab, height=2, bg="white")
-            underline.pack(fill='x')
-
-            criteria_tabs[name] = (btn, underline)
-
-        # Auto-select tab đầu tiên
-        on_tab_click(criteria_list[0])
-
-    def create_university_table_row(parent, data):
-        row = tk.Frame(parent, bg="white", bd=1, relief="solid", pady=5)
-        row.pack(fill="x")
-
-        # Rank
-        tk.Label(row, text=data["rank"], font=("Arial", 11, "bold"), bg="white", width=10).pack(side="left")
-
-        Re_Dis_frame = tk.Frame(row, bg="#f0f0f0")
-        Re_Dis_frame.pack(side="left", fill='y')
-        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        upper_frame.pack(fill='y',padx=5,pady=5)
-        lower_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        lower_frame.pack(fill='y',padx=5,pady=5)
-        tk.Label(upper_frame, text=data["name"], font=("Arial", 10,), fg="#1e90ff", bg="#f0f0f0",width=38).pack(side="left")
-        tk.Label(lower_frame, text=f"{data['city']}, {data['country']}", font=("Arial", 8,), bg="#f0f0f0",width=38).pack(side="left")
-
-        Re_Dis_frame = tk.Frame(row, bg="white")
-        Re_Dis_frame.pack(side="left", fill='y')
-        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        upper_frame.pack(fill='y',padx=5,pady=5)
-        for score_type,score_current in data['score']['Research & Discovery'].items():
-            tk.Label(upper_frame, text=f'{score_current}', font=("Arial", 8),
-                    bg="white", fg="#1e90ff", width=10)\
-                .pack(side="left")
-            
-        Re_Dis_frame = tk.Frame(row, bg="#f0f0f0")
-        Re_Dis_frame.pack(side="left", fill='y')
-        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        upper_frame.pack(fill='y',padx=5,pady=5)
-        for score_type,score_current in data['score']['Learning Experience'].items():
-            tk.Label(upper_frame, text=f'{score_current}', font=("Arial", 8),
-                    bg="#f0f0f0", fg="#1e90ff", width=20)\
-                .pack(side="left")
-            
-        Re_Dis_frame = tk.Frame(row, bg="white")
-        Re_Dis_frame.pack(side="left", fill='y')
-        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        upper_frame.pack(fill='y',padx=5,pady=5)
-        for score_type,score_current in data['score']['Employability'].items():
-            tk.Label(upper_frame, text=f'{score_current}', font=("Arial", 8),
-                    bg="white", fg="#1e90ff", width=10)\
-                .pack(side="left")
-            
-        Re_Dis_frame = tk.Frame(row, bg="#f0f0f0")
-        Re_Dis_frame.pack(side="left", fill='y')
-        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        upper_frame.pack(fill='y',padx=5,pady=5)
-        for score_type,score_current in data['score']['Global Engagement'].items():
-            tk.Label(upper_frame, text=f'{score_current}', font=("Arial", 8),
-                    bg="#f0f0f0", fg="#1e90ff", width=15)\
-                .pack(side="left")
-            
-        Re_Dis_frame = tk.Frame(row, bg="white")
-        Re_Dis_frame.pack(side="left", fill='y')
-        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        upper_frame.pack(fill='y',padx=5,pady=5)
-        for score_type,score_current in data['score']['Sustainability'].items():
-            tk.Label(upper_frame, text=f'{score_current}', font=("Arial", 8),
-                    bg="white", fg="#1e90ff", width=13)\
-                .pack(side="left")
+        img = Image.open("Abroad-University-Study-Comparison/assets/delete_icon.png")
+        # img = Image.open("assets/delete_icon.png")
+        img = img.resize((24, 24), Image.LANCZOS)
+        delete_photo = ImageTk.PhotoImage(img)
+        # tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
+        tk.Button(action_frame, command= lambda name=data['id']: on_click_delete_user(name), image=delete_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
+        images_reference.append(delete_photo)   
 
     
     def crawl_data():
@@ -513,26 +385,50 @@ def create_ui():
             compare_list[data['id']] = compare_var
         return universities_data
 
-    def crawl_data_with_name(event):
-        name = entry_search.get()
-        uni_data = UniversityController.search_by_name(name)
-        global universities_data
-        universities_data = uni_data
-        number_of_Results.config(text=f"{len(universities_data)} Results")
-        global short_list
-        global compare_list
-        short_list = {}
-        compare_list = {}
-        for data in universities_data:
-            shortList_var = tk.IntVar()
-            compare_var = tk.IntVar()
-            short_list[data['id']] = shortList_var
-            compare_list[data['id']] = compare_var
-        render_university_list()
+    def crawl_data_university_with_name(event):
+        if current_view_mode==1:
+            name = entry_search.get()
+            uni_data = UniversityController.search_by_name(name)
+            global universities_data
+            universities_data = uni_data
+            number_of_Results.config(text=f"{len(universities_data)} Results")
+            global short_list
+            global compare_list
+            short_list = {}
+            compare_list = {}
+            for data in universities_data:
+                shortList_var = tk.IntVar()
+                compare_var = tk.IntVar()
+                short_list[data['id']] = shortList_var
+                compare_list[data['id']] = compare_var
+            render_university_list()
+        else:
+            render_table_view()
 
-    entry_search.bind("<Return>", crawl_data_with_name)
+    entry_search.bind("<Return>", crawl_data_university_with_name)
+    
     universities_data = crawl_data()
-    number_of_Results.config(text=f"{len(universities_data)} Results")
+    user_data = [
+        {
+            'id': '1',
+            'name': 'Corn Thị Tú Khuyên',
+            'datetime': '22/11/2025 10:11:12'
+        },
+        {
+            'id': '2',
+            'name': 'Nguyễn Mountain River',
+            'datetime': '23/11/2025 11:12:13'
+        },
+        {
+            'id': '3',
+            'name': 'Cloud Sound Forest',
+            'datetime': '24/11/2025 12:13:14'
+        }
+    ]
+    if current_view_mode==1:
+        number_of_Results.config(text=f"{len(universities_data)} Results")
+    else:
+        number_of_Results.config(text=f"{len(user_data)} Results")
     for data in universities_data:
         shortList_var = tk.IntVar()
         compare_var = tk.IntVar()
@@ -617,7 +513,10 @@ def create_ui():
     current_page = tk.IntVar(value=1)
 
     def get_total_pages():
-        total = len(universities_data)
+        if current_view_mode==1:
+            total = len(universities_data)
+        else:
+            total = len(user_data)
         per_page = results_per_page.get()
         return max(1, (total + per_page - 1) // per_page)
 

@@ -518,5 +518,5 @@ sample_data = {
     }
 }
 
-UniversityModel.add_university(sample_data)
-# UniversityModel.delete_university(1505)
+# UniversityModel.add_university(sample_data)
+# UniversityModel.delete_university(1507)
