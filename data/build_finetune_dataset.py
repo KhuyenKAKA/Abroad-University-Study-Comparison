@@ -39,7 +39,7 @@ def build_summary(item):
 
 examples = []
 
-for item in data[:300]:  # lấy 300 trường cho dataset nhỏ
+for item in data[:300]: 
     title = item.get("title")
     if not title:
         continue
