@@ -63,8 +63,8 @@ class ChatApp(tk.Tk):
     def __init__(self):
         super().__init__()
 
-        self.title("UniCompare - Chat Support")
-        self.geometry("1200x900") # Tăng chiều cao để nhìn thoáng hơn
+        self.title("UniCompare - Định hướng tương lai cùng bạn")
+        self.geometry("1000x800") # Tăng chiều cao để nhìn thoáng hơn
         self.configure(bg=COLOR_PAGE_BG)
 
         self.assets_path = os.path.join(project_root, "assets")
@@ -126,31 +126,39 @@ class ChatApp(tk.Tk):
     # 1. HEADER
     # ---------------------------------------------------------
     def build_header(self):
-        nav_frame = tk.Frame(self, bg=COLOR_HEADER_FOOTER, height=60)
-        nav_frame.pack(fill='x', side="top")
-        nav_frame.pack_propagate(False)
+        nav_frame = tk.Frame(self, bg="white", height=50)
+        nav_frame.pack(fill='x', padx=0, pady=0)
+        nav_frame.grid_columnconfigure(0, weight=0) 
+        nav_frame.grid_columnconfigure(1, weight=1) 
+        nav_frame.grid_columnconfigure(2, weight=0) 
+        nav_frame.grid_columnconfigure(3, weight=0) 
 
-        # Logo
-        tk.Label(nav_frame, text="UniCompare", font=FONT_LOGO, fg=COLOR_BLUE_LOGO, bg=COLOR_HEADER_FOOTER).pack(side="left", padx=(50, 40))
-
-        # Menu
-        menu_items = ["Rankings", "Discover", "Events", "Prepare", "Scholarships", "Chat To Students"]
-        for item in menu_items:
-            tk.Button(nav_frame, text=item, font=FONT_NAV, bg=COLOR_HEADER_FOOTER, fg="black", bd=0, activebackground="#f0f0f0", cursor="hand2").pack(side="left", padx=5)
-
-        # Right Side
-        right_frame = tk.Frame(nav_frame, bg=COLOR_HEADER_FOOTER)
-        right_frame.pack(side="right", padx=(0, 50))
-
-        tk.Button(right_frame, text="Free Counselling", bg=COLOR_GREEN_BTN, fg="white", font=("Arial", 10, "bold"), bd=0, padx=10, pady=5).pack(side="left", padx=5)
+        tk.Label(nav_frame, text="UniCompare", font=("Arial", 16, "bold"), fg="#1e90ff", bg="white").grid(row=0, column=0, padx=(20, 50), pady=10)
         
-        if self.icons['search']:
-            tk.Button(right_frame, image=self.icons['search'], bg=COLOR_HEADER_FOOTER, bd=0).pack(side="left", padx=5)
-        else:
-            tk.Label(right_frame, text="🔍", bg=COLOR_HEADER_FOOTER).pack(side="left", padx=5)
+        menu_items = ["Xếp hạng", "Khám phá", "Sự kiện", "Chuẩn bị", "Học bổng", "Chat với AI"]
+        btnRankings = tk.Button(nav_frame, text=menu_items[0], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=1, padx=5, pady=10, sticky="e", in_=nav_frame)
+        btnDiscover = tk.Button(nav_frame, text=menu_items[1], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=2, padx=5, pady=10, sticky="e", in_=nav_frame)
+        btnEvents = tk.Button(nav_frame, text=menu_items[2], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=3, padx=5, pady=10, sticky="e", in_=nav_frame)
+        btnPrepare = tk.Button(nav_frame, text=menu_items[3], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=4, padx=5, pady=10, sticky="e", in_=nav_frame)
+        btnScholarships = tk.Button(nav_frame, text=menu_items[4], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=5, padx=5, pady=10, sticky="e", in_=nav_frame)
+        btnChatToStudents = tk.Button(nav_frame, text=menu_items[5], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=6, padx=5, pady=10, sticky="e", in_=nav_frame)
+        
+        right_nav_frame = tk.Frame(nav_frame, bg="white")
+        right_nav_frame.grid(row=0, column=7, sticky="e", padx=(0, 20))
 
-        tk.Button(right_frame, text="Login", bg=COLOR_BLUE_BTN, fg="white", font=("Arial", 10, "bold"), bd=0, padx=15, pady=5).pack(side="left", padx=5)
-        tk.Button(right_frame, text="Sign Up", bg=COLOR_BLUE_BTN, fg="white", font=("Arial", 10, "bold"), bd=0, padx=15, pady=5).pack(side="left", padx=5)
+        tk.Button(right_nav_frame, text="Tư vấn miễn phí",foreground='white', background='#28a745', ).pack(side='left', padx=5)
+        
+        try:
+            # img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
+            img = Image.open("assets/search.png")
+            img = img.resize((24, 24), Image.LANCZOS)
+            search_photo = ImageTk.PhotoImage(img)
+            tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
+        except FileNotFoundError:
+            tk.Label(right_nav_frame, text="🔍", font=("Arial", 16), bg="white").pack(side='left', padx=5)
+        
+        tk.Button(right_nav_frame, text="Đăng nhập", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
+        tk.Button(right_nav_frame, text="Đăng ký", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
 
     # ---------------------------------------------------------
     # 2. MAIN SCROLL AREA (PAGE SCROLL)
@@ -212,8 +220,8 @@ class ChatApp(tk.Tk):
         # --- Header của Chat Box (Tùy chọn, để đẹp hơn) ---
         chat_header = tk.Frame(self.chat_box, bg="#f8f9fa", height=50)
         chat_header.pack(fill="x")
-        tk.Label(chat_header, text="💬 Live Support", font=("Arial", 12, "bold"), bg="#f8f9fa", fg="#333").pack(side="left", padx=20, pady=10)
-        tk.Label(chat_header, text="● Online", font=("Arial", 10), bg="#f8f9fa", fg=COLOR_GREEN_BTN).pack(side="left", padx=5)
+        tk.Label(chat_header, text="Hỗ trợ trực tuyến", font=("Arial", 12, "bold"), bg="#f8f9fa", fg="#333").pack(side="left", padx=20, pady=10)
+        tk.Label(chat_header, text="● Đang hoạt động", font=("Arial", 10), bg="#f8f9fa", fg=COLOR_GREEN_BTN).pack(side="left", padx=5)
 
         # --- Vùng hiển thị tin nhắn (Scroll riêng) ---
         # Fixed height=500 để đảm bảo Footer nằm dưới
@@ -277,8 +285,8 @@ class ChatApp(tk.Tk):
 
         # Cột Links
         links_data = [
-            ("About", []), ("Contact", ["For Students", "Scholarships"]),
-            ("Privacy", ["List courses", "Advertise"]), ("Users", ["Cookies", "Terms"])
+            ("Về chúng tôi", []), ("Liên hệ", ["Dành cho sinh viên", "Học bổng"]),
+            ("Quyền riêng tư", ["Danh sách khóa học", "Quảng cáo"]), ("Người dùng", ["Cookies", "Terms"])
         ]
         for i, (header, links) in enumerate(links_data):
             col = i + 1
@@ -294,7 +302,7 @@ class ChatApp(tk.Tk):
         social_frame = tk.Frame(footer_frame, bg=COLOR_HEADER_FOOTER)
         social_frame = tk.Frame(footer_frame, bg=COLOR_HEADER_FOOTER)
         social_frame.grid(row=0, column=5, rowspan=5, sticky="ne", padx=(0, 50))
-        tk.Label(social_frame, text="Follow us", font=("Arial", 10, "bold"), bg=COLOR_HEADER_FOOTER).pack(anchor="e")
+        tk.Label(social_frame, text="Theo dõi chúng tôi", font=("Arial", 10, "bold"), bg=COLOR_HEADER_FOOTER).pack(anchor="e")
         
         icons_row = tk.Frame(social_frame, bg=COLOR_HEADER_FOOTER)
         icons_row.pack(anchor="e", pady=5)
@@ -304,7 +312,7 @@ class ChatApp(tk.Tk):
             else: 
                 tk.Label(icons_row, text="[x]", bg=COLOR_HEADER_FOOTER).pack(side="left")
 
-        tk.Label(social_frame, text="Subscribe to newsletter", font=("Arial", 10, "bold"), bg=COLOR_HEADER_FOOTER).pack(anchor="e", pady=(20, 5))
+        tk.Label(social_frame, text="Đăng ký nhận tin", font=("Arial", 10, "bold"), bg=COLOR_HEADER_FOOTER).pack(anchor="w", pady=(20, 5))
         sub_box = tk.Frame(social_frame, bg=COLOR_HEADER_FOOTER, bd=1, relief="solid")
         sub_box.pack(anchor="e")
         tk.Entry(sub_box, width=20, bd=0).pack(side="left", padx=5)
