@@ -15,7 +15,7 @@ class PersonalInfoForm:
         self.user = UserController.get_current_user()
         print("Current user data:", self.user)
 
-        self.root.title("UniCompare - Thông tin cá nhân")
+        self.root.title("UniCompare - Định hướng tương lai cùng bạn")
 
         for widget in self.root.winfo_children():
             widget.destroy()
@@ -57,14 +57,14 @@ class PersonalInfoForm:
                                                                                                                    50),
                                                                                                              pady=10)
 
-        menu_items = ["Rankings", "Discover", "Events", "Prepare", "Scholarships", "Chat To Students"]
+        menu_items = ["Xếp hạng", "Khám phá", "Sự kiện", "Chuẩn bị", "Học bổng", "Chat với AI"]
         for i, item in enumerate(menu_items):
             tk.Button(nav_frame, text=item, font=("Segoe UI", 10), bg="white", relief="flat", cursor="hand2").grid(
                 row=0, column=i + 1, padx=5, pady=10, sticky="e")
 
         right_nav = tk.Frame(nav_frame, bg="white")
         right_nav.grid(row=0, column=7, sticky="e", padx=(0, 20))
-        tk.Button(right_nav, text="Free Counselling", fg='white', bg="#1F3AB0", font=("Segoe UI", 10)).pack(side='left',
+        tk.Button(right_nav, text="Tư vấn miễn phí", fg='white', bg="#28a745", font=("Segoe UI", 10)).pack(side='left',
                                                                                                             padx=5)
 
         try:
