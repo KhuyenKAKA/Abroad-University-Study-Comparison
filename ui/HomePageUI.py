@@ -7,7 +7,7 @@ def clickCourseRecommendation(event):
     pass
 def create_ui():
     root = tk.Tk()
-    root.title("UniCompare - Course Recommendation")
+    root.title("UniCompare - Định hướng tương lai cùng bạn")
     root.geometry("1000x800")
     
     root.config(bg="#f8f9fa")
@@ -54,7 +54,7 @@ def create_ui():
 
     tk.Label(nav_frame, text="UniCompare", font=("Arial", 16, "bold"), fg="#1e90ff", bg="white").grid(row=0, column=0, padx=(20, 50), pady=10)
     
-    menu_items = ["Rankings", "Discover", "Events", "Prepare", "Scholarships", "Chat To Students"]
+    menu_items = ["Xếp hạng", "Khám phá", "Sự kiện", "Chuẩn bị", "Học bổng", "Chat với AI"]
     btnRankings = tk.Button(nav_frame, text=menu_items[0], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=1, padx=5, pady=10, sticky="e", in_=nav_frame)
     btnDiscover = tk.Button(nav_frame, text=menu_items[1], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=2, padx=5, pady=10, sticky="e", in_=nav_frame)
     btnEvents = tk.Button(nav_frame, text=menu_items[2], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=3, padx=5, pady=10, sticky="e", in_=nav_frame)
@@ -65,19 +65,19 @@ def create_ui():
     right_nav_frame = tk.Frame(nav_frame, bg="white")
     right_nav_frame.grid(row=0, column=7, sticky="e", padx=(0, 20))
 
-    tk.Button(right_nav_frame, text="Free Counselling",foreground='white', background='#28a745', ).pack(side='left', padx=5)
+    tk.Button(right_nav_frame, text="Tư vấn miễn phí",foreground='white', background='#28a745', ).pack(side='left', padx=5)
     
     try:
-        img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
-        # img = Image.open("assets/search.png")
+        # img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
+        img = Image.open("assets/search.png")
         img = img.resize((24, 24), Image.LANCZOS)
         search_photo = ImageTk.PhotoImage(img)
         tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
     except FileNotFoundError:
         tk.Label(right_nav_frame, text="🔍", font=("Arial", 16), bg="white").pack(side='left', padx=5)
     
-    tk.Button(right_nav_frame, text="Login", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
-    tk.Button(right_nav_frame, text="Sign Up", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
+    tk.Button(right_nav_frame, text="Đăng nhập", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
+    tk.Button(right_nav_frame, text="Đăng ký", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
 
     # style = ttk.Style() 
     # style.configure('B.TButton', foreground='white', background='#007bff', font=('Arial', 10, 'bold'))
@@ -85,11 +85,11 @@ def create_ui():
     
     header_frame = tk.Frame(content_frame, bg="#eaf4ff", padx=50, pady=40)
     header_frame.pack(fill='x')
-    CourseRecommendationLabel = tk.Label(header_frame, text="Course Recommendation", font=("Arial", 10), fg="#007bff", bg="#eaf4ff")
+    CourseRecommendationLabel = tk.Label(header_frame, text="Các trường được đề xuất", font=("Arial", 10), fg="#007bff", bg="#eaf4ff")
     CourseRecommendationLabel.pack(anchor='w')
     CourseRecommendationLabel.bind("<Button-1>",clickCourseRecommendation)
 
-    tk.Label(header_frame, text="Connect with your dream university today", 
+    tk.Label(header_frame, text="Kết nối với trường học mơ ước của bạn ngay hôm nay", 
              font=("Arial", 22, "bold"), bg="#eaf4ff").pack(anchor='w', pady=(5, 10))
              
     points_frame = tk.Frame(header_frame, bg="#eaf4ff")
@@ -98,8 +98,8 @@ def create_ui():
     def add_point(parent, text):
         tk.Label(parent, text="✔ " + text, font=("Arial", 10), bg="#eaf4ff", fg="black").pack(anchor='w')
         
-    add_point(points_frame, "Get personalised admission support for the top universities")
-    add_point(points_frame, "Get academic details from universities in just a few clicks.")
+    add_point(points_frame, "Nhận tư vấn tuyển sinh cá nhân hóa cho các trường đại học hàng đầu")
+    add_point(points_frame, "Xem thông tin học thuật từ các trường đại học chỉ với vài cú nhấp chuột.")
     
     cards_container = tk.Frame(content_frame, bg="#f8f9fa", padx=50, pady=30)
     cards_container.pack(fill='x')
@@ -108,9 +108,9 @@ def create_ui():
     cards_container.grid_columnconfigure(1, weight=1)
     cards_container.grid_columnconfigure(2, weight=1)
     card_data = [
-        {"title": "UC World University Rankings 2026", "desc": "Discover the top-performing universities around the world"},
-        {"title": "UC World University Rankings by Subject 2025", "desc": "Find out which universities excel in your chosen subject"},
-        {"title": "UC World University Rankings: Asia 2026", "desc": "Discover the top universities in Asia with the UC Asia University Rankings."}
+        {"title": "Xếp hạng Đại học Thế giới UC năm 2026", "desc": "Khám phá các trường đại học hàng đầu trên toàn thế giới"},
+        {"title": "Xếp hạng Đại học Thế giới UC theo Ngành học năm 2025", "desc": "Tìm hiểu xem trường đại học nào xuất sắc trong ngành học bạn đã chọn"},
+        {"title": "Xếp hạng Đại học Thế giới UC: Châu Á năm 2026", "desc": "Khám phá các trường đại học hàng đầu tại Châu Á với Bảng xếp hạng Đại học UC Châu Á"}
     ]
     # Explore 1
     border_frame = tk.Frame(cards_container, bg="#1F3AB0", bd=2, relief="solid") 
@@ -123,7 +123,7 @@ def create_ui():
     tk.Label(card_frame, text=card_data[0]["desc"], font=("Arial", 10), wraplength=220, bg="white").pack(pady=5)
     
     # Nút Explore ->
-    explore1_btn = tk.Button(card_frame, text="Explore →", foreground='white', background='#1F3AB0', font=('Arial', 10, 'bold') )
+    explore1_btn = tk.Button(card_frame, text="Khám phá →", foreground='white', background='#1F3AB0', font=('Arial', 10, 'bold') )
     explore1_btn.pack(pady=(20, 10))
     
     border_frame.grid(row=0, column=0, padx=15, sticky="nsew")
@@ -139,7 +139,7 @@ def create_ui():
     tk.Label(card_frame, text=card_data[1]["desc"], font=("Arial", 10), wraplength=220, bg="white").pack(pady=5)
     
     # Nút Explore ->
-    explore2_btn = tk.Button(card_frame, text="Explore →", foreground='white', background='#1F3AB0', font=('Arial', 10, 'bold') )
+    explore2_btn = tk.Button(card_frame, text="Khám phá →", foreground='white', background='#1F3AB0', font=('Arial', 10, 'bold') )
     explore2_btn.pack(pady=(20, 10))
     
     border_frame.grid(row=0, column=1, padx=15, sticky="nsew")
@@ -155,7 +155,7 @@ def create_ui():
     tk.Label(card_frame, text=card_data[2]["desc"], font=("Arial", 10), wraplength=220, bg="white").pack(pady=5)
     
     # Nút Explore ->
-    explore3_btn = tk.Button(card_frame, text="Explore →", foreground='white', background='#1F3AB0', font=('Arial', 10, 'bold') )
+    explore3_btn = tk.Button(card_frame, text="Khám phá →", foreground='white', background='#1F3AB0', font=('Arial', 10, 'bold') )
     explore3_btn.pack(pady=(20, 10))
     
     border_frame.grid(row=0, column=2, padx=15, sticky="nsew")
@@ -168,9 +168,9 @@ def create_ui():
     reviews_frame.pack(fill='x')
     
     # Tiêu đề
-    tk.Label(reviews_frame, text="What students say", 
+    tk.Label(reviews_frame, text="Nhận xét từ sinh viên", 
              font=("Arial", 18, "bold"), bg="#f8f9fa").pack(pady=(0, 5))
-    tk.Label(reviews_frame, text="Hear how we've supported students like you to find their perfect study destination", 
+    tk.Label(reviews_frame, text="Hãy lắng nghe cách chúng tôi đã hỗ trợ những sinh viên như bạn tìm được điểm đến du học lý tưởng", 
              font=("Arial", 10), fg="gray", bg="#f8f9fa").pack(pady=(0, 30))
              
     # Khung chứa 3 nhận xét
@@ -185,9 +185,9 @@ def create_ui():
     # Dữ liệu giả nhận xét
     review_data = [
         {
-            "quote": "My counsellor's assistance at every step has been invaluable, and I cannot thank him enough for making my dreams a reality.",
+            "quote": "Sự hỗ trợ từ chuyên viên tư vấn trong mọi bước đi là vô giá, và tôi vô cùng biết ơn vì đã giúp ước mơ của tôi trở thành hiện thực.",
             "name": "Pranay Kasat",
-            "info": "Master of Science in Global Logistics, W.P Carey School of Business, Arizona State University",
+            "info": "Thạc sĩ Khoa học ngành Logistics Toàn cầu, Trường Kinh doanh W.P Carey, Đại học Bang Arizona",
             "bg_color": "#eaf4ff" # Màu xanh nhạt cho khung 1
         },
         {
@@ -197,9 +197,9 @@ def create_ui():
             "bg_color": "white" # Màu trắng cho khung giữa
         },
         {
-            "quote": "UniCompare were a huge help from the very beginning. When I felt overwhelmed, it was my counsellor who helped me to clarify my goals and find a programme best suited for my future.",
+            "quote": "UniCompare đã giúp đỡ tôi rất nhiều ngay từ ban đầu. Khi tôi cảm thấy mệt mỏi, chính chuyên viên tư vấn của tôi đã giúp tôi làm rõ mục tiêu và tìm ra chương trình phù hợp nhất cho tương lai của tôi.",
             "name": "Bibit Jose",
-            "info": "BSc in Mechanical Engineering, Arizona State University",
+            "info": "Cử nhân Khoa học ngành Kỹ thuật Cơ khí, Đại học Bang Arizona",
             "bg_color": "#eaf4ff" # Màu xanh nhạt cho khung 3
         }
     ]
@@ -240,7 +240,7 @@ def create_ui():
     partners_frame.pack(fill='x')
     
     # Tiêu đề
-    tk.Label(partners_frame, text="Over 650 global partner universities", 
+    tk.Label(partners_frame, text="Có thể có 650 trường đại học đối tác toàn cầu", 
              font=("Arial", 18, "bold"), bg="#f8f9fa").pack(pady=(0, 30))
              
     # Khung chứa Logo
@@ -259,40 +259,40 @@ def create_ui():
     #     tk.Button(right_nav_frame, image=photo,bg= 'white',relief='flat').pack(side='left', padx=5)
     # except FileNotFoundError:
     #     tk.Label(right_nav_frame, text="🔍", font=("Arial", 16), bg="white").pack(side='left', padx=5)
-    logo_texts = [
-        "assets/American_university.png",
-        "assets/Auckland-University-Logo.png",
-        "assets/Boston-University-Logo.png",
-        "assets/Brown-Unversity-Logo.png",
-        "assets/Cairo-University-Logo.png",
-        "assets/Chicago-University-Logo.png",
-        "assets/Columbia-University-Logo.png",
-        "assets/Cornell-University-Logo.png",
-        "assets/Duke-University-Logo.png",
-        "assets/Georgetown-University-Logo.png",
-        "assets/Harvard-University-Logo.png",
-        "assets/Melbourne-University-Logo.png",
-        "assets/Moscow-State-University-Logo.png",
-        "assets/National-University-of-Singapore-Logo.png",
-        "assets/Northeastern-University-Logo.png",
-    ]
     # logo_texts = [
-    #     "Abroad-University-Study-Comparison/assets/American_university.png",
-    #     "Abroad-University-Study-Comparison/assets/Auckland-University-Logo.png",
-    #     "Abroad-University-Study-Comparison/assets/Boston-University-Logo.png",
-    #     "Abroad-University-Study-Comparison/assets/Brown-Unversity-Logo.png",
-    #     "Abroad-University-Study-Comparison/assets/Cairo-University-Logo.png",
-    #     "Abroad-University-Study-Comparison/assets/Chicago-University-Logo.png",
-    #     "Abroad-University-Study-Comparison/assets/Columbia-University-Logo.png",
-    #     "Abroad-University-Study-Comparison/assets/Cornell-University-Logo.png",
-    #     "Abroad-University-Study-Comparison/assets/Duke-University-Logo.png",
-    #     "Abroad-University-Study-Comparison/assets/Georgetown-University-Logo.png",
-    #     "Abroad-University-Study-Comparison/assets/Harvard-University-Logo.png",
-    #     "Abroad-University-Study-Comparison/assets/Melbourne-University-Logo.png",
-    #     "Abroad-University-Study-Comparison/assets/Moscow-State-University-Logo.png",
-    #     "Abroad-University-Study-Comparison/assets/National-University-of-Singapore-Logo.png",
-    #     "Abroad-University-Study-Comparison/assets/Northeastern-University-Logo.png",   
+    #     "assets/American_university.png",
+    #     "assets/Auckland-University-Logo.png",
+    #     "assets/Boston-University-Logo.png",
+    #     "assets/Brown-Unversity-Logo.png",
+    #     "assets/Cairo-University-Logo.png",
+    #     "assets/Chicago-University-Logo.png",
+    #     "assets/Columbia-University-Logo.png",
+    #     "assets/Cornell-University-Logo.png",
+    #     "assets/Duke-University-Logo.png",
+    #     "assets/Georgetown-University-Logo.png",
+    #     "assets/Harvard-University-Logo.png",
+    #     "assets/Melbourne-University-Logo.png",
+    #     "assets/Moscow-State-University-Logo.png",
+    #     "assets/National-University-of-Singapore-Logo.png",
+    #     "assets/Northeastern-University-Logo.png",
     # ]
+    logo_texts = [
+        "Abroad-University-Study-Comparison/assets/American_university.png",
+        "Abroad-University-Study-Comparison/assets/Auckland-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Boston-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Brown-Unversity-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Cairo-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Chicago-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Columbia-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Cornell-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Duke-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Georgetown-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Harvard-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Melbourne-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Moscow-State-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/National-University-of-Singapore-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Northeastern-University-Logo.png",   
+    ]
     row_count = 3
     col_count = 5
     images_reference = []
@@ -324,11 +324,11 @@ def create_ui():
 
     # Cột 0: Logo UniCompare (Mô phỏng)
     tk.Label(footer_frame, text="UniCompare", font=("Arial", 14, "bold"), fg="#1e90ff", bg="white").grid(row=0, column=0, sticky="nw")
-    tk.Label(footer_frame, text="© QS Quacquarelli Symonds Limited 1994 - 2025. All rights reserved.", 
+    tk.Label(footer_frame, text="© QS Quacquarelli Symonds Limited 1994 - 2025. Mọi quyền đã được bảo hộ.", 
              font=("Arial", 7), fg="gray", bg="white").grid(row=4, column=0, columnspan=2, sticky="sw", pady=(50, 0))
     
     # Cột 1, 2, 3, 4: Menu Links
-    menu_headers = ["About", "Contact", "Privacy", "Users"]
+    menu_headers = ["Về chúng tôi", "Liên hệ", "Quyền riêng tư", "Người dùng"]
     menu_row = 0
     for col, header in enumerate(menu_headers):
         tk.Label(footer_frame, text=header, font=("Arial", 10, "bold"), bg="white").grid(row=menu_row, column=col+1, sticky="w")
@@ -337,17 +337,17 @@ def create_ui():
     social_frame = tk.Frame(footer_frame, bg="white")
     social_frame.grid(row=0, column=4, sticky="e")
     
-    tk.Label(social_frame, text="Follow us", font=("Arial", 10, "bold"), bg="white").pack(side="left", padx=(0, 10))
+    tk.Label(social_frame, text="Theo dõi chúng tôi", font=("Arial", 10, "bold"), bg="white").pack(side="left", padx=(0, 10))
     
     # Mô phỏng Social Icons (sử dụng Label với màu nền)
-    social_icons = ["assets/104498_facebook_icon.png", 
-                    "assets/1161953_instagram_icon.png", 
-                    "assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
-                    "assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
-    # social_icons = ["Abroad-University-Study-Comparison/assets/104498_facebook_icon.png", 
-    #                 "Abroad-University-Study-Comparison/assets/1161953_instagram_icon.png", 
-    #                 "Abroad-University-Study-Comparison/assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
-    #                 "Abroad-University-Study-Comparison/assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
+    # social_icons = ["assets/104498_facebook_icon.png", 
+    #                 "assets/1161953_instagram_icon.png", 
+    #                 "assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
+    #                 "assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
+    social_icons = ["Abroad-University-Study-Comparison/assets/104498_facebook_icon.png", 
+                    "Abroad-University-Study-Comparison/assets/1161953_instagram_icon.png", 
+                    "Abroad-University-Study-Comparison/assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
+                    "Abroad-University-Study-Comparison/assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
     for icon in social_icons:
         img = Image.open(icon)
         img = img.resize((15, 15), Image.LANCZOS)
@@ -358,9 +358,9 @@ def create_ui():
         
     # Các khối liên kết chính
     link_blocks = [
-        ("For Students", ["Find courses", "Scholarships", "Events"]),
-        ("For Institution", ["List courses", "Advertise"]),
-        ("For Professionals", ["Career advice", "MBA rankings"])
+        ("Dành cho sinh viên", ["Tìm kiếm khóa học", "Học bổng", "Sự kiện"]),
+        ("Dành cho tổ chức", ["Danh sách khóa học", "Quảng cáo"]),
+        ("Dành cho người đi làm", ["Tư vấn nghề nghiệp", "Xếp hạng MBA"])
     ]
     
     # Đặt các khối liên kết vào hàng 2 và 3
@@ -372,15 +372,15 @@ def create_ui():
             tk.Label(footer_frame, text=link, font=("Arial", 9), fg="gray", bg="white").grid(row=3+j, column=i, sticky="nw")
             
     # Khối T&C, Data Copyright...
-    tk.Label(footer_frame, text="Cookies", font=("Arial", 10, "bold"), bg="white").grid(row=2, column=3, sticky="nw", pady=(20, 5))
-    tk.Label(footer_frame, text="Data Copyright", font=("Arial", 9), fg="gray", bg="white").grid(row=3, column=3, sticky="nw")
-    tk.Label(footer_frame, text="Terms & Conditions", font=("Arial", 9), fg="gray", bg="white").grid(row=4, column=3, sticky="nw")
+    tk.Label(footer_frame, text="Chính sách", font=("Arial", 10, "bold"), bg="white").grid(row=2, column=3, sticky="nw", pady=(20, 5))
+    tk.Label(footer_frame, text="Bản quyền dữ liệu", font=("Arial", 9), fg="gray", bg="white").grid(row=3, column=3, sticky="nw")
+    tk.Label(footer_frame, text="Điều khoản và điều kiện", font=("Arial", 9), fg="gray", bg="white").grid(row=4, column=3, sticky="nw")
     
     # Khối Subscribe
     subscribe_frame = tk.Frame(footer_frame, bg="white")
     subscribe_frame.grid(row=2, column=4, sticky="ne", pady=(20, 5))
     
-    tk.Label(subscribe_frame, text="Subscribe to our newsletter", font=("Arial", 10, "bold"), bg="white").pack(anchor="e")
+    tk.Label(subscribe_frame, text="Đăng ký nhận bản tin của chúng tôi", font=("Arial", 10, "bold"), bg="white").pack(anchor="e")
     
     input_frame = tk.Frame(subscribe_frame, bg="white", relief="solid", bd=1)
     input_frame.pack(anchor="e", pady=5)
