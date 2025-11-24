@@ -4,7 +4,6 @@ from PIL import Image, ImageTk, ImageDraw, ImageOps
 import os
 import sys
 
-# --- CẤU HÌNH ĐƯỜNG DẪN ---
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(current_dir)
 if project_root not in sys.path:
@@ -15,9 +14,8 @@ try:
 except ImportError:
     ChatbotController = None
 
-# --- MÀU SẮC & FONT ---
-COLOR_PAGE_BG = "#eef2f6"       # Màu nền trang (xám xanh nhạt để làm nổi bật box chat)
-COLOR_CHAT_BG = "#ffffff"       # Màu nền khung chat (Trắng hoặc xám rất nhạt)
+COLOR_PAGE_BG = "#eef2f6"      
+COLOR_CHAT_BG = "#ffffff"     
 COLOR_HEADER_FOOTER = "#ffffff"
 COLOR_BLUE_LOGO = "#1e90ff"     
 COLOR_BLUE_BTN = "#1F3AB0"    
@@ -29,9 +27,7 @@ FONT_NAV = ("Arial", 10)
 FONT_LOGO = ("Arial", 16, "bold")
 FONT_CHAT = ("Arial", 11)
 
-# ========================================================
-# CLASS: HIỆU ỨNG LOADING
-# ========================================================
+# HIỆU ỨNG LOADING
 class LoadingBubble(tk.Frame):
     def __init__(self, master, **kwargs):
         super().__init__(master, bg=COLOR_BOT_BUBBLE, **kwargs)
@@ -56,28 +52,23 @@ class LoadingBubble(tk.Frame):
         self.running = False
         self.destroy()
 
-# ========================================================
 # CLASS: APP CHÍNH
-# ========================================================
+
 class ChatApp(tk.Tk):
     def __init__(self):
         super().__init__()
 
         self.title("UniCompare - Định hướng tương lai cùng bạn")
-        self.geometry("1000x800") # Tăng chiều cao để nhìn thoáng hơn
+        self.geometry("1000x800") 
         self.configure(bg=COLOR_PAGE_BG)
 
         self.assets_path = os.path.join(project_root, "assets")
         self.icons = {} 
         self.load_assets()
 
-        # 1. HEADER (Cố định ở trên cùng)
         self.build_header()
-
-        # 2. MAIN SCROLLABLE AREA (Chứa Chat Box + Footer)
         self.build_main_scroll_area()
 
-        # --- INIT CONTROLLER ---
         self.loading_indicator = None
         if ChatbotController:
             try:
@@ -121,10 +112,7 @@ class ChatApp(tk.Tk):
             return ImageTk.PhotoImage(img)
         except:
             return None
-
-    # ---------------------------------------------------------
-    # 1. HEADER
-    # ---------------------------------------------------------
+    # HEADER
     def build_header(self):
         nav_frame = tk.Frame(self, bg="white", height=50)
         nav_frame.pack(fill='x', padx=0, pady=0)
@@ -159,72 +147,40 @@ class ChatApp(tk.Tk):
         
         tk.Button(right_nav_frame, text="Đăng nhập", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
         tk.Button(right_nav_frame, text="Đăng ký", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
-
-    # ---------------------------------------------------------
-    # 2. MAIN SCROLL AREA (PAGE SCROLL)
-    # ---------------------------------------------------------
+    # PAGE SCROLL
     def build_main_scroll_area(self):
-        # Frame container cho Canvas
         self.main_container = tk.Frame(self, bg=COLOR_PAGE_BG)
         self.main_container.pack(fill="both", expand=True)
-
-        # Scrollbar cho trang chính
         self.page_scrollbar = ttk.Scrollbar(self.main_container, orient="vertical")
         self.page_scrollbar.pack(side="right", fill="y")
-
-        # Canvas trang chính
         self.page_canvas = tk.Canvas(self.main_container, bg=COLOR_PAGE_BG, highlightthickness=0, yscrollcommand=self.page_scrollbar.set)
         self.page_canvas.pack(side="left", fill="both", expand=True)
-        
         self.page_scrollbar.config(command=self.page_canvas.yview)
-
-        # Frame nội dung bên trong Canvas (Chứa Chat Box + Footer)
-        self.content_frame = tk.Frame(self.page_canvas, bg=COLOR_PAGE_BG)
-        
-        # Liên kết frame với canvas
-        self.page_canvas.create_window((0, 0), window=self.content_frame, anchor="nw", tags="content_window")
-        
-        # Cập nhật kích thước Canvas khi nội dung thay đổi
+        self.content_frame = tk.Frame(self.page_canvas, bg=COLOR_PAGE_BG)       
+        self.page_canvas.create_window((0, 0), window=self.content_frame, anchor="nw", tags="content_window")        
         self.content_frame.bind("<Configure>", lambda e: self.page_canvas.configure(scrollregion=self.page_canvas.bbox("all")))
         self.page_canvas.bind("<Configure>", lambda e: self.page_canvas.itemconfigure("content_window", width=e.width))
-
-        # --- A. KHỐI CHAT (CHAT WINDOW) ---
         self.build_chat_window(self.content_frame)
-
-        # --- B. FOOTER (Nằm dưới khối chat) ---
         self.build_footer(self.content_frame)
-
-        # Bind scroll chuột cho trang chính
-        # Lưu ý: Sẽ cần xử lý xung đột scroll giữa trang chính và vùng tin nhắn
         self.page_canvas.bind_all("<MouseWheel>", self._on_mousewheel)
-
     def _on_mousewheel(self, event):
-        # Hàm này cho phép cuộn trang chính
         self.page_canvas.yview_scroll(int(-1*(event.delta/120)), "units")
-
-    # ---------------------------------------------------------
-    # 3. CHAT WINDOW (KHUNG CHAT NỔI)
-    # ---------------------------------------------------------
+    # CHAT WINDOW
     def build_chat_window(self, parent):
-        # Frame bao bên ngoài để căn lề (Padding 4 phía như yêu cầu)
-        # pady=(50, 50): Cách Header 50px, Cách Footer 50px
-        # padx=100: Thu hẹp 2 bên
+
         outer_frame = tk.Frame(parent, bg=COLOR_PAGE_BG)
         outer_frame.pack(fill="x", pady=20, padx=20) 
 
-        # KHUNG CHAT CHÍNH (Màu xám/trắng nổi bật)
-        # Dùng relief='raised' hoặc 'solid' để tạo viền
+        # KHUNG CHAT CHÍNH 
+
         self.chat_box = tk.Frame(outer_frame, bg=COLOR_CHAT_BG, bd=1, relief="solid")
         self.chat_box.pack(fill="both", expand=True)
 
-        # --- Header của Chat Box (Tùy chọn, để đẹp hơn) ---
         chat_header = tk.Frame(self.chat_box, bg="#f8f9fa", height=50)
         chat_header.pack(fill="x")
         tk.Label(chat_header, text="Hỗ trợ trực tuyến", font=("Arial", 12, "bold"), bg="#f8f9fa", fg="#333").pack(side="left", padx=20, pady=10)
         tk.Label(chat_header, text="● Đang hoạt động", font=("Arial", 10), bg="#f8f9fa", fg=COLOR_GREEN_BTN).pack(side="left", padx=5)
 
-        # --- Vùng hiển thị tin nhắn (Scroll riêng) ---
-        # Fixed height=500 để đảm bảo Footer nằm dưới
         msg_container = tk.Frame(self.chat_box, bg=COLOR_CHAT_BG, height=500) 
         msg_container.pack(fill="x")
         msg_container.pack_propagate(False) # Giữ chiều cao cố định
@@ -243,7 +199,6 @@ class ChatApp(tk.Tk):
         msg_scrollbar.pack(side="right", fill="y")
         self.msg_canvas.pack(side="left", fill="both", expand=True)
 
-        # Xử lý scroll riêng cho vùng tin nhắn khi di chuột vào
         def _bind_msg_scroll(event):
             self.page_canvas.unbind_all("<MouseWheel>")
             self.msg_canvas.bind_all("<MouseWheel>", lambda e: self.msg_canvas.yview_scroll(int(-1*(e.delta/120)), "units"))
@@ -255,8 +210,6 @@ class ChatApp(tk.Tk):
         self.msg_canvas.bind("<Enter>", _bind_msg_scroll)
         self.msg_canvas.bind("<Leave>", _unbind_msg_scroll)
 
-
-        # --- Thanh nhập liệu (Nằm TRONG Chat Box, dưới cùng) ---
         input_frame = tk.Frame(self.chat_box, bg=COLOR_CHAT_BG, height=70)
         input_frame.pack(fill="x", side="bottom")
         
@@ -272,9 +225,9 @@ class ChatApp(tk.Tk):
         self.send_btn = tk.Button(inner_input, text="Gửi ➤", bg=COLOR_BLUE_BTN, fg="white", font=("Arial", 10, "bold"), bd=0, padx=20, pady=8, cursor="hand2", command=self.send_message)
         self.send_btn.pack(side="left", padx=10)
 
-    # ---------------------------------------------------------
-    # 4. FOOTER (Nằm dưới cùng trang cuộn)
-    # ---------------------------------------------------------
+
+    #  FOOTER 
+
     def build_footer(self, parent):
         footer_frame = tk.Frame(parent, bg=COLOR_HEADER_FOOTER, pady=40, padx=50)
         footer_frame.pack(fill="x", side="bottom")
@@ -318,9 +271,8 @@ class ChatApp(tk.Tk):
         tk.Entry(sub_box, width=20, bd=0).pack(side="left", padx=5)
         tk.Button(sub_box, text="→", bg=COLOR_BLUE_BTN, fg="white", bd=0).pack(side="left")
 
-    # ---------------------------------------------------------
-    # LOGIC CHAT
-    # ---------------------------------------------------------
+    # CHAT
+
     def send_message(self):
         msg = self.entry.get()
         if not msg.strip(): return
@@ -335,7 +287,7 @@ class ChatApp(tk.Tk):
             self.after(2000, lambda: [self.hide_loading(), self.add_message_to_chat("bot", "Đây là phản hồi mẫu.")])
 
     def add_message_to_chat(self, sender, text):
-        # Frame chứa 1 dòng tin nhắn
+
         row_frame = tk.Frame(self.messages_area, bg=COLOR_CHAT_BG)
         row_frame.pack(fill="x", pady=10, padx=20) 
 

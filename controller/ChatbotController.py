@@ -17,27 +17,19 @@ class ChatbotController:
     def __init__(self, view):
         self.view = view
 
-        # Client + model name dùng cho Vertex AI
         self.client = None
         self.MODEL_NAME = None
 
-        # Dữ liệu ranking các trường
         self.full_data = []
 
         # MySQL
         self.db_pool = None
-        self.current_user_id = None  # sẽ được set từ UI sau khi user đăng nhập
+        self.current_user_id = None 
 
         self.initialize_system()
 
-    # ================== KHỞI TẠO HỆ THỐNG ==================
     def initialize_system(self):
-        """
-        - Load file .env
-        - Khởi tạo client Vertex AI (Gemini tuned model)
-        - Khởi tạo pool MySQL
-        - Load dữ liệu raw_data_visualize.json
-        """
+
         self.load_env_and_setup_client()
         self.setup_mysql_pool()
 
@@ -53,13 +45,9 @@ class ChatbotController:
         print("✅ Chatbot Controller sẵn sàng.")
 
     def load_env_and_setup_client(self):
-        """
-        - Tìm và load .env
-        - Thiết lập biến môi trường cho Vertex AI
-        - Tạo genai.Client() theo cấu hình khuyến nghị của google-genai
-        """
+
         try:
-            # 1. Tìm file .env
+       
             current_dir = os.path.dirname(os.path.abspath(__file__))
             project_root = os.path.dirname(current_dir)
             env_paths = [
@@ -71,7 +59,6 @@ class ChatbotController:
                     load_dotenv(p)
                     break
 
-            # 2. Đọc env
             project_id = os.getenv("GOOGLE_CLOUD_PROJECT")
             location = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
             model_name = os.getenv("GEMINI_TUNED_MODEL_NAME")
@@ -80,35 +67,28 @@ class ChatbotController:
             if not project_id:
                 raise RuntimeError("Thiếu GOOGLE_CLOUD_PROJECT trong .env")
             if not model_name:
-                # fallback base model nếu chưa có tuned model
                 model_name = "models/gemini-1.5-flash"
-                print("⚠️ GEMINI_TUNED_MODEL_NAME không có trong .env, dùng tạm:", model_name)
+                print("GEMINI_TUNED_MODEL_NAME không có trong .env, dùng tạm:", model_name)
 
-            # 3. Đảm bảo biến dùng Vertex AI được set trong process
             os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = use_vertex
             os.environ["GOOGLE_CLOUD_PROJECT"] = project_id
             os.environ["GOOGLE_CLOUD_LOCATION"] = location
 
-            # GOOGLE_APPLICATION_CREDENTIALS đã được load_dotenv đưa vào os.environ,
-            # client sẽ tự dùng file service_account.json tương ứng (ADC).
-
-            # 4. Tạo client đúng chuẩn Vertex AI
             self.client = genai.Client(
                 http_options=types.HttpOptions(api_version="v1")
             )
             self.MODEL_NAME = model_name
 
-            print("✅ Đã khởi tạo GenAI client (Vertex AI)")
+            print("Đã khởi tạo GenAI client (Vertex AI)")
             print("   Project:", project_id, "| Location:", location)
             print("   Model:", self.MODEL_NAME)
 
         except Exception as e:
             self.client = None
             self.MODEL_NAME = None
-            print("❌ Lỗi khởi tạo AI:", e)
+            print("Lỗi khởi tạo AI:", e)
             self.send_to_ui(f"Lỗi khởi tạo AI: {e}")
 
-    # ================== MYSQL & HỒ SƠ USER ==================
     def setup_mysql_pool(self):
         """Tạo connection pool tới MySQL (nếu cấu hình đầy đủ)."""
         try:
@@ -119,7 +99,7 @@ class ChatbotController:
             database = os.getenv("MYSQL_DB")
 
             if not (user and password and database):
-                print("⚠️ Thiếu cấu hình MySQL trong .env, bỏ qua kết nối MySQL.")
+                print("Thiếu cấu hình MySQL trong .env, bỏ qua kết nối MySQL.")
                 return
 
             self.db_pool = pooling.MySQLConnectionPool(
@@ -131,26 +111,15 @@ class ChatbotController:
                 password=password,
                 database=database,
             )
-            print("✅ Đã tạo MySQL connection pool.")
+            print("Đã tạo MySQL connection pool.")
         except Exception as e:
             self.db_pool = None
-            print("⚠️ Không thể kết nối MySQL:", e)
+            print("Không thể kết nối MySQL:", e)
 
     def set_current_user(self, user_id: int):
-        """
-        Hàm này sẽ được gọi từ UI sau khi user đăng nhập thành công.
-        Ví dụ: controller.set_current_user(logged_in_user_id)
-        """
         self.current_user_id = user_id
 
     def load_user_profile_from_db(self):
-        """
-        Lấy hồ sơ user từ MySQL dựa trên:
-        - users: first_name, last_name, gender, dob, country_id
-        - countries: name
-        - study_bg: level, major, academic_rate, gpa, graduate_year, ielts, toefl, ...
-        và chuyển thành đoạn text để nhét vào prompt cho AI.
-        """
         if not self.db_pool or not self.current_user_id:
             return ""
 
@@ -199,19 +168,16 @@ class ChatbotController:
 
             lines = ["THÔNG TIN HỌC SINH (lấy tự động từ hệ thống):"]
 
-            # Họ tên
             full_name = " ".join(
                 [x for x in [row.get("first_name"), row.get("last_name")] if x]
             ).strip()
             if full_name:
                 lines.append(f"- Họ tên: {full_name}")
 
-            # Giới tính
             gender_val = row.get("gender")
             if gender_val is not None:
                 lines.append(f"- Giới tính: {'Nam' if bool(gender_val) else 'Nữ'}")
 
-            # Tuổi (tính từ dob)
             dob = row.get("dob")
             if dob:
                 today = date.today()
@@ -220,15 +186,14 @@ class ChatbotController:
                 )
                 lines.append(f"- Tuổi (ước tính): {age}")
 
-            # Quốc gia hiện tại
             country_name = row.get("country_name")
             if country_name:
                 lines.append(f"- Quốc gia đang sinh sống/học tập: {country_name}")
 
-            # ====== Thông tin học thuật từ study_bg ======
+            # Thông tin học thuật từ study_bg
             level = row.get("level")
             if level:
-                lines.append(f"- Bậc học hiện tại/dự định: {level}")  # ví dụ: High school / Bachelor / Master...
+                lines.append(f"- Bậc học hiện tại/dự định: {level}")  
 
             major = row.get("major")
             if major:
@@ -279,7 +244,7 @@ class ChatbotController:
             return "\n".join(lines) + "\n"
 
         except Exception as e:
-            print("⚠️ Lỗi đọc hồ sơ user từ MySQL:", e)
+            print("Lỗi đọc hồ sơ user từ MySQL:", e)
             return ""
 
     def load_json_data(self):
@@ -301,7 +266,7 @@ class ChatbotController:
             print(" Lỗi đọc JSON:", e)
             return []
 
-    # ================== RAG: TÌM TRƯỜNG & FORMAT DỮ LIỆU ==================
+    #  tìm trường và format dữ liệu
     def find_relevant_universities(self, query):
         """
         Tìm kiếm thông minh theo:
@@ -399,8 +364,7 @@ class ChatbotController:
                 continue
 
         return full_text_report
-
-    # ================== NHẬN DẠNG INTENT ==================
+    # nhận dạng các intent
     def detect_intent_and_targets(self, msg: str):
         """
         Phân loại intent:
@@ -444,12 +408,8 @@ class ChatbotController:
 
         return intent, found_items
 
-    # ================== XỬ LÝ INPUT TỪ UI ==================
+    # xử lý input từ ui
     def process_input(self, user_msg: str):
-        """
-        Hàm được view gọi khi người dùng nhấn gửi.
-        Chạy xử lý AI trên thread riêng để không block Tkinter.
-        """
         if not self.client or not self.MODEL_NAME:
             self.send_to_ui("Bot chưa sẵn sàng (lỗi cấu hình AI).")
             return
@@ -470,7 +430,7 @@ class ChatbotController:
         try:
             intent, found_items = self.detect_intent_and_targets(msg)
 
-            # Lấy hồ sơ user (nếu đã đăng nhập và có MySQL)
+            # Lấy hồ sơ user 
             user_profile_text = self.load_user_profile_from_db()
             if user_profile_text:
                 user_profile_block = (
@@ -548,7 +508,7 @@ NHIỆM VỤ:
 5. Trả lời cùng ngôn ngữ với câu hỏi.
 """
 
-                else:  # chit_chat nhưng vẫn có data
+                else:  
                     prompt = f"""
 {user_profile_block}
 Người dùng hỏi: "{msg}"
@@ -566,7 +526,7 @@ Hãy:
 4. Trả lời cùng ngôn ngữ với câu hỏi.
 """
             else:
-                # Không tìm thấy trường nào khớp trong dữ liệu
+                
                 prompt = f"""
 {user_profile_block}
 Người dùng hỏi: "{msg}"
@@ -585,7 +545,6 @@ Hãy:
 5. Trả lời bằng ngôn ngữ của câu hỏi.
 """
 
-            # Gọi model đã fine-tune / base model qua Vertex AI
             response = self.client.models.generate_content(
                 model=self.MODEL_NAME,
                 contents=prompt,
@@ -598,7 +557,7 @@ Hãy:
         except Exception as e:
             self.send_to_ui(f"Lỗi AI: {str(e)}")
 
-    # ================== HỖ TRỢ UI ==================
+    #  HỖ TRỢ UI 
     def send_to_ui(self, text: str):
         if hasattr(self.view, "after"):
             self.view.after(0, lambda: self._update_ui_with_result(text))
