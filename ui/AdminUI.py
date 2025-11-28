@@ -31,7 +31,7 @@ def create_ui():
 
     tk.Label(nav_frame, text="UniCompare", font=("Arial", 16, "bold"), fg="#1e90ff", bg="white").grid(row=0, column=0, padx=(20, 50), pady=10)
     
-    menu_items = ["Rankings", "Discover", "Events", "Prepare", "Scholarships", "Chat To Students"]
+    menu_items = ["Xếp hạng", "Khám phá", "Sự kiện", "Chuẩn bị", "Học bổng", "Chat với AI"]
     # Để làm nổi bật "Rankings" như trong ảnh
     tk.Button(nav_frame, text=menu_items[0], font=("Arial", 10, "bold"), bg="white", fg="#1e90ff", relief="flat").grid(row=0, column=1, padx=5, pady=10, sticky="e", in_=nav_frame) 
     tk.Button(nav_frame, text=menu_items[1], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=2, padx=5, pady=10, sticky="e", in_=nav_frame)
@@ -43,20 +43,20 @@ def create_ui():
     right_nav_frame = tk.Frame(nav_frame, bg="white")
     right_nav_frame.grid(row=0, column=7, sticky="e", padx=(0, 20))
 
-    tk.Button(right_nav_frame, text="Free Counselling",foreground='white', background='#28a745', ).pack(side='left', padx=5)
+    # tk.Button(right_nav_frame, text="Free Counselling",foreground='white', background='#28a745', ).pack(side='left', padx=5)
     
     try:
         # Giả sử bạn đã có file search.png trong thư mục assets
-        img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
-        # img = Image.open("assets/search.png")
+        # img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
+        img = Image.open("assets/search.png")
         img = img.resize((24, 24), Image.LANCZOS)
         search_photo = ImageTk.PhotoImage(img)
         tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
     except FileNotFoundError:
         tk.Label(right_nav_frame, text="🔍", font=("Arial", 16), bg="white").pack(side='left', padx=5)
     
-    tk.Button(right_nav_frame, text="Login", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
-    tk.Button(right_nav_frame, text="Sign Up", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
+    tk.Button(right_nav_frame, text="Đăng nhập", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
+    tk.Button(right_nav_frame, text="Đăng ký", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
 
 # main canvas se dung de lam khung keo scroll
     main_canvas = tk.Canvas(root, bg="#f8f9fa")
@@ -193,7 +193,7 @@ def create_ui():
     # Dropdown "University rank (High to Low)"
     rank_dropdown_frame = tk.Frame(toolbar_frame, bg="#f8f9fa")
     rank_dropdown_frame.pack(side="right")
-    tk.Label(rank_dropdown_frame, text="Published on: 19 June 2025", font=("Arial", 8), fg="#555", bg="#f8f9fa").pack(side="left", padx=10)
+    tk.Label(rank_dropdown_frame, text="Thông tin từ ngày: 19/06/2025", font=("Arial", 8), fg="#555", bg="#f8f9fa").pack(side="left", padx=10)
     
     # tk.Label(rank_dropdown_frame, text="University rank (High to Low) ▼", font=("Arial", 9), fg="#333", bg="white", bd=1, relief='solid', padx=5, pady=2).pack(side="left")
     # selected_modes_filter = ["University rank(High to Low)", "University rank(Low to High)"]
@@ -290,24 +290,24 @@ def create_ui():
         action_frame.pack(side="right")
         # tk.Button(action_frame, text="Shortlist", font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=5)
 
-        img = Image.open("Abroad-University-Study-Comparison/assets/detail_icon.png")
-        # img = Image.open("assets/detail_icon.png")
+        # img = Image.open("Abroad-University-Study-Comparison/assets/detail_icon.png")
+        img = Image.open("assets/detail_icon.png")
         img = img.resize((24, 24), Image.LANCZOS)
         detail_photo = ImageTk.PhotoImage(img)
         # tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
         tk.Button(action_frame, command=lambda name=data['id']: on_click_detail(name), image=detail_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
         images_reference.append(detail_photo)
 
-        img = Image.open("Abroad-University-Study-Comparison/assets/updates_icon.png")
-        # img = Image.open("assets/updates_icon.png")
+        # img = Image.open("Abroad-University-Study-Comparison/assets/updates_icon.png")
+        img = Image.open("assets/updates_icon.png")
         img = img.resize((24, 24), Image.LANCZOS)
         update_photo = ImageTk.PhotoImage(img)
         # tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
         tk.Button(action_frame, command= lambda name=data['id']: on_click_update(name), image=update_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
         images_reference.append(update_photo)
 
-        img = Image.open("Abroad-University-Study-Comparison/assets/delete_icon.png")
-        # img = Image.open("assets/delete_icon.png")
+        # img = Image.open("Abroad-University-Study-Comparison/assets/delete_icon.png")
+        img = Image.open("assets/delete_icon.png")
         img = img.resize((24, 24), Image.LANCZOS)
         delete_photo = ImageTk.PhotoImage(img)
         # tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
@@ -355,15 +355,15 @@ def create_ui():
         # images_reference.append(detail_photo)
 
         # img = Image.open("Abroad-University-Study-Comparison/assets/updates_icon.png")
-        # # img = Image.open("assets/updates_icon.png")
-        # img = img.resize((24, 24), Image.LANCZOS)
-        # update_photo = ImageTk.PhotoImage(img)
-        # # tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
-        # tk.Button(action_frame, command= lambda name=data['id']: on_click_update(name), image=update_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
-        # images_reference.append(update_photo)
+        img = Image.open("assets/updates_icon.png")
+        img = img.resize((24, 24), Image.LANCZOS)
+        update_photo = ImageTk.PhotoImage(img)
+        # tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
+        tk.Button(action_frame, command= lambda name=data['id']: on_click_update(name), image=update_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
+        images_reference.append(update_photo)
 
-        img = Image.open("Abroad-University-Study-Comparison/assets/delete_icon.png")
-        # img = Image.open("assets/delete_icon.png")
+        # img = Image.open("Abroad-University-Study-Comparison/assets/delete_icon.png")
+        img = Image.open("assets/delete_icon.png")
         img = img.resize((24, 24), Image.LANCZOS)
         delete_photo = ImageTk.PhotoImage(img)
         # tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
@@ -391,7 +391,7 @@ def create_ui():
             uni_data = UniversityController.search_by_name(name)
             global universities_data
             universities_data = uni_data
-            number_of_Results.config(text=f"{len(universities_data)} Results")
+            number_of_Results.config(text=f"{len(universities_data)} kết quả")
             global short_list
             global compare_list
             short_list = {}
@@ -426,9 +426,9 @@ def create_ui():
         }
     ]
     if current_view_mode==1:
-        number_of_Results.config(text=f"{len(universities_data)} Results")
+        number_of_Results.config(text=f"{len(universities_data)} kết quả")
     else:
-        number_of_Results.config(text=f"{len(user_data)} Results")
+        number_of_Results.config(text=f"{len(user_data)} kết quả")
     for data in universities_data:
         shortList_var = tk.IntVar()
         compare_var = tk.IntVar()
@@ -469,7 +469,7 @@ def create_ui():
         for widget in pagination_frame.winfo_children():
             widget.destroy()
 
-        tk.Label(pagination_frame,text="Results per page:",bg="#f8f9fa",font=("Arial", 10, "bold")).pack(side="left", padx=10)
+        tk.Label(pagination_frame,text="Kết quả trên mỗi trang:",bg="#f8f9fa",font=("Arial", 10, "bold")).pack(side="left", padx=10)
         results_dropdown = tk.OptionMenu(
             pagination_frame,
             results_per_page,
@@ -483,7 +483,7 @@ def create_ui():
 
         # Prev button
         tk.Button(
-            pagination_frame, text="← Prev",
+            pagination_frame, text="← Trước",
             state="normal" if page > 1 else "disabled",
             command=lambda: change_page(-1)
         ).pack(side="left", padx=5)
@@ -501,7 +501,7 @@ def create_ui():
 
         # Next button
         tk.Button(
-            pagination_frame, text="Next →",
+            pagination_frame, text="Sau →",
             state="normal" if page < total_pages else "disabled",
             command=lambda: change_page(1)
         ).pack(side="left", padx=5)
