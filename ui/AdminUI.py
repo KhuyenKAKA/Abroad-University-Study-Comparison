@@ -550,11 +550,11 @@ def create_ui():
 
     # Cột 0: Logo UniCompare (Mô phỏng)
     tk.Label(footer_frame, text="UniCompare", font=("Arial", 14, "bold"), fg="#1e90ff", bg="white").grid(row=0, column=0, sticky="nw")
-    tk.Label(footer_frame, text="© QS Quacquarelli Symonds Limited 1994 - 2025. All rights reserved.", 
+    tk.Label(footer_frame, text="© QS Quacquarelli Symonds Limited 1994 - 2025. Mọi quyền đã được bảo hộ.", 
              font=("Arial", 7), fg="gray", bg="white").grid(row=4, column=0, columnspan=2, sticky="sw", pady=(50, 0))
     
     # Cột 1, 2, 3, 4: Menu Links
-    menu_headers = ["About", "Contact", "Privacy", "Users"]
+    menu_headers = ["Về chúng tôi", "Liên hệ", "Quyền riêng tư", "Người dùng"]
     menu_row = 0
     for col, header in enumerate(menu_headers):
         tk.Label(footer_frame, text=header, font=("Arial", 10, "bold"), bg="white").grid(row=menu_row, column=col+1, sticky="w")
@@ -563,34 +563,30 @@ def create_ui():
     social_frame = tk.Frame(footer_frame, bg="white")
     social_frame.grid(row=0, column=4, sticky="e")
     
-    tk.Label(social_frame, text="Follow us", font=("Arial", 10, "bold"), bg="white").pack(side="left", padx=(0, 10))
+    tk.Label(social_frame, text="Theo dõi chúng tôi", font=("Arial", 10, "bold"), bg="white").pack(side="left", padx=(0, 10))
     
     # Mô phỏng Social Icons (sử dụng Label với màu nền)
-    # social_icons = ["assets/104498_facebook_icon.png", 
-    #                 "assets/1161953_instagram_icon.png", 
-    #                 "assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
-    #                 "assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
-    social_icons = ["Abroad-University-Study-Comparison/assets/104498_facebook_icon.png", 
-                    "Abroad-University-Study-Comparison/assets/1161953_instagram_icon.png", 
-                    "Abroad-University-Study-Comparison/assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
-                    "Abroad-University-Study-Comparison/assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
+    social_icons = ["assets/104498_facebook_icon.png", 
+                    "assets/1161953_instagram_icon.png", 
+                    "assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
+                    "assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
+    # social_icons = ["Abroad-University-Study-Comparison/assets/104498_facebook_icon.png", 
+    #                 "Abroad-University-Study-Comparison/assets/1161953_instagram_icon.png", 
+    #                 "Abroad-University-Study-Comparison/assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
+    #                 "Abroad-University-Study-Comparison/assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
     for icon in social_icons:
-        try:
-            img = Image.open(icon)
-            img = img.resize((15, 15), Image.LANCZOS)
-            photo = ImageTk.PhotoImage(img)
-            # Dùng label thay vì nút để mô phỏng icon
-            icon_label = tk.Label(social_frame, image=photo, bg="#007bff") 
-            icon_label.pack(side="left", padx=3)
-            images_reference.append(photo)
-        except FileNotFoundError:
-             tk.Label(social_frame, text="[Icon]", font=("Arial", 7), bg="#007bff", fg="gray").pack(side="left", padx=3)
+        img = Image.open(icon)
+        img = img.resize((15, 15), Image.LANCZOS)
+        photo = ImageTk.PhotoImage(img)
+        icon_label = tk.Label(social_frame, image=photo, bg="#007bff", width=15, height=15) 
+        icon_label.pack(side="left", padx=3)
+        images_reference.append(photo)
         
     # Các khối liên kết chính
     link_blocks = [
-        ("For Students", ["Find courses", "Scholarships", "Events"]),
-        ("For Institution", ["List courses", "Advertise"]),
-        ("For Professionals", ["Career advice", "MBA rankings"])
+        ("Dành cho sinh viên", ["Tìm kiếm khóa học", "Học bổng", "Sự kiện"]),
+        ("Dành cho tổ chức", ["Danh sách khóa học", "Quảng cáo"]),
+        ("Dành cho người đi làm", ["Tư vấn nghề nghiệp", "Xếp hạng MBA"])
     ]
     
     # Đặt các khối liên kết vào hàng 2 và 3
@@ -602,15 +598,15 @@ def create_ui():
             tk.Label(footer_frame, text=link, font=("Arial", 9), fg="gray", bg="white").grid(row=3+j, column=i, sticky="nw")
             
     # Khối T&C, Data Copyright...
-    tk.Label(footer_frame, text="Cookies", font=("Arial", 10, "bold"), bg="white").grid(row=2, column=3, sticky="nw", pady=(20, 5))
-    tk.Label(footer_frame, text="Data Copyright", font=("Arial", 9), fg="gray", bg="white").grid(row=3, column=3, sticky="nw")
-    tk.Label(footer_frame, text="Terms & Conditions", font=("Arial", 9), fg="gray", bg="white").grid(row=4, column=3, sticky="nw")
+    tk.Label(footer_frame, text="Chính sách", font=("Arial", 10, "bold"), bg="white").grid(row=2, column=3, sticky="nw", pady=(20, 5))
+    tk.Label(footer_frame, text="Bản quyền dữ liệu", font=("Arial", 9), fg="gray", bg="white").grid(row=3, column=3, sticky="nw")
+    tk.Label(footer_frame, text="Điều khoản và điều kiện", font=("Arial", 9), fg="gray", bg="white").grid(row=4, column=3, sticky="nw")
     
     # Khối Subscribe
     subscribe_frame = tk.Frame(footer_frame, bg="white")
     subscribe_frame.grid(row=2, column=4, sticky="ne", pady=(20, 5))
     
-    tk.Label(subscribe_frame, text="Subscribe to our newsletter", font=("Arial", 10, "bold"), bg="white").pack(anchor="e")
+    tk.Label(subscribe_frame, text="Đăng ký nhận bản tin của chúng tôi", font=("Arial", 10, "bold"), bg="white").pack(anchor="e")
     
     input_frame = tk.Frame(subscribe_frame, bg="white", relief="solid", bd=1)
     input_frame.pack(anchor="e", pady=5)
