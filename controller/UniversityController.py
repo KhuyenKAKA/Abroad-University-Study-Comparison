@@ -10,3 +10,5 @@ class UniversityController:
     
     def get_all_university():
         return UniversityModel.get_all_university()
+    def get_all_university_by_condition(dict):
+        return UniversityModel.get_universities_with_condition(dict)

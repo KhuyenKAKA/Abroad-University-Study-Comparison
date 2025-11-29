@@ -1,6 +1,7 @@
 import mysql.connector
 
 class UniversityModel:
+    # done
     def get_all_university():
         conn = mysql.connector.connect(
             host="127.0.0.1",
@@ -78,7 +79,7 @@ class UniversityModel:
                 data['score'][x[7]][x[8]] = x[9]
             universities_data.append(data)
         return universities_data
-    
+    # done
     def get_universities_with_name(name:str):
         import mysql.connector
         conn = mysql.connector.connect(
@@ -167,6 +168,107 @@ class UniversityModel:
             uni_data.append(data)
         return uni_data
     
+
+    # done
+    # cau truc filter: { 'region': '', 'country': '', 'ranking': (int(),int()) }
+    def get_universities_with_condition(filter):
+        import mysql.connector
+        conn = mysql.connector.connect(
+            host="127.0.0.1",
+            user="user",       
+            password="Tung@09092004"  
+        )
+        cursor = conn.cursor()
+        cursor.execute("use universities_db_clone")
+        # universities, country, 
+        where_condition = ""
+        if filter['region'] is not None:
+            where_condition += f"u.region like '{filter['region']}'"
+        if filter['country'] is not None:
+            if where_condition != "":
+                where_condition += f" and c.name like '{filter['country']}'"
+            else:
+                where_condition += f" c.name like '{filter['country']}'"
+        if filter['ranking'] is not None:
+            if where_condition != "":
+                where_condition += f" and u.rank_int >= {filter['ranking'][0]} and u.rank_int <= {filter['ranking'][1]}"
+            else:
+                where_condition += f" u.rank_int >= {filter['ranking'][0]} and u.rank_int <= {filter['ranking'][1]}"
+        if where_condition != "":
+            where_condition = 'where '+where_condition
+
+        querry = f"""
+        SELECT 
+            u.id,
+            u.rank_int,
+            u.overall_score,
+            u.name AS university_name,
+            u.city,
+            c.name AS country_name,
+            u.logo,
+            st.name AS score_type,
+            i.name AS indicator_name,
+            s.score
+        FROM universities u
+        JOIN countries c  ON u.country_id = c.id
+        JOIN scores s ON u.id = s.university_id
+        JOIN score_types st ON s.score_type_id = st.id
+        JOIN indicators i ON i.id = s.indicator_id
+        {where_condition}
+        """
+        cursor.execute(querry)
+        crawl_data = cursor.fetchall()
+        crawl_data = sorted(crawl_data, key= lambda x:x[0])
+        uni_data = []
+        end_data = min(len(crawl_data),500)
+        for i in range(int(len(crawl_data[0:end_data])/10)):
+            data = {
+                'id':None,
+                'rank': None,
+                'overall_score': None,
+                'name': None,
+                'city': None,
+                'country': None,
+                'logo': None,
+                'score': {
+                    "Research & Discovery":{
+                        "Citations per Faculty":None,
+                        "Academic Reputation":None
+                    },
+                    "Learning Experience":{
+                        "Faculty Student Ratio":None
+                    },
+                    "Employability":{
+                        "Employer Reputation": None,
+                        "Employment Outcomes": None,
+                    },
+                    "Global Engagement":{
+                        "International Student Ratio": None,
+                        "International Research Network": None,
+                        "International Faculty Ratio": None,
+                        "International Student Diversity": None
+                    },
+                    "Sustainability":{
+                        "Sustainability Score": None
+                    }
+                }
+            }
+            for x in crawl_data[i*10:i*10+10]:
+                data['id'] = x[0]
+                data['rank'] = x[1]
+                if x[2] is not None:
+                    data['overall_score'] = x[2]
+                else:
+                    data['overall_score'] = 0.0
+                data['name'] = x[3]
+                data['city'] = x[4]
+                data['country'] = x[5]
+                data['logo'] = x[6]
+                data['score'][x[7]][x[8]] = x[9]
+            uni_data.append(data)
+        return uni_data
+
+    # not working yet
     def add_university(data):
         """
         Thêm 1 trường đại học, score, detail_infors
@@ -259,7 +361,7 @@ class UniversityModel:
         conn.commit()
         return university_id
 
-
+    # not working yet
     def update_university( data):
         """
         Cập nhật thông tin trường, detail_infors và scores theo data['id']
@@ -358,7 +460,7 @@ class UniversityModel:
                 """, (ind_id, st_id, rank_val, score_val, uni_id))
         conn.commit()
 
-
+    # done
     def delete_university(uni_id):
         """
         Xóa 1 trường và tất cả dữ liệu liên quan (scores, detail_infors)
@@ -518,5 +620,14 @@ sample_data = {
     }
 }
 
+# conditions = {
+#     'region':  None,
+#     'country': 'United States',
+#     'city': None,
+#     'ranking': (10,100)
+# }
+
+# print(UniversityModel.get_universities_with_condition(conditions)[0])
+
 # UniversityModel.add_university(sample_data)
-# UniversityModel.delete_university(1507)
+# UniversityModel.delete_university(1508)

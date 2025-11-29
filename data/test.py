@@ -1,32 +1,22 @@
-
-import sys, os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from PIL import Image, ImageTk
-import ui.session as session_data
-from ui.HomePageUI import create_ui as home_page_ui
+import sys
+import os
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+)
 import tkinter as tk
 from tkinter import ttk
-from tkinter import messagebox
-from controller.AuthController import AuthController
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import matplotlib.pyplot as plt
-line_data = [
-    {"name": "Trường 1", "SAT": 1200, "GRE": 320, "GMAT": 600, "ACT": 29, "ATAR": 85, "GPA": 3.5, "TOEFL": 95, "IELTS": 6.5},
-    {"name": "Trường 2", "SAT": 1250, "GRE": 315, "GMAT": 650, "ACT": 28, "ATAR": 80, "GPA": 3.2, "TOEFL": 100, "IELTS": 7.0},
-    {"name": "Trường 3", "SAT": 1100, "GRE": 300, "GMAT": 580, "ACT": 26, "ATAR": 75, "GPA": 3.0, "TOEFL": 90, "IELTS": 6.0},
-]
-table_data = [
-    {"name": "MIT",                         "fee": 100, "scholarship": 100,     "domestic": 100, "international": 100, "total_stu": 11500, "ug_rate": 60, "pg_rate": 40, "inter_total": 30, "inter_ug_rate": 20, "inter_pg_rate": 10},
-    {"name": "Imperial College London",     "fee": 95,  "scholarship": 99.6,    "domestic": 99.3, "international": 100, "total_stu": 19000, "ug_rate": 55, "pg_rate": 45, "inter_total": 35, "inter_ug_rate": 25, "inter_pg_rate": 10},
-    {"name": "Stanford University",         "fee": 98,  "scholarship": 98.5,    "domestic": 99.5, "international": 95, "total_stu": 17000, "ug_rate": 50, "pg_rate": 50, "inter_total": 25, "inter_ug_rate": 15, "inter_pg_rate": 10},
-    {"name": "ETH Zurich",                  "fee": 90,  "scholarship": 95,      "domestic": 100, "international": 90, "total_stu": 24000, "ug_rate": 65, "pg_rate": 35, "inter_total": 40, "inter_ug_rate": 30, "inter_pg_rate": 10},
-    {"name": "National University of SGP",  "fee": 92,  "scholarship": 97,      "domestic": 95, "international": 98, "total_stu": 35000, "ug_rate": 70, "pg_rate": 30, "inter_total": 20, "inter_ug_rate": 10, "inter_pg_rate": 10}
-]
-criteria = ["SAT", "GRE", "GMAT", "ACT", "ATAR", "GPA", "TOEFL", "IELTS"]
+from PIL import Image, ImageTk
+import requests 
+from io import BytesIO
+from controller.UniversityController import UniversityController
+from tkinter import messagebox as mess
+import mysql.connector
 def create_ui():
-
+    global current_view_mode
+    current_view_mode = 1
+    global universities_data
     root = tk.Tk()
-    root.title("UniCompare - Định hướng tương lai cùng bạn")
+    root.title("UniCompare - Course Recommendation")
     root.geometry("1000x800")
     
     root.config(bg="#f8f9fa")
@@ -42,12 +32,13 @@ def create_ui():
     tk.Label(nav_frame, text="UniCompare", font=("Arial", 16, "bold"), fg="#1e90ff", bg="white").grid(row=0, column=0, padx=(20, 50), pady=10)
     
     menu_items = ["Xếp hạng", "Khám phá", "Sự kiện", "Chuẩn bị", "Học bổng", "Chat với AI"]
-    btnRankings = tk.Button(nav_frame, text=menu_items[0], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=1, padx=5, pady=10, sticky="e", in_=nav_frame)
-    btnDiscover = tk.Button(nav_frame, text=menu_items[1], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=2, padx=5, pady=10, sticky="e", in_=nav_frame)
-    btnEvents = tk.Button(nav_frame, text=menu_items[2], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=3, padx=5, pady=10, sticky="e", in_=nav_frame)
-    btnPrepare = tk.Button(nav_frame, text=menu_items[3], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=4, padx=5, pady=10, sticky="e", in_=nav_frame)
-    btnScholarships = tk.Button(nav_frame, text=menu_items[4], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=5, padx=5, pady=10, sticky="e", in_=nav_frame)
-    btnChatToStudents = tk.Button(nav_frame, text=menu_items[5], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=6, padx=5, pady=10, sticky="e", in_=nav_frame)
+    # Để làm nổi bật "Rankings" như trong ảnh
+    tk.Button(nav_frame, text=menu_items[0], font=("Arial", 10, "bold"), bg="white", fg="#1e90ff", relief="flat").grid(row=0, column=1, padx=5, pady=10, sticky="e", in_=nav_frame) 
+    tk.Button(nav_frame, text=menu_items[1], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=2, padx=5, pady=10, sticky="e", in_=nav_frame)
+    tk.Button(nav_frame, text=menu_items[2], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=3, padx=5, pady=10, sticky="e", in_=nav_frame)
+    tk.Button(nav_frame, text=menu_items[3], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=4, padx=5, pady=10, sticky="e", in_=nav_frame)
+    tk.Button(nav_frame, text=menu_items[4], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=5, padx=5, pady=10, sticky="e", in_=nav_frame)
+    tk.Button(nav_frame, text=menu_items[5], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=6, padx=5, pady=10, sticky="e", in_=nav_frame)
     
     right_nav_frame = tk.Frame(nav_frame, bg="white")
     right_nav_frame.grid(row=0, column=7, sticky="e", padx=(0, 20))
@@ -55,6 +46,7 @@ def create_ui():
     tk.Button(right_nav_frame, text="Tư vấn miễn phí",foreground='white', background='#28a745', ).pack(side='left', padx=5)
     
     try:
+        # Giả sử bạn đã có file search.png trong thư mục assets
         img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
         # img = Image.open("assets/search.png")
         img = img.resize((24, 24), Image.LANCZOS)
@@ -65,6 +57,7 @@ def create_ui():
     
     tk.Button(right_nav_frame, text="Đăng nhập", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
     tk.Button(right_nav_frame, text="Đăng ký", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
+
 # main canvas se dung de lam khung keo scroll
     main_canvas = tk.Canvas(root, bg="#f8f9fa")
     main_canvas.pack(side="left", fill="both", expand=True)
@@ -93,103 +86,53 @@ def create_ui():
     main_canvas.bind('<Configure>', on_canvas_resize)
     main_canvas.bind_all("<MouseWheel>", on_mouse_wheel)
     images_reference = []
+    
+    # ===============================================
+    # Phần Nội Dung Chính Bắt Đầu Tại Đây
+    # ===============================================
+    
+    frame_for_infro_frame = tk.Frame(content_frame, bg="#eaf4ff")
+    frame_for_infro_frame.pack(fill='x')
 
-    # content_frame đã được cấu hình mở rộng hàng 0 và hàng 1
-    content_frame.grid_rowconfigure(0, weight=1)# Hàng 0: Table
-    content_frame.grid_rowconfigure(1, weight=1) # Hàng 1: Chart
-    content_frame.grid_rowconfigure(2, weight=0) # Hàng 2: Footer (Weight 0 so it doesn't grow)
-    content_frame.grid_columnconfigure(0, weight=1)
+    info_frame = tk.Frame(frame_for_infro_frame, bg="#eaf4ff",pady=40,padx=50)
+    info_frame.pack(fill="x", expand=True)
+    # info_frame.pack(fill="x")
+    
+    tk.Label(info_frame, text="Bảng xếp hạng Đại học Thế giới UC năm 2025: Các trường đại học hàng đầu toàn cầu", 
+             font=("Arial", 20, "bold"), fg="#333", bg="#eaf4ff", justify='left', wraplength=550).pack(anchor="w", pady=(0, 10))
+    
+    description_text = "Khám phá các trường đại học hàng đầu trên toàn thế giới với Bảng xếp hạng Đại học Thế giới UC 2026. Hơn 1.500 trường đại học hàng đầu thế giới được đưa vào phiên bản 2026 của Bảng xếp hạng Đại học Thế giới UC, với hơn 100 địa điểm được đại diện trên toàn thế giới"
+    tk.Label(info_frame, text=description_text, font=("Arial", 10), fg="#555", bg="#eaf4ff", justify='left', wraplength=550).pack(anchor="w", pady=(0, 15))
+    
+    # Khung Đăng ký
+    register_frame = tk.Frame(info_frame, bg="#4879ae")
+    register_frame.pack(anchor="w")
+    tk.Label(register_frame, text="Đăng ký thành viên trang web miễn phí để truy cập so sánh trực tiếp các trường đại học và nhiều tính năng khác.", 
+             font=("Arial", 9), fg="#f8f9fa", bg="#4879ae").pack(side="left", pady=10)
+    tk.Button(register_frame, text="Đăng ký ngay!", fg="#1F3AB0", background="#eaf4ff", font=("Arial", 9, "bold"), relief='flat').pack(side="left", padx=10, pady=10)
+    
+    # 
+    main_content_frame = tk.Frame(content_frame, bg="#f8f9fa", padx=50, pady=10)
+    main_content_frame.pack(fill='x')
+    
+    # # Khung Tiêu Đề và Ảnh Minh Họa
+    header_frame = tk.Frame(main_content_frame, bg="#f8f9fa")
+    header_frame.pack(fill='x', pady=(0, 10))
 
-    unversities_card_frame = tk.Frame(content_frame, bg="#f8f9fa", padx=50, pady=10)
-    unversities_card_frame.pack(fill='x')
-    def create_university_table_row(parent, data):
-        header = tk.Frame(unversities_card_frame, bg="#f0f0f0", bd=1, relief="solid")
-        header.pack(fill="x")
-
-        # # headers = ["Rank", "Logo", "University", "Location", "Overall Score"]
-        # # widths = [6, 10, 35, 25, 12]
-        # Re_Dis_frame = tk.Frame(header, bg="white")
-        # Re_Dis_frame.pack(side="left", fill='y')
-        # tk.Label(Re_Dis_frame,text="Overall Rank",font=("Arial", 10, "bold"),bg="white", width=10).pack(side="left", padx=5, pady=5)
-        tk.Label(header,text=data['name'],font=("Arial", 10, "bold"),bg="#f0f0f0", width=38).pack(side="left", padx=5, pady=5)
-        
-        Re_Dis_frame = tk.Frame(header, bg="white")
-        Re_Dis_frame.pack(side="left", fill='y')
-        # upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        # upper_frame.pack(fill='y',padx=5,pady=5)
-        fee_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        fee_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(fee_frame, text=data['fee'], font=("Arial", 8,), bg="white",width=10).pack(side="left")
-
-        Re_Dis_frame = tk.Frame(header, bg= '#f0f0f0')
-        Re_Dis_frame.pack(side="left", fill='y')
-        # tk.Label(upper_frame, text='Reserach & Discovery', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
-        Scholarship_frame = tk.Frame(Re_Dis_frame,bg= '#f0f0f0')
-        Scholarship_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(Scholarship_frame, text=data['scholarship'], font=("Arial", 8), bg= '#f0f0f0',width=10).pack(side="left")
-
-        Re_Dis_frame = tk.Frame(header, bg="white")
-        Re_Dis_frame.pack(side="left", fill='y')
-        # upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        # upper_frame.pack(fill='y',padx=5,pady=5)
-        fee_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        fee_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(fee_frame, text=data['domestic'], font=("Arial", 8,), bg="white",width=13).pack(side="left")
-
-        Re_Dis_frame = tk.Frame(header, bg= '#f0f0f0')
-        Re_Dis_frame.pack(side="left", fill='y')
-        # tk.Label(upper_frame, text='Reserach & Discovery', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
-        Scholarship_frame = tk.Frame(Re_Dis_frame,bg= '#f0f0f0')
-        Scholarship_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(Scholarship_frame, text=data['international'], font=("Arial", 8), bg= '#f0f0f0',width=13).pack(side="left")
-        
-        Re_Dis_frame = tk.Frame(header, bg="white")
-        Re_Dis_frame.pack(side="left", fill='y')
-        # upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        # upper_frame.pack(fill='y',padx=5,pady=5)
-        fee_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        fee_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(fee_frame, text=data['total_stu'], font=("Arial", 8,), bg="white",width=10).pack(side="left")
-
-        Re_Dis_frame = tk.Frame(header, bg= '#f0f0f0')
-        Re_Dis_frame.pack(side="left", fill='y')
-        # tk.Label(upper_frame, text='Reserach & Discovery', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
-        Scholarship_frame = tk.Frame(Re_Dis_frame,bg= '#f0f0f0')
-        Scholarship_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(Scholarship_frame, text=data['ug_rate'], font=("Arial", 8), bg= '#f0f0f0',width=15).pack(side="left")
-        
-        Re_Dis_frame = tk.Frame(header, bg="white")
-        Re_Dis_frame.pack(side="left", fill='y')
-        # upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        # upper_frame.pack(fill='y',padx=5,pady=5)
-        fee_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        fee_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(fee_frame, text=data['pg_rate'], font=("Arial", 8,), bg="white",width=20).pack(side="left")
-
-        Re_Dis_frame = tk.Frame(header, bg= '#f0f0f0')
-        Re_Dis_frame.pack(side="left", fill='y')
-        # tk.Label(upper_frame, text='Reserach & Discovery', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
-        Scholarship_frame = tk.Frame(Re_Dis_frame,bg= '#f0f0f0')
-        Scholarship_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(Scholarship_frame, text=data['inter_total'], font=("Arial", 8), bg= '#f0f0f0',width=15).pack(side="left")
-        
-        Re_Dis_frame = tk.Frame(header, bg="white")
-        Re_Dis_frame.pack(side="left", fill='y')
-        # upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        # upper_frame.pack(fill='y',padx=5,pady=5)
-        fee_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        fee_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(fee_frame, text=data['inter_ug_rate'], font=("Arial", 8,), bg="white",width=10).pack(side="left")
-
-        Re_Dis_frame = tk.Frame(header, bg= '#f0f0f0')
-        Re_Dis_frame.pack(side="left", fill='y')
-        # tk.Label(upper_frame, text='Reserach & Discovery', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
-        Scholarship_frame = tk.Frame(Re_Dis_frame,bg= '#f0f0f0')
-        Scholarship_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(Scholarship_frame, text=data['inter_pg_rate'], font=("Arial", 8), bg= '#f0f0f0',width=25).pack(side="left")
-
+    # # Ảnh minh họa (Mô phỏng)
+    illustration_frame = tk.Frame(header_frame, bg="#f8f9fa")
+    illustration_frame.pack(side="right")
+    tk.Label(illustration_frame, text="", fg="gray", bg="#f8f9fa", font=("Arial", 8)).pack(padx=20)
+    
+    # Thanh công cụ và Tìm kiếm
+    toolbar_frame = tk.Frame(main_content_frame, bg="#f8f9fa")
+    toolbar_frame.pack(fill='x', pady=(10, 20))
 
     def render_table_view():
+        table_view.config(bg='white')
+        quick_view.config(bg='#f0f0f0')
+        global current_view_mode 
+        current_view_mode = 2
         for widget in unversities_card_frame.winfo_children():
             widget.destroy()
 
@@ -197,121 +140,638 @@ def create_ui():
         header = tk.Frame(unversities_card_frame, bg="#f0f0f0", bd=1, relief="solid")
         header.pack(fill="x")
 
-        # # headers = ["Rank", "Logo", "University", "Location", "Overall Score"]
-        # # widths = [6, 10, 35, 25, 12]
-        # Re_Dis_frame = tk.Frame(header, bg="white")
-        # Re_Dis_frame.pack(side="left", fill='y')
-        # tk.Label(Re_Dis_frame,text="Overall Rank",font=("Arial", 10, "bold"),bg="white", width=10).pack(side="left", padx=5, pady=5)
-        tk.Label(header,text="Trường đại học",font=("Arial", 10, "bold"),bg="#f0f0f0", width=38).pack(side="left", padx=5, pady=5)
+        # headers = ["Rank", "Logo", "University", "Location", "Overall Score"]
+        # widths = [6, 10, 35, 25, 12]
+        Re_Dis_frame = tk.Frame(header, bg="white")
+        Re_Dis_frame.pack(side="left", fill='y')
+        tk.Label(Re_Dis_frame,text="Xếp hạng\nchung",font=("Arial", 10, "bold"),bg="white", width=10).pack(side="left", padx=5, pady=5)
+        tk.Label(header,text="Trường đại học",font=("Arial", 10, "bold"),bg="#f0f0f0", width=33).pack(side="left", padx=5, pady=5)
         
         Re_Dis_frame = tk.Frame(header, bg="white")
         Re_Dis_frame.pack(side="left", fill='y')
-        # upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        # upper_frame.pack(fill='y',padx=5,pady=5)
-        fee_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        fee_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(fee_frame, text='Học phí', font=("Arial", 8,), bg="white",width=10).pack(side="left")
+        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        upper_frame.pack(fill='y',padx=5,pady=5)
+        lower_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        lower_frame.pack(fill='y',padx=5,pady=5)
+        tk.Label(upper_frame, text='Nghiên cứu & Khám phá', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
+        tk.Label(lower_frame, text='Số trích dẫn\ntrên mỗi giảng viên', font=("Arial", 8,), bg="white",width=14).pack(side="left")
+        tk.Label(lower_frame, text='Danh tiếng\nhọc thuật', font=("Arial", 8), bg="white",width=10).pack(side="left")
 
-        Re_Dis_frame = tk.Frame(header, bg= '#f0f0f0')
+        Re_Dis_frame = tk.Frame(header, bg="#f0f0f0")
         Re_Dis_frame.pack(side="left", fill='y')
-        # tk.Label(upper_frame, text='Reserach & Discovery', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
-        Scholarship_frame = tk.Frame(Re_Dis_frame,bg= '#f0f0f0')
-        Scholarship_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(Scholarship_frame, text='Học bổng', font=("Arial", 8), bg= '#f0f0f0',width=10).pack(side="left")
-
-        Re_Dis_frame = tk.Frame(header, bg="white")
-        Re_Dis_frame.pack(side="left", fill='y')
-        # upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        # upper_frame.pack(fill='y',padx=5,pady=5)
-        fee_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        fee_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(fee_frame, text='Tỉ lệ sinh viên\nnội địa', font=("Arial", 8,), bg="white",width=13).pack(side="left")
-
-        Re_Dis_frame = tk.Frame(header, bg= '#f0f0f0')
-        Re_Dis_frame.pack(side="left", fill='y')
-        # tk.Label(upper_frame, text='Reserach & Discovery', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
-        Scholarship_frame = tk.Frame(Re_Dis_frame,bg= '#f0f0f0')
-        Scholarship_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(Scholarship_frame, text='Tỉ lệ sinh viên\nquốc tế', font=("Arial", 8), bg= '#f0f0f0',width=13).pack(side="left")
+        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        upper_frame.pack(fill='y',padx=5,pady=5)
+        lower_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        lower_frame.pack(fill='y',padx=5,pady=5)
+        tk.Label(upper_frame, text='Trải nghiệm học tập', font=("Arial", 10,), fg="#1e90ff", bg="#f0f0f0").pack()
+        tk.Label(lower_frame, text='Tỷ lệ\ngiảng viên/sinh viên', font=("Arial", 8,), bg="#f0f0f0",width=15).pack(side="left")
         
         Re_Dis_frame = tk.Frame(header, bg="white")
         Re_Dis_frame.pack(side="left", fill='y')
-        # upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        # upper_frame.pack(fill='y',padx=5,pady=5)
-        fee_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        fee_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(fee_frame, text='Tổng số\nsinh viên', font=("Arial", 8,), bg="white",width=10).pack(side="left")
-
-        Re_Dis_frame = tk.Frame(header, bg= '#f0f0f0')
+        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        upper_frame.pack(fill='y',padx=5,pady=5)
+        lower_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        lower_frame.pack(fill='y',padx=5,pady=5)
+        tk.Label(upper_frame, text='Khả năng việc làm', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
+        tk.Label(lower_frame, text='Danh tiếng với\nnhà tuyển dụng', font=("Arial", 8,), bg="white",width=12).pack(side="left")
+        tk.Label(lower_frame, text='Kết quả của sinh\nviên tốt nghiệp', font=("Arial", 8,), bg="white",width=14).pack(side="left")
+        
+        Re_Dis_frame = tk.Frame(header, bg="#f0f0f0")
         Re_Dis_frame.pack(side="left", fill='y')
-        # tk.Label(upper_frame, text='Reserach & Discovery', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
-        Scholarship_frame = tk.Frame(Re_Dis_frame,bg= '#f0f0f0')
-        Scholarship_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(Scholarship_frame, text='Số lượng sinh viên', font=("Arial", 8), bg= '#f0f0f0',width=15).pack(side="left")
+        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        upper_frame.pack(fill='y',padx=5,pady=5)
+        lower_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        lower_frame.pack(fill='y',padx=5,pady=5)
+        tk.Label(upper_frame, text='Sự tham gia toàn cầu', font=("Arial", 10,), fg="#1e90ff", bg="#f0f0f0").pack()
+        tk.Label(lower_frame, text='Tỷ lệ\nsinh viên quốc tế', font=("Arial", 8,), bg="#f0f0f0",width=15).pack(side="left")
+        tk.Label(lower_frame, text='Mạng lưới\nnghiên cứu quốc tế', font=("Arial", 8,), bg="#f0f0f0",width=15).pack(side="left")
+        tk.Label(lower_frame, text='Tỷ lệ giảng viên\nquốc tế', font=("Arial", 8,), bg="#f0f0f0",width=15).pack(side="left")
+        tk.Label(lower_frame, text='Mức độ đa dạng\nsinh viên quốc tế', font=("Arial", 8,), bg="#f0f0f0",width=15).pack(side="left")
         
         Re_Dis_frame = tk.Frame(header, bg="white")
         Re_Dis_frame.pack(side="left", fill='y')
-        # upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        # upper_frame.pack(fill='y',padx=5,pady=5)
-        fee_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        fee_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(fee_frame, text='Số lượng người học\nsau đại học', font=("Arial", 8,), bg="white",width=20).pack(side="left")
-
-        Re_Dis_frame = tk.Frame(header, bg= '#f0f0f0')
-        Re_Dis_frame.pack(side="left", fill='y')
-        # tk.Label(upper_frame, text='Reserach & Discovery', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
-        Scholarship_frame = tk.Frame(Re_Dis_frame,bg= '#f0f0f0')
-        Scholarship_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(Scholarship_frame, text='Tổng số sinh\nviên quốc tế', font=("Arial", 8), bg= '#f0f0f0',width=15).pack(side="left")
+        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        upper_frame.pack(fill='y',padx=5,pady=5)
+        lower_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        lower_frame.pack(fill='y',padx=5,pady=5)
+        tk.Label(upper_frame, text='Bền vững', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
+        tk.Label(lower_frame, text='Chỉ số\nbền vững', font=("Arial", 8,), bg="white",width=10).pack(side="left")
         
-        Re_Dis_frame = tk.Frame(header, bg="white")
-        Re_Dis_frame.pack(side="left", fill='y')
-        # upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        # upper_frame.pack(fill='y',padx=5,pady=5)
-        fee_frame = tk.Frame(Re_Dis_frame,bg= 'white')
-        fee_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(fee_frame, text='Sinh viên\nquốc tế', font=("Arial", 8,), bg="white",width=10).pack(side="left")
+        per_page = results_per_page.get()
+        page = current_page.get()
 
-        Re_Dis_frame = tk.Frame(header, bg= '#f0f0f0')
-        Re_Dis_frame.pack(side="left", fill='y')
-        # tk.Label(upper_frame, text='Reserach & Discovery', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
-        Scholarship_frame = tk.Frame(Re_Dis_frame,bg= '#f0f0f0')
-        Scholarship_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(Scholarship_frame, text='Lượng người học chương\ntrình sau đại học quốc tế', font=("Arial", 8), bg= '#f0f0f0',width=25).pack(side="left")
-
-        for data in table_data:
+        start = (page - 1) * per_page
+        end = start + per_page
+        for data in universities_data[start:end]:
             create_university_table_row(unversities_card_frame, data)
+        
+        render_pagination_bar()
 
-    render_table_view()
+    def render_university_list():
+        # Xóa cũ
+        quick_view.config(bg='white')
+        table_view.config(bg='#f0f0f0')
+        global current_view_mode
+        current_view_mode = 1
+        for widget in unversities_card_frame.winfo_children():
+            widget.destroy()
+
+        per_page = results_per_page.get()
+        page = current_page.get()
+
+        start = (page - 1) * per_page
+        end = start + per_page
+
+        for data in universities_data[start:end]:
+            create_university_block(unversities_card_frame, data)
+
+        render_pagination_bar()
+    
+    def take_compare_universities():
+        global compare_list
+        checked_list = [v for v in compare_list if compare_list[v].get()]
+        if len(checked_list)>1: 
+            pass
+        else:
+            mess.showwarning("Thông báo","Hãy chọn trường đại học để so sánh!")
+
+    # Nút Quick View và Table View
+    view_frame = tk.Frame(toolbar_frame, bg="#f8f9fa", bd=1, relief='solid')
+    view_frame.pack(side="left", padx=(0, 20))
+    # current_view_mode = 1
+    quick_view = tk.Button(view_frame, text="📊 Xem nhanh",command=render_university_list, font=("Arial", 9), bg="white", relief='flat')
+    quick_view.pack(side="left", padx=(0, 1), pady=0)
+    table_view = tk.Button(view_frame, text="▦ Xem dạng bảng",command=render_table_view ,font=("Arial", 9), bg="#e0e0e0", relief='flat')
+    table_view.pack(side="left", padx=(1, 0), pady=0)
+    
+    # Trường tìm kiếm
+    search_entry_frame = tk.Frame(toolbar_frame, bg="white", bd=1, relief='solid')
+    search_entry_frame.pack(side="left", fill='y', padx=(0, 20))
+    tk.Label(search_entry_frame, image=search_photo, font=("Arial", 10), bg="white").pack(side="left", padx=5)
+    entry_search = tk.Entry(search_entry_frame, width=30, font=("Arial", 10), relief='flat')
+    entry_search.pack(side="left", padx=5)
+    
+    def apply_filter_to_ui(dict):
+        global universities_data
+        universities_data = UniversityController.get_all_university_by_condition(dict)
+        # print(len(universities_data))
+        number_of_Results.config(text=f"{len(universities_data)} kết quả")
+        global short_list
+        global compare_list
+        short_list = {}
+        compare_list = {}
+        for data in universities_data:
+            shortList_var = tk.IntVar()
+            compare_var = tk.IntVar()
+            short_list[data['id']] = shortList_var
+            compare_list[data['id']] = compare_var
+        render_university_list()
 
 
-    frame_table = tk.Frame(content_frame, bg="#e8f0fe") 
+    def create_filter():
+    # KẾT NỐI DB
+        mydb = mysql.connector.connect(
+            host='localhost',
+            user='user',
+            password='Tung@09092004',
+            database='universities_db_clone'
+        )
+        cursor = mydb.cursor()
 
-    frame_table.pack(fill='x') 
+        cursor.execute("SELECT region FROM universities")
+        region_data = [x[0] for x in cursor.fetchall() if x[0] is not None]
+        region_data = list(dict.fromkeys(region_data))
+        region_data.sort()
 
-    frame_chart = tk.Frame(content_frame, bg="#dfe7fd")
+        cursor.execute("""
+            SELECT c.name 
+            FROM universities u 
+            JOIN countries c ON u.country_id = c.id
+        """)
+        country_data = [x[0] for x in cursor.fetchall() if x[0] is not None]
+        country_data = list(dict.fromkeys(country_data))
+        country_data.sort()
 
-    frame_chart.pack(fill='x') 
+        sub = tk.Toplevel(root)
+        sub.title("Bộ lọc tìm kiếm")
+        sub.geometry("420x600")
+        sub.resizable(False, False)
 
-    draw_chart_in_frame(frame_chart, criteria, line_data)
+        title = tk.Label(sub, text="Hãy chọn thông tin bạn muốn lọc",
+                        font=("Arial", 14, "bold"))
+        title.pack(pady=15)
 
+
+        region_frame = tk.LabelFrame(sub, text="Vùng (Region)", padx=10, pady=10)
+        region_frame.pack(fill="x", padx=15, pady=10)
+
+        region_cbb = ttk.Combobox(region_frame, values=region_data,
+                                width=30, height=6, state="readonly")
+        region_cbb.pack()
+
+        country_frame = tk.LabelFrame(sub, text="Quốc gia (Country)", padx=10, pady=10)
+        country_frame.pack(fill="x", padx=15, pady=10)
+
+        country_cbb = ttk.Combobox(country_frame, values=country_data,
+                                width=30, height=6, state="readonly")
+        country_cbb.pack()
+
+        ranking_frame = tk.LabelFrame(sub, text="Xếp hạng (Ranking)", padx=10, pady=10)
+        ranking_frame.pack(fill="x", padx=15, pady=10)
+
+        ranking_options = [
+            ("Top 100", 1),
+            ("101 - 300", 2),
+            ("301 - 500", 3),
+            ("501+", 4)
+        ]
+
+        top_ranking_var = tk.IntVar(value=0)
+
+        for text, value in ranking_options:
+            tk.Radiobutton(ranking_frame, text=text, variable=top_ranking_var,
+                        value=value, anchor="w").pack(fill="x")
+
+        def apply_filter():
+            if not region_cbb.get().strip():
+                region_value = None
+            else:
+                region_value = region_cbb.get().strip()
+
+            if not country_cbb.get().strip():
+                country_value = None
+            else:
+                country_value = country_cbb.get().strip()
+                    
+            if top_ranking_var.get() == 1:
+                ranking_value = (1,100)
+            if top_ranking_var.get() == 2:
+                ranking_value = (101,300)
+            if top_ranking_var.get() == 3:
+                ranking_value = (301,500)
+            if top_ranking_var.get() == 4:
+                ranking_value = (501,3000)
+            
+            respond_data = {
+                "region": region_value,
+                "country": country_value,
+                "ranking": ranking_value
+            }
+            apply_filter_to_ui(respond_data)
+            sub.destroy()
+            # print("FILTER:", respond_data)
+
+        apply_btn = tk.Button(sub, text="Áp dụng bộ lọc",
+                            font=("Arial", 12), bg="#0013e9", fg="white",
+                            padx=10, pady=5, command=apply_filter)
+        apply_btn.pack(pady=20)
+
+    # Nút Apply Filters & Compare
+    tk.Button(toolbar_frame, text="So sánh",command=take_compare_universities, fg="white", background="#0013e9", font=("Arial", 9, "bold"), relief='flat').pack(side="right",padx=(20,0))
+    tk.Button(toolbar_frame, command=create_filter, text="Áp dụng bộ lọc", fg="white", background="#1e90ff", font=("Arial", 9, "bold"), relief='flat').pack(side="right")
+    number_of_Results = tk.Label(toolbar_frame, text="2 Results", font=("Arial", 10), fg="#555", bg="#f8f9fa") # Khoảng cách mô phỏng
+    number_of_Results.pack(side="right", padx=(100, 20))
+
+    # Dropdown "University rank (High to Low)"
+    rank_dropdown_frame = tk.Frame(toolbar_frame, bg="#f8f9fa")
+    rank_dropdown_frame.pack(side="right")
+    tk.Label(rank_dropdown_frame, text="Thông tin từ ngày: 19/06/2025", font=("Arial", 8), fg="#555", bg="#f8f9fa").pack(side="left", padx=10)
+    
+    # tk.Label(rank_dropdown_frame, text="University rank (High to Low) ▼", font=("Arial", 9), fg="#333", bg="white", bd=1, relief='solid', padx=5, pady=2).pack(side="left")
+    selected_modes_filter = ["Xếp hạng đại học(Cao xuống thấp)", "Xếp hạng đại học(Thấp lên cao)"]
+    selected_mode = tk.StringVar()
+    selected_mode.set("Xếp hạng đại học(Cao xuống thấp)")
+    selected_modes_filter_dropdown = tk.OptionMenu(rank_dropdown_frame,selected_mode,*selected_modes_filter)
+    selected_modes_filter_dropdown.pack(side='left',padx=5,pady=2)
+
+    def on_sort_change(*args):
+        mode = selected_mode.get()
+
+        if mode == "Xếp hạng đại học(Cao xuống thấp)":
+            universities_data.sort(key=lambda x: x['overall_score'], reverse=True)
+        else:
+            universities_data.sort(key=lambda x: x['overall_score'])
+
+        # # Cập nhật rank theo thứ tự mới
+        # for idx, uni in enumerate(universities_data, start=1):
+        #     uni['rank'] = idx
+        global current_view_mode
+        if current_view_mode == 2:
+            render_table_view()
+        else:
+            render_university_list()
+            
+
+    selected_mode.trace("w", on_sort_change)
+    # 
+    global compare_list
+    global short_list
+    compare_list = {}
+    short_list = {}
+    # # Khối thông tin Trường Đại học
+    def check_number_of_compare(current_compare):
+        global compare_list
+        checked = sum(v.get() for v in compare_list.values())
+        if checked > 5:
+            current_compare.set(0)
+            mess.showwarning("Đạt số lượng so sánh tối đa là 5!","Không thêm được các trường nữa")
+            
+    def link_to_detail(event,id):
+        pass
+    
+    def create_university_block(parent,data):
+        uni_block = tk.Frame(parent, bg="white", bd=1, relief='solid', padx=20, pady=15)
+        uni_block.pack(fill='x', pady=15)
+
+        # Cột 1: Rank và Score
+        rank_score_frame = tk.Frame(uni_block, bg="white")
+        rank_score_frame.pack(side="left", padx=(0, 30))
+        
+        tk.Label(rank_score_frame, text="Rank", font=("Arial", 8), fg="#888", bg="white").pack(anchor="w")
+        tk.Label(rank_score_frame, text=data['rank'], font=("Arial", 28, "bold"), fg="#333", bg="white").pack(anchor="w")
+        
+        tk.Label(rank_score_frame, text="Điểm số:", font=("Arial", 9), fg="#888", bg="white").pack(anchor="w", pady=(10, 0))
+        if data['overall_score'] != 0.0:
+            tk.Label(rank_score_frame, text=data['overall_score'], font=("Arial", 14, "bold"), fg="#333", bg="white").pack(anchor="w")
+        else:
+            tk.Label(rank_score_frame, text="Không có dữ liệu", font=("Arial", 14, "bold"), fg="#333", bg="white").pack(anchor="w")
+
+        # Cột 2: Logo và Tên Trường
+        details_frame = tk.Frame(uni_block, bg="white")
+        details_frame.pack(side="left", fill='x', expand=True)
+
+        header_details_frame = tk.Frame(details_frame, bg="white")
+        header_details_frame.pack(fill='x', pady=(0, 10))
+
+        # Logo (Mô phỏng)
+        try:
+            # Sửa lỗi: Chuyển sang đường dẫn tương đối đơn giản hơn
+            response = requests.get(data['logo'])
+            image_data = BytesIO(response.content)
+            pil_image = Image.open(image_data)
+            pil_image = pil_image.resize((70, 70), Image.Resampling.LANCZOS)
+            tk_image = ImageTk.PhotoImage(pil_image)
+            logo_label = tk.Label(header_details_frame, image=tk_image, bg="white")
+            logo_label.pack(side="left", padx=(0, 10))
+            images_reference.append(tk_image) # Lưu reference
+        except FileNotFoundError:
+            tk.Label(header_details_frame, text="[Logo]", font=("Arial", 8), bg="white", fg="gray", width=5).pack(side="left", padx=(0, 10))
+        
+        name_loc_frame = tk.Frame(header_details_frame, bg="white")
+        name_loc_frame.pack(side="left", fill='y')
+        
+        university_name = tk.Label(name_loc_frame, text=data['name'], font=("Arial", 14, "bold"), fg="#1e90ff", bg="white")
+        university_name.pack(anchor="w")
+        university_name.bind("<Button-1>",lambda event: link_to_detail(event,data['id']))
+        tk.Label(name_loc_frame, text=f'{data['city']}, {data['country']}', font=("Arial", 10), fg="#555", bg="white").pack(anchor="w")
+
+        # Nút Shortlist và Compare
+        action_frame = tk.Frame(header_details_frame, bg="white")
+        action_frame.pack(side="right")
+        # tk.Button(action_frame, text="Shortlist", font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=5)
+
+        
+        tk.Checkbutton(action_frame,variable=short_list[data['id']], text='Ưa thích',font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=5)
+        tk.Checkbutton(action_frame,variable=compare_list[data['id']], command=lambda v=compare_list[data['id']]: check_number_of_compare(v), text='So sánh',font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=5)
+        # tk.Button(action_frame, text="Compare", font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=5)
+
+        # Thanh tiêu chí - Tab Menu (Mới)
+        criteria_frame = tk.Frame(details_frame, bg="white")
+        criteria_frame.pack(fill='x', pady=(5, 15))
+
+        criteria_list = ["Nghiên cứu & khám phá", "Trải nghiệm học tập", "Khả năng việc làm", "Sự tham gia toàn cầu", "Bền vững"]
+
+        criteria_tabs = {}  # lưu cả button và underline
+
+        # Khung chứa thanh điểm
+        score_bar_container = tk.Frame(details_frame, bg="white")
+        score_bar_container.pack(fill='x', pady=(5, 0))
+
+        # Hàm click tab
+        def on_tab_click(selected):
+            # Reset tất cả tab
+            for key, (btn, underline) in criteria_tabs.items():
+                btn.config(bg="white", fg="#333")
+                underline.config(bg="white")
+
+            # Active tab được chọn
+            btn, underline = criteria_tabs[selected]
+            btn.config(bg="white", fg="#1e90ff")
+            underline.config(bg="#1e90ff")
+
+            # Reset score bar
+            for widget in score_bar_container.winfo_children():
+                widget.destroy()
+
+            # Hàm vẽ score bar
+            def create_score_item(parent, label, score, max_width=150):
+                item_frame = tk.Frame(parent, bg="white")
+                item_frame.pack(side="left", padx=20)
+
+                tk.Label(item_frame, text=label, font=("Arial", 8, "bold"), bg="white").pack(anchor="w")
+
+                bar = tk.Canvas(item_frame, width=max_width, height=6, bg="#e0e0e0", highlightthickness=0)
+                bar.pack(side="left")
+
+                w = int(score / 100 * max_width)
+                bar.create_rectangle(0, 0, w, 6, fill="#1e90ff", outline="")
+
+                tk.Label(item_frame, text=str(score), font=("Arial", 8), bg="white").pack(side="left", padx=5)
+
+            # Hiện nội dung theo tab
+            if selected == "Nghiên cứu & khám phá":
+                for score_type,score_current in data['score']['Research & Discovery'].items():
+                    create_score_item(score_bar_container, score_type, score_current)
+            elif selected == "Trải nghiệm học tập":
+                for score_type,score_current in data['score']['Learning Experience'].items():
+                    create_score_item(score_bar_container, score_type, score_current)
+            elif selected == "Khả năng việc làm":
+                for score_type,score_current in data['score']['Employability'].items():
+                    create_score_item(score_bar_container, score_type, score_current)
+            elif selected == "Sự tham gia toàn cầu":
+                for score_type,score_current in data['score']['Global Engagement'].items():
+                    create_score_item(score_bar_container, score_type, score_current)
+            else:
+                for score_type,score_current in data['score']['Sustainability'].items():
+                    create_score_item(score_bar_container, score_type, score_current)
+
+        # Tạo button + underline tách biệt
+        for name in criteria_list:
+            tab = tk.Frame(criteria_frame, bg="white")
+            tab.pack(side="left", padx=8)
+
+            btn = tk.Button(tab, text=name, font=("Arial", 9),
+                            bg="white", fg="#333", relief="flat",
+                            command=lambda c=name: on_tab_click(c))
+            btn.pack()
+
+            underline = tk.Frame(tab, height=2, bg="white")
+            underline.pack(fill='x')
+
+            criteria_tabs[name] = (btn, underline)
+
+        # Auto-select tab đầu tiên
+        on_tab_click(criteria_list[0])
+
+    def create_university_table_row(parent, data):
+        row = tk.Frame(parent, bg="white", bd=1, relief="solid", pady=5)
+        row.pack(fill="x")
+
+        # Rank
+        tk.Label(row, text=data["rank"], font=("Arial", 11, "bold"), bg="white", width=10).pack(side="left")
+
+        Re_Dis_frame = tk.Frame(row, bg="#f0f0f0")
+        Re_Dis_frame.pack(side="left", fill='y')
+        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        upper_frame.pack(fill='y',padx=5,pady=5)
+        lower_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        lower_frame.pack(fill='y',padx=5,pady=5)
+        tk.Label(upper_frame, text=data["name"], font=("Arial", 10,), fg="#1e90ff", bg="#f0f0f0",width=33).pack(side="left")
+        tk.Label(lower_frame, text=f"{data['city']}, {data['country']}", font=("Arial", 8,), bg="#f0f0f0",width=33).pack(side="left")
+
+        Re_Dis_frame = tk.Frame(row, bg="white")
+        Re_Dis_frame.pack(side="left", fill='y')
+        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        upper_frame.pack(fill='y',padx=5,pady=5)
+        for score_type,score_current in data['score']['Research & Discovery'].items():
+            tk.Label(upper_frame, text=f'{score_current}', font=("Arial", 8),
+                    bg="white", fg="#1e90ff", width=12)\
+                .pack(side="left")
+            
+        Re_Dis_frame = tk.Frame(row, bg="#f0f0f0")
+        Re_Dis_frame.pack(side="left", fill='y')
+        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        upper_frame.pack(fill='y',padx=(3,2),pady=5)
+        for score_type,score_current in data['score']['Learning Experience'].items():
+            tk.Label(upper_frame, text=f'{score_current}', font=("Arial", 8),
+                    bg="#f0f0f0", fg="#1e90ff", width=20)\
+                .pack(side="left")
+            
+        Re_Dis_frame = tk.Frame(row, bg="white")
+        Re_Dis_frame.pack(side="left", fill='y')
+        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        upper_frame.pack(fill='y',padx=5,pady=5)
+        for score_type,score_current in data['score']['Employability'].items():
+            tk.Label(upper_frame, text=f'{score_current}', font=("Arial", 8),
+                    bg="white", fg="#1e90ff", width=13)\
+                .pack(side="left")
+            
+        Re_Dis_frame = tk.Frame(row, bg="#f0f0f0")
+        Re_Dis_frame.pack(side="left", fill='y')
+        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        upper_frame.pack(fill='y',padx=5,pady=5)
+        for score_type,score_current in data['score']['Global Engagement'].items():
+            tk.Label(upper_frame, text=f'{score_current}', font=("Arial", 8),
+                    bg="#f0f0f0", fg="#1e90ff", width=15)\
+                .pack(side="left")
+            
+        Re_Dis_frame = tk.Frame(row, bg="white")
+        Re_Dis_frame.pack(side="left", fill='y')
+        upper_frame = tk.Frame(Re_Dis_frame,bg= 'white')
+        upper_frame.pack(fill='y',padx=5,pady=5)
+        for score_type,score_current in data['score']['Sustainability'].items():
+            tk.Label(upper_frame, text=f'{score_current}', font=("Arial", 8),
+                    bg="white", fg="#1e90ff", width=10)\
+                .pack(side="left")
+
+    
+    def crawl_data():
+        # from models.UniversityModel import UniversityModel
+        universities_data = UniversityController.get_all_university()
+        global short_list
+        global compare_list
+        short_list = {}
+        compare_list = {}
+        for data in universities_data:
+            shortList_var = tk.IntVar()
+            compare_var = tk.IntVar()
+            short_list[data['id']] = shortList_var
+            compare_list[data['id']] = compare_var
+        return universities_data
+
+    def crawl_data_with_name(event):
+        name = entry_search.get()
+        uni_data = UniversityController.search_by_name(name)
+        global universities_data
+        universities_data = uni_data
+        number_of_Results.config(text=f"{len(universities_data)} kết quả")
+        global short_list
+        global compare_list
+        short_list = {}
+        compare_list = {}
+        for data in universities_data:
+            shortList_var = tk.IntVar()
+            compare_var = tk.IntVar()
+            short_list[data['id']] = shortList_var
+            compare_list[data['id']] = compare_var
+        render_university_list()
+
+    entry_search.bind("<Return>", crawl_data_with_name)
+    universities_data = crawl_data()
+    number_of_Results.config(text=f"{len(universities_data)} kết quả")
+    for data in universities_data:
+        shortList_var = tk.IntVar()
+        compare_var = tk.IntVar()
+        short_list[data['id']] = shortList_var
+        compare_list[data['id']] = compare_var
+    # Giả sử bạn có ảnh logo trong thư mục assets
+    unversities_card_frame = tk.Frame(content_frame, bg="#f8f9fa", padx=50, pady=10)
+    unversities_card_frame.pack(fill='x')
+
+    
+        # create_university_block(main_content_frame,data)    
+
+    # ===================== Phân trang =================
+    pagination_frame = tk.Frame(content_frame, bg="#f8f9fa")
+    pagination_frame.pack()
+
+    
+
+    def change_page(delta):
+        global current_view_mode
+        new_page = current_page.get() + delta
+        if 1 <= new_page <= get_total_pages():
+            current_page.set(new_page)
+            if current_view_mode == 2:
+                render_table_view()
+            else: 
+                render_university_list()
+
+    def go_to_page(page):
+        current_page.set(page)
+        global current_view_mode
+        if current_view_mode == 2:
+            render_table_view()
+        else: 
+            render_university_list()
+
+    def render_pagination_bar():
+        for widget in pagination_frame.winfo_children():
+            widget.destroy()
+
+        tk.Label(pagination_frame,text="Results per page:",bg="#f8f9fa",font=("Arial", 10, "bold")).pack(side="left", padx=10)
+        results_dropdown = tk.OptionMenu(
+            pagination_frame,
+            results_per_page,
+            *results_per_page_options,
+            command=lambda _: update_pagination()
+        )
+        results_dropdown.pack(side="left", padx=10)
+
+        total_pages = get_total_pages()
+        page = current_page.get()
+
+        # Prev button
+        tk.Button(
+            pagination_frame, text="← Prev",
+            state="normal" if page > 1 else "disabled",
+            command=lambda: change_page(-1)
+        ).pack(side="left", padx=5)
+
+        # Page numbers
+        for p in range(1, total_pages + 1):
+            btn = tk.Button(
+                pagination_frame, text=str(p),
+                width=3,
+                fg="white" if p == page else "black",
+                bg="#1e90ff" if p == page else "white",
+                command=lambda x=p: go_to_page(x)
+            )
+            btn.pack(side="left", padx=2)
+
+        # Next button
+        tk.Button(
+            pagination_frame, text="Next →",
+            state="normal" if page < total_pages else "disabled",
+            command=lambda: change_page(1)
+        ).pack(side="left", padx=5)
+
+
+    # Pagination states
+    results_per_page_options = [5, 10, 20, 50]
+    results_per_page = tk.IntVar(value=10) 
+    current_page = tk.IntVar(value=1)
+
+    def get_total_pages():
+        total = len(universities_data)
+        per_page = results_per_page.get()
+        return max(1, (total + per_page - 1) // per_page)
+
+    def update_pagination():
+        current_page.set(1)  # reset về page 1 mỗi khi đổi số lượng
+        global current_view_mode
+        if current_view_mode == 2:
+            render_table_view()
+        else: 
+            render_university_list()
+    render_pagination_bar()
+
+    per_page = results_per_page.get()
+    page = current_page.get()
+
+    start = (page - 1) * per_page
+    end = start + per_page
+
+    for data in universities_data[start:end]:
+        create_university_block(unversities_card_frame,data)
     # ===============================================
     # Phần Footer
     # ===============================================
-
+    
     footer_frame = tk.Frame(content_frame, bg="white", padx=50, pady=40)
-
     footer_frame.pack(fill='x', pady=(20, 0))
+    
+    # Thiết lập lưới chính cho footer (5 cột chính)
     for i in range(5):
         footer_frame.grid_columnconfigure(i, weight=1 if i > 0 else 0) # Cột 0 là Logo, còn lại là menu
 
     # Cột 0: Logo UniCompare (Mô phỏng)
     tk.Label(footer_frame, text="UniCompare", font=("Arial", 14, "bold"), fg="#1e90ff", bg="white").grid(row=0, column=0, sticky="nw")
-    tk.Label(footer_frame, text="© QS Quacquarelli Symonds Limited 1994 - 2025. All rights reserved.", 
+    tk.Label(footer_frame, text="© QS Quacquarelli Symonds Limited 1994 - 2025. Mọi quyền đã được bảo hộ.", 
              font=("Arial", 7), fg="gray", bg="white").grid(row=4, column=0, columnspan=2, sticky="sw", pady=(50, 0))
     
     # Cột 1, 2, 3, 4: Menu Links
-    menu_headers = ["About", "Contact", "Privacy", "Users"]
+    menu_headers = ["Về chúng tôi", "Liên hệ", "Quyền riêng tư", "Người dùng"]
     menu_row = 0
     for col, header in enumerate(menu_headers):
         tk.Label(footer_frame, text=header, font=("Arial", 10, "bold"), bg="white").grid(row=menu_row, column=col+1, sticky="w")
@@ -320,18 +780,17 @@ def create_ui():
     social_frame = tk.Frame(footer_frame, bg="white")
     social_frame.grid(row=0, column=4, sticky="e")
     
-    tk.Label(social_frame, text="Follow us", font=("Arial", 10, "bold"), bg="white").pack(side="left", padx=(0, 10))
+    tk.Label(social_frame, text="Theo dõi chúng tôi", font=("Arial", 10, "bold"), bg="white").pack(side="left", padx=(0, 10))
     
     # Mô phỏng Social Icons (sử dụng Label với màu nền)
-    social_icons = ["Abroad-University-Study-Comparison/assets/104498_facebook_icon.png", 
-                    "Abroad-University-Study-Comparison/assets/1161953_instagram_icon.png", 
-                    "Abroad-University-Study-Comparison/assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
-                    "Abroad-University-Study-Comparison/assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
     # social_icons = ["assets/104498_facebook_icon.png", 
     #                 "assets/1161953_instagram_icon.png", 
     #                 "assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
     #                 "assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
-    
+    social_icons = ["Abroad-University-Study-Comparison/assets/104498_facebook_icon.png", 
+                    "Abroad-University-Study-Comparison/assets/1161953_instagram_icon.png", 
+                    "Abroad-University-Study-Comparison/assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
+                    "Abroad-University-Study-Comparison/assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
     for icon in social_icons:
         img = Image.open(icon)
         img = img.resize((15, 15), Image.LANCZOS)
@@ -342,9 +801,9 @@ def create_ui():
         
     # Các khối liên kết chính
     link_blocks = [
-        ("For Students", ["Find courses", "Scholarships", "Events"]),
-        ("For Institution", ["List courses", "Advertise"]),
-        ("For Professionals", ["Career advice", "MBA rankings"])
+        ("Dành cho sinh viên", ["Tìm kiếm khóa học", "Học bổng", "Sự kiện"]),
+        ("Dành cho tổ chức", ["Danh sách khóa học", "Quảng cáo"]),
+        ("Dành cho người đi làm", ["Tư vấn nghề nghiệp", "Xếp hạng MBA"])
     ]
     
     # Đặt các khối liên kết vào hàng 2 và 3
@@ -356,15 +815,15 @@ def create_ui():
             tk.Label(footer_frame, text=link, font=("Arial", 9), fg="gray", bg="white").grid(row=3+j, column=i, sticky="nw")
             
     # Khối T&C, Data Copyright...
-    tk.Label(footer_frame, text="Cookies", font=("Arial", 10, "bold"), bg="white").grid(row=2, column=3, sticky="nw", pady=(20, 5))
-    tk.Label(footer_frame, text="Data Copyright", font=("Arial", 9), fg="gray", bg="white").grid(row=3, column=3, sticky="nw")
-    tk.Label(footer_frame, text="Terms & Conditions", font=("Arial", 9), fg="gray", bg="white").grid(row=4, column=3, sticky="nw")
+    tk.Label(footer_frame, text="Chính sách", font=("Arial", 10, "bold"), bg="white").grid(row=2, column=3, sticky="nw", pady=(20, 5))
+    tk.Label(footer_frame, text="Bản quyền dữ liệu", font=("Arial", 9), fg="gray", bg="white").grid(row=3, column=3, sticky="nw")
+    tk.Label(footer_frame, text="Điều khoản và điều kiện", font=("Arial", 9), fg="gray", bg="white").grid(row=4, column=3, sticky="nw")
     
     # Khối Subscribe
     subscribe_frame = tk.Frame(footer_frame, bg="white")
     subscribe_frame.grid(row=2, column=4, sticky="ne", pady=(20, 5))
     
-    tk.Label(subscribe_frame, text="Subscribe to our newsletter", font=("Arial", 10, "bold"), bg="white").pack(anchor="e")
+    tk.Label(subscribe_frame, text="Đăng ký nhận bản tin của chúng tôi", font=("Arial", 10, "bold"), bg="white").pack(anchor="e")
     
     input_frame = tk.Frame(subscribe_frame, bg="white", relief="solid", bd=1)
     input_frame.pack(anchor="e", pady=5)
@@ -376,85 +835,6 @@ def create_ui():
     subscribe_btn.pack(side="left")
 
     root.mainloop()
-def draw_chart_in_frame(master_frame, criteria, line_data):
-
-    for widget in master_frame.winfo_children():
-        widget.destroy()
-
-    ttk.Label(master_frame, text="Chỉ số Tiêu chí Tuyển sinh", 
-              font=("Arial", 14, "bold"), background=master_frame['bg']).pack(pady=(5, 5))
-
-    fig_chart = plt.Figure(figsize=(10, 5), dpi=100)
-    ax_chart = fig_chart.add_subplot(111)
-
-    x_pos = list(range(len(criteria)))
-
-    plots = []
-    
-    data_points = []
-    
-    for i, school in enumerate(line_data):
-        values = [school[c] for c in criteria]
-        line, = ax_chart.plot(x_pos, values, marker="o", label=school["name"])
-        plots.append(line)
-
-        for j, val in enumerate(values):
-            data_points.append({
-                'x': x_pos[j],
-                'y': val,
-                'school': school['name'],
-                'criterion': criteria[j]
-            })
-
-    ax_chart.set_xticks(x_pos) 
-    ax_chart.set_xticklabels(criteria, rotation=15, ha="right")
-    ax_chart.legend()
-
-    canvas = FigureCanvasTkAgg(fig_chart, master=master_frame)
-    canvas.draw()
-    canvas_widget = canvas.get_tk_widget()
-    canvas_widget.pack(fill="both", expand=True)
-
-    annot = ax_chart.annotate("", xy=(0, 0), xytext=(20, 20), textcoords="offset points",
-                              bbox=dict(boxstyle="round", fc="w", alpha=0.7),
-                              arrowprops=dict(arrowstyle="->"))
-    annot.set_visible(False)
-    
-    def update_annot(point):
-        annot_text = f"Trường: {point['school']}\n{point['criterion']}: {point['y']}"
-        annot.xy = (point['x'], point['y'])
-        annot.set_text(annot_text)
-        annot.get_bbox_patch().set_facecolor('#ffffcc')
-        annot.get_bbox_patch().set_alpha(0.7)
-
-    def hover(event):
-        if event.inaxes == ax_chart:
-            closest_point = None
-            min_dist = float('inf')
-            
-            tolerance_px = 5 
-            
-            display_x, display_y = ax_chart.transData.transform((event.xdata, event.ydata))
-
-            for point in data_points:
-                point_display_x, point_display_y = ax_chart.transData.transform((point['x'], point['y']))
-                
-                dist_sq = (display_x - point_display_x)**2 + (display_y - point_display_y)**2
-                
-                if dist_sq < min_dist and dist_sq <= tolerance_px**2:
-                    min_dist = dist_sq
-                    closest_point = point
-
-            if closest_point:
-                update_annot(closest_point)
-                annot.set_visible(True)
-                fig_chart.canvas.draw_idle()
-            else:
-                if annot.get_visible():
-                    annot.set_visible(False)
-                    fig_chart.canvas.draw_idle()
-
-    canvas.mpl_connect("motion_notify_event", hover)
 
 if __name__ == "__main__":
     create_ui()

@@ -10,6 +10,7 @@ import requests
 from io import BytesIO
 from controller.UniversityController import UniversityController
 from tkinter import messagebox as mess
+import mysql.connector
 def create_ui():
     global current_view_mode
     current_view_mode = 1
@@ -46,8 +47,8 @@ def create_ui():
     
     try:
         # Giả sử bạn đã có file search.png trong thư mục assets
-        # img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
-        img = Image.open("assets/search.png")
+        img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
+        # img = Image.open("assets/search.png")
         img = img.resize((24, 24), Image.LANCZOS)
         search_photo = ImageTk.PhotoImage(img)
         tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
@@ -250,9 +251,124 @@ def create_ui():
     entry_search = tk.Entry(search_entry_frame, width=30, font=("Arial", 10), relief='flat')
     entry_search.pack(side="left", padx=5)
     
+    def apply_filter_to_ui(dict):
+        global universities_data
+        universities_data = UniversityController.get_all_university_by_condition(dict)
+        # print(len(universities_data))
+        number_of_Results.config(text=f"{len(universities_data)} kết quả")
+        global short_list
+        global compare_list
+        short_list = {}
+        compare_list = {}
+        for data in universities_data:
+            shortList_var = tk.IntVar()
+            compare_var = tk.IntVar()
+            short_list[data['id']] = shortList_var
+            compare_list[data['id']] = compare_var
+        render_university_list()
+
+
+    def create_filter():
+    # KẾT NỐI DB
+        mydb = mysql.connector.connect(
+            host='localhost',
+            user='user',
+            password='Tung@09092004',
+            database='universities_db_clone'
+        )
+        cursor = mydb.cursor()
+
+        cursor.execute("SELECT region FROM universities")
+        region_data = [x[0] for x in cursor.fetchall() if x[0] is not None]
+        region_data = list(dict.fromkeys(region_data))
+        region_data.sort()
+
+        cursor.execute("""
+            SELECT c.name 
+            FROM universities u 
+            JOIN countries c ON u.country_id = c.id
+        """)
+        country_data = [x[0] for x in cursor.fetchall() if x[0] is not None]
+        country_data = list(dict.fromkeys(country_data))
+        country_data.sort()
+
+        sub = tk.Toplevel(root)
+        sub.title("Bộ lọc tìm kiếm")
+        sub.geometry("420x600")
+        sub.resizable(False, False)
+
+        title = tk.Label(sub, text="Hãy chọn thông tin bạn muốn lọc",
+                        font=("Arial", 14, "bold"))
+        title.pack(pady=15)
+
+
+        region_frame = tk.LabelFrame(sub, text="Vùng (Region)", padx=10, pady=10)
+        region_frame.pack(fill="x", padx=15, pady=10)
+
+        region_cbb = ttk.Combobox(region_frame, values=region_data,
+                                width=30, height=6, state="readonly")
+        region_cbb.pack()
+
+        country_frame = tk.LabelFrame(sub, text="Quốc gia (Country)", padx=10, pady=10)
+        country_frame.pack(fill="x", padx=15, pady=10)
+
+        country_cbb = ttk.Combobox(country_frame, values=country_data,
+                                width=30, height=6, state="readonly")
+        country_cbb.pack()
+
+        ranking_frame = tk.LabelFrame(sub, text="Xếp hạng (Ranking)", padx=10, pady=10)
+        ranking_frame.pack(fill="x", padx=15, pady=10)
+
+        ranking_options = [
+            ("Top 100", 1),
+            ("101 - 300", 2),
+            ("301 - 500", 3),
+            ("501+", 4)
+        ]
+
+        top_ranking_var = tk.IntVar(value=0)
+
+        for text, value in ranking_options:
+            tk.Radiobutton(ranking_frame, text=text, variable=top_ranking_var,
+                        value=value, anchor="w").pack(fill="x")
+
+        def apply_filter():
+            if not region_cbb.get().strip():
+                region_value = None
+            else:
+                region_value = region_cbb.get().strip()
+
+            if not country_cbb.get().strip():
+                country_value = None
+            else:
+                country_value = country_cbb.get().strip()
+                    
+            if top_ranking_var.get() == 1:
+                ranking_value = (1,100)
+            if top_ranking_var.get() == 2:
+                ranking_value = (101,300)
+            if top_ranking_var.get() == 3:
+                ranking_value = (301,500)
+            if top_ranking_var.get() == 4:
+                ranking_value = (501,3000)
+            
+            respond_data = {
+                "region": region_value,
+                "country": country_value,
+                "ranking": ranking_value
+            }
+            apply_filter_to_ui(respond_data)
+            sub.destroy()
+            # print("FILTER:", respond_data)
+
+        apply_btn = tk.Button(sub, text="Áp dụng bộ lọc",
+                            font=("Arial", 12), bg="#0013e9", fg="white",
+                            padx=10, pady=5, command=apply_filter)
+        apply_btn.pack(pady=20)
+
     # Nút Apply Filters & Compare
     tk.Button(toolbar_frame, text="So sánh",command=take_compare_universities, fg="white", background="#0013e9", font=("Arial", 9, "bold"), relief='flat').pack(side="right",padx=(20,0))
-    tk.Button(toolbar_frame, text="Áp dụng bộ lọc", fg="white", background="#1e90ff", font=("Arial", 9, "bold"), relief='flat').pack(side="right")
+    tk.Button(toolbar_frame, command=create_filter, text="Áp dụng bộ lọc", fg="white", background="#1e90ff", font=("Arial", 9, "bold"), relief='flat').pack(side="right")
     number_of_Results = tk.Label(toolbar_frame, text="2 Results", font=("Arial", 10), fg="#555", bg="#f8f9fa") # Khoảng cách mô phỏng
     number_of_Results.pack(side="right", padx=(100, 20))
 
