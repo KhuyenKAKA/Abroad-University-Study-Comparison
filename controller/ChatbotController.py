@@ -12,6 +12,8 @@ from google.genai import types
 import mysql.connector
 from mysql.connector import pooling
 
+from ui.session import session
+
 
 class ChatbotController:
     def __init__(self, view):
@@ -27,6 +29,26 @@ class ChatbotController:
         self.current_user_id = None 
 
         self.initialize_system()
+
+    def build_user_context(self) -> str:
+        """
+        Lấy thông tin từ session để đưa vào prompt cho AI.
+        """
+        if not session.get("is_logged_in"):
+            return "Người dùng chưa đăng nhập, chưa có thêm thông tin cá nhân."
+
+        lines = []
+        if session.get("name"):
+            lines.append(f"Tên người dùng: {session.get('name')}")
+        if session.get("role_type"):
+            lines.append(f"Loại người dùng (role_type): {session.get('role_type')}")
+        if session.get("user_id") is not None:
+            lines.append(f"User ID nội bộ: {session.get('user_id')}")
+
+        if not lines:
+            return "Người dùng đã đăng nhập nhưng chưa có nhiều thông tin chi tiết."
+
+        return "Thông tin người dùng hiện tại:\n" + "\n".join(f"- {l}" for l in lines)
 
     def initialize_system(self):
 
@@ -428,6 +450,8 @@ class ChatbotController:
         - Gọi model đã fine-tune để sinh câu trả lời
         """
         try:
+            user_context = self.build_user_context()
+
             intent, found_items = self.detect_intent_and_targets(msg)
 
             # Lấy hồ sơ user 
@@ -448,7 +472,12 @@ class ChatbotController:
                     prompt = f"""
 {user_profile_block}
 Bạn là cố vấn du học quốc tế cho học sinh Việt Nam.
+
+NGỮ CẢNH NGƯỜI DÙNG (từ session):
+{user_context}
+
 Người dùng hỏi: "{msg}"
+
 
 Dưới đây là HỒ SƠ CHI TIẾT của trường liên quan:
 {data_context}
@@ -466,6 +495,10 @@ YÊU CẦU:
                     prompt = f"""
 {user_profile_block}
 Bạn là chuyên gia tư vấn chọn trường đại học quốc tế.
+
+NGỮ CẢNH NGƯỜI DÙNG (từ session):
+{user_context}
+
 Người dùng hỏi: "{msg}"
 
 Dưới đây là HỒ SƠ CHI TIẾT của các trường cần so sánh:
@@ -490,6 +523,10 @@ NHIỆM VỤ:
                     prompt = f"""
 {user_profile_block}
 Bạn là chuyên gia tư vấn du học quốc tế.
+
+NGỮ CẢNH NGƯỜI DÙNG (từ session):
+{user_context}
+
 Người dùng hỏi: "{msg}"
 
 Dưới đây là HỒ SƠ CHI TIẾT của các trường liên quan:
@@ -511,6 +548,10 @@ NHIỆM VỤ:
                 else:  
                     prompt = f"""
 {user_profile_block}
+
+NGỮ CẢNH NGƯỜI DÙNG (từ session):
+{user_context}
+
 Người dùng hỏi: "{msg}"
 
 Dưới đây là một số trường liên quan trong dữ liệu:
