@@ -1,15 +1,11 @@
 import mysql.connector
-
+from db import get_connection
 class UniversityModel:
     # done
     def get_all_university():
-        conn = mysql.connector.connect(
-            host="127.0.0.1",
-            user="user",       
-            password="Tung@09092004"  
-        )
+        conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("use universities_db_clone")
+        cursor.execute("use universities_db")
         # universities, country, 
         querry = """
         SELECT 
@@ -81,14 +77,9 @@ class UniversityModel:
         return universities_data
     # done
     def get_universities_with_name(name:str):
-        import mysql.connector
-        conn = mysql.connector.connect(
-            host="127.0.0.1",
-            user="user",       
-            password="Tung@09092004"  
-        )
+        conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("use universities_db_clone")
+        cursor.execute("use universities_db")
         # universities, country, 
         where_condition = ""
         if name.strip():
@@ -171,12 +162,7 @@ class UniversityModel:
     # done
     # cau truc filter: { 'region': '', 'country': '', 'ranking': (int(),int()) }
     def get_universities_with_condition(filter):
-        import mysql.connector
-        conn = mysql.connector.connect(
-            host="127.0.0.1",
-            user="user",       
-            password="Tung@09092004"  
-        )
+        conn = get_connection()
         cursor = conn.cursor()
         cursor.execute("use universities_db_clone")
         # universities, country, 
@@ -269,14 +255,9 @@ class UniversityModel:
 
     # not working yet
     def add_university(data):
-        import mysql.connector
-        conn = mysql.connector.connect(
-            host="127.0.0.1",
-            user="user",       
-            password="Tung@09092004"  
-        )
+        conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("use universities_db_clone")
+        cursor.execute("use universities_db")
         # 1️⃣ Xử lý country
         country_name = data.get("country")
         if country_name:
@@ -399,14 +380,9 @@ class UniversityModel:
 
     # not working yet
     def update_university(data, uni_id):
-        import mysql.connector
-        conn = mysql.connector.connect(
-            host="127.0.0.1",
-            user="user",       
-            password="Tung@09092004"  
-        )
+        conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("use universities_db_clone")
+        cursor.execute("use universities_db")
         # 1️⃣ Xử lý country
         country_name = data.get("country")
         if country_name:
@@ -554,14 +530,9 @@ class UniversityModel:
         """
         Xóa 1 trường và tất cả dữ liệu liên quan (scores, detail_infors)
         """
-        import mysql.connector
-        conn = mysql.connector.connect(
-            host="127.0.0.1",
-            user="user",       
-            password="Tung@09092004"  
-        )
+        conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("use universities_db_clone")
+        cursor.execute("use universities_db")
         # xóa scores
         cursor.execute("DELETE FROM scores WHERE university_id=%s", (uni_id,))
         # xóa detail_infors

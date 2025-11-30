@@ -6,6 +6,7 @@ sys.path.append(
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
+from db import get_connection
 import requests 
 from io import BytesIO
 from controller.UniversityController import UniversityController
@@ -270,14 +271,8 @@ def create_ui():
 
     def create_filter():
     # KẾT NỐI DB
-        mydb = mysql.connector.connect(
-            host='localhost',
-            user='user',
-            password='Tung@09092004',
-            database='universities_db_clone'
-        )
+        mydb = get_connection()
         cursor = mydb.cursor()
-
         cursor.execute("SELECT region FROM universities")
         region_data = [x[0] for x in cursor.fetchall() if x[0] is not None]
         region_data = list(dict.fromkeys(region_data))
@@ -463,7 +458,7 @@ def create_ui():
         university_name = tk.Label(name_loc_frame, text=data['name'], font=("Arial", 14, "bold"), fg="#1e90ff", bg="white")
         university_name.pack(anchor="w")
         university_name.bind("<Button-1>",lambda event: link_to_detail(event,data['id']))
-        tk.Label(name_loc_frame, text=f'{data['city']}, {data['country']}', font=("Arial", 10), fg="#555", bg="white").pack(anchor="w")
+        tk.Label(name_loc_frame, text=f"{data['city']}, {data['country']}", font=("Arial", 10), fg="#555", bg="white").pack(anchor="w")
 
         # Nút Shortlist và Compare
         action_frame = tk.Frame(header_details_frame, bg="white")
