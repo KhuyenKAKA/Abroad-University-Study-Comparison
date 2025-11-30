@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
+from ui.ChatbotUI import ChatApp
+
 
 
 def clickCourseRecommendation(event):
@@ -60,7 +62,9 @@ def create_ui():
     btnEvents = tk.Button(nav_frame, text=menu_items[2], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=3, padx=5, pady=10, sticky="e", in_=nav_frame)
     btnPrepare = tk.Button(nav_frame, text=menu_items[3], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=4, padx=5, pady=10, sticky="e", in_=nav_frame)
     btnScholarships = tk.Button(nav_frame, text=menu_items[4], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=5, padx=5, pady=10, sticky="e", in_=nav_frame)
-    btnChatToStudents = tk.Button(nav_frame, text=menu_items[5], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=6, padx=5, pady=10, sticky="e", in_=nav_frame)
+    btnChatToStudents = tk.Button(nav_frame, text=menu_items[5], font=("Arial", 10), bg="white", relief="flat", command=lambda: ChatApp(root))
+
+    btnChatToStudents.grid(row=0, column=6, padx=5, pady=10, sticky="e", in_=nav_frame)
     
     right_nav_frame = tk.Frame(nav_frame, bg="white")
     right_nav_frame.grid(row=0, column=7, sticky="e", padx=(0, 20))

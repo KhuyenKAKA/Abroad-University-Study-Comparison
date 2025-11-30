@@ -54,16 +54,27 @@ class LoadingBubble(tk.Frame):
 
 # CLASS: APP CHÍNH
 
-class ChatApp(tk.Tk):
-    def __init__(self):
-        super().__init__()
+class ChatApp:
+    def __init__(self, master=None):
+        """
+        Nếu master == None thì mở cửa sổ chính (Tk). Nếu master được truyền (ví dụ từ HomePage),
+        sẽ tạo cửa sổ con Toplevel để không phá vỡ vòng lặp mainloop hiện có.
+        """
+        if master is None:
+            self.root = tk.Tk()
+            self._is_main = True
+        else:
+            self.root = tk.Toplevel(master)
+            self._is_main = False
 
-        self.title("UniCompare - Định hướng tương lai cùng bạn")
-        self.geometry("1000x800") 
-        self.configure(bg=COLOR_PAGE_BG)
+        # Thiết lập cửa sổ
+        self.root.title("UniCompare - Định hướng tương lai cùng bạn")
+        self.root.geometry("1000x800")
+        self.root.configure(bg=COLOR_PAGE_BG)
 
+        # Thay tất cả self. vào widget parent là self.root
         self.assets_path = os.path.join(project_root, "assets")
-        self.icons = {} 
+        self.icons = {}
         self.load_assets()
 
         self.build_header()
@@ -114,7 +125,7 @@ class ChatApp(tk.Tk):
             return None
     # HEADER
     def build_header(self):
-        nav_frame = tk.Frame(self, bg="white", height=50)
+        nav_frame = tk.Frame(self.root, bg="white", height=50)
         nav_frame.pack(fill='x', padx=0, pady=0)
         nav_frame.grid_columnconfigure(0, weight=0) 
         nav_frame.grid_columnconfigure(1, weight=1) 
@@ -149,7 +160,7 @@ class ChatApp(tk.Tk):
         tk.Button(right_nav_frame, text="Đăng ký", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
     # PAGE SCROLL
     def build_main_scroll_area(self):
-        self.main_container = tk.Frame(self, bg=COLOR_PAGE_BG)
+        self.main_container = tk.Frame(self.root, bg=COLOR_PAGE_BG)
         self.main_container.pack(fill="both", expand=True)
         self.page_scrollbar = ttk.Scrollbar(self.main_container, orient="vertical")
         self.page_scrollbar.pack(side="right", fill="y")
@@ -334,7 +345,17 @@ class ChatApp(tk.Tk):
     def scroll_msg_to_bottom(self):
         self.messages_area.update_idletasks()
         self.msg_canvas.yview_moveto(1.0)
+    
+    def run(self):
+        """Chỉ gọi mainloop nếu ChatApp được khởi standalone (master=None)."""
+        if getattr(self, "_is_main", False):
+            self.root.mainloop()
+    
+    # Thêm alias để tương thích: một số code truyền self vào controller; dùng root làm parent thực tế.
+    def __getattr__(self, name):
+        # forward attribute access (w/widgets) to underlying tk root where phù hợp
+        return getattr(self.root, name)
 
 if __name__ == "__main__":
     app = ChatApp()
-    app.mainloop()
+    app.run()
