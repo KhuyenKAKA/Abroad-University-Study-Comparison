@@ -575,15 +575,15 @@ class UniversityModel:
 
     
 sample_data = {
-        "title": "Ghost University",
-        "path": "/universities/massachusetts-institute-technology-mit",
-        "region": "North America",
-        "country": "United States",
-        "city": "Cambridge",
-        "logo": "https://duocphamtim.vn/wp-content/uploads/2022/12/rau-ma-scaled.jpeg",
-        "overall_score": 0,
+        "title": "Ghost University",#entry
+        "path": "/universities/massachusetts-institute-technology-mit", #entry
+        "region": "North America",#entry
+        "country": "United States",#entry
+        "city": "Cambridge",#entry
+        "logo": "https://duocphamtim.vn/wp-content/uploads/2022/12/rau-ma-scaled.jpeg",#entry
+        "overall_score": "0", #entry
         "rank_display": "1",
-        "rank": "1518",
+        "rank": "1518",#entry
         "more_info": [
             {
                 "label": "International Fees",
@@ -611,109 +611,109 @@ sample_data = {
                 {
                     "indicator_id": "73",
                     "indicator_name": "Citations per Faculty",
-                    "rank": "7",
-                    "score": "100"
+                    "rank": "7",#entry
+                    "score": "100"#entry
                 },
                 {
                     "indicator_id": "76",
                     "indicator_name": "Academic Reputation",
-                    "rank": "4",
-                    "score": "100"
+                    "rank": "4",#entry
+                    "score": "100"#entry
                 }
             ],
             "Learning Experience": [
                 {
                     "indicator_id": "36",
                     "indicator_name": "Faculty Student Ratio",
-                    "rank": "16",
-                    "score": "100"
+                    "rank": "16",#entry
+                    "score": "100"#entry
                 }
             ],
             "Employability": [
                 {
                     "indicator_id": "77",
                     "indicator_name": "Employer Reputation",
-                    "rank": "2",
-                    "score": "100"
+                    "rank": "2",#entry
+                    "score": "100"#entry
                 },
                 {
                     "indicator_id": "3819456",
                     "indicator_name": "Employment Outcomes",
-                    "rank": "7",
-                    "score": "100"
+                    "rank": "7",#entry
+                    "score": "100"#entry
                 }
             ],
             "Global Engagement": [
                 {
                     "indicator_id": "14",
                     "indicator_name": "International Student Ratio",
-                    "rank": "153",
-                    "score": "91.6"
+                    "rank": "153",#entry
+                    "score": "91.6"#entry
                 },
                 {
                     "indicator_id": "15",
                     "indicator_name": "International Research Network",
-                    "rank": "98",
-                    "score": "94.1"
+                    "rank": "98",#entry
+                    "score": "94.1"#entry
                 },
                 {
                     "indicator_id": "18",
                     "indicator_name": "International Faculty Ratio",
-                    "rank": "63",
-                    "score": "100"
+                    "rank": "63",#entry
+                    "score": "100"#entry
                 },
                 {
                     "indicator_id": "3924415",
                     "indicator_name": "International Student Diversity",
-                    "rank": "130",
-                    "score": "92.3"
+                    "rank": "130",#entry
+                    "score": "92.3"#entry
                 }
             ],
             "Sustainability": [
                 {
                     "indicator_id": "3897497",
                     "indicator_name": "Sustainability Score",
-                    "rank": "33",
-                    "score": "93.8"
+                    "rank": "33",#entry
+                    "score": "93.8"#entry
                 }
             ]
         },
         'detail_infors': {
-            'fee': None, #double
-            'scholarship': None, #bool
-            'domestic': None, #float
-            'international': None, #float
-            'english_test': None, #string
-            'academic_test': None, #string
-            'total_stu': None, #int
-            'ug_rate': None, # float
-            'pg_rate': None, # float
-            'inter_total': None, #int
-            'inter_ug_rate': None, #float
-            'inter_pg_rate': None #float
+            'fee': None, #entry
+            'scholarship': None, #entry
+            'domestic': None, #entry
+            'international': None, #entry
+            'english_test': None, #entry
+            'academic_test': None, #entry
+            'total_stu': None, #entry
+            'ug_rate': "32", #entry
+            'pg_rate': None, #entry
+            'inter_total': None, #entry
+            'inter_ug_rate': None, #entry
+            'inter_pg_rate': None #entry
         },
         'entry_infor': {
             'bachelor':{
-                "exists": True,
-                "SAT": None,
-                "GRE": None,
-                "GMAT": None,
-                "ACT": None,
-                "ATAR" :None,
-                "GPA":None,
-                "TOEFL": None,
-                "IELTS": None
+                "exists": True,#entry -> checkbox
+                "SAT": None,#entry
+                "GRE": None,#entry
+                "GMAT": None,#entry
+                "ACT": None,#entry
+                "ATAR" :None,#entry
+                "GPA":None,#entry
+                "TOEFL": None,#entry
+                "IELTS": None#entry
             },
             'master':{
-                "exists": True,
-                "SAT": None,
-                "GRE": None,
-                "GMAT": None,
-                "ACT": None,
-                "ATAR" :None,
-                "GPA":None,
-                "TOEFL": None,
-                "IELTS": None
+                "exists": True,#entry -> checkbox
+                "SAT": None,#entry
+                "GRE": None,#entry
+                "GMAT": None,#entry
+                "ACT": None,#entry
+                "ATAR" :None,#entry
+                "GPA":None,#entry
+                "TOEFL": None,#entry
+                "IELTS": None#entry
             },
         }
     }
@@ -722,4 +722,4 @@ sample_data = {
 # print(UniversityModel.get_universities_with_condition(conditions)[0])
 
 # UniversityModel.add_university(sample_data)
-# UniversityModel.update_university(sample_data,1514)
+UniversityModel.update_university(sample_data,1514)
