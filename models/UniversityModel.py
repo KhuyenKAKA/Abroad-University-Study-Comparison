@@ -1,11 +1,16 @@
 import mysql.connector
+import sys
+import os
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+)
 from db import get_connection
 class UniversityModel:
     # done
     def get_all_university():
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("use universities_db")
+        # cursor.execute("use universities_db")
         # universities, country, 
         querry = """
         SELECT 
@@ -79,7 +84,7 @@ class UniversityModel:
     def get_universities_with_name(name:str):
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("use universities_db")
+        # cursor.execute("use universities_db")
         # universities, country, 
         where_condition = ""
         if name.strip():
@@ -164,7 +169,7 @@ class UniversityModel:
     def get_universities_with_condition(filter):
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("use universities_db_clone")
+        # cursor.execute("use universities_db_clone")
         # universities, country, 
         where_condition = ""
         if filter['region'] is not None:
@@ -257,7 +262,7 @@ class UniversityModel:
     def add_university(data):
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("use universities_db")
+        # cursor.execute("use universities_db")
         # 1️⃣ Xử lý country
         country_name = data.get("country")
         if country_name:
@@ -382,7 +387,7 @@ class UniversityModel:
     def update_university(data, uni_id):
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("use universities_db")
+        # cursor.execute("use universities_db")
         # 1️⃣ Xử lý country
         country_name = data.get("country")
         if country_name:
@@ -532,7 +537,7 @@ class UniversityModel:
         """
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("use universities_db")
+        # cursor.execute("use universities_db")
         # xóa scores
         cursor.execute("DELETE FROM scores WHERE university_id=%s", (uni_id,))
         # xóa detail_infors
@@ -553,30 +558,7 @@ sample_data = {
         "city": "Cambridge",#entry
         "logo": "https://duocphamtim.vn/wp-content/uploads/2022/12/rau-ma-scaled.jpeg",#entry
         "overall_score": "0", #entry
-        "rank_display": "1",
         "rank": "1518",#entry
-        "more_info": [
-            {
-                "label": "International Fees",
-                "value": ""
-            },
-            {
-                "label": "Scholarship",
-                "value": "No"
-            },
-            {
-                "label": "Student Mix",
-                "value": "Domestic 67%   International 33%"
-            },
-            {
-                "label": "English Tests",
-                "value": "Generate Result"
-            },
-            {
-                "label": "Academic Tests",
-                "value": "Generate Result"
-            }
-        ],
         "scores": {
             "Research & Discovery": [
                 {
@@ -689,8 +671,8 @@ sample_data = {
         }
     }
 
-
+sample_data_1 = {'title': 'This is not ghost', 'path': '', 'region': 'Asia', 'country': 'Vietnam', 'city': '', 'logo': '', 'overall_score': '0', 'rank': '1536', 'scores': {'Research & Discovery': [{'indicator_id': '73', 'indicator_name': 'Citations per Faculty', 'rank': '', 'score': ''}, {'indicator_id': '76', 'indicator_name': 'Academic Reputation', 'rank': '', 'score': ''}], 'Learning Experience': [{'indicator_id': '36', 'indicator_name': 'Faculty Student Ratio', 'rank': '', 'score': ''}], 'Employability': [{'indicator_id': '77', 'indicator_name': 'Employer Reputation', 'rank': '', 'score': ''}, {'indicator_id': '3819456', 'indicator_name': 'Employment Outcomes', 'rank': '', 'score': ''}], 'Global Engagement': [{'indicator_id': '14', 'indicator_name': 'International Student Ratio', 'rank': '', 'score': ''}, {'indicator_id': '15', 'indicator_name': 'International Research Network', 'rank': '', 'score': ''}, {'indicator_id': '18', 'indicator_name': 'International Faculty Ratio', 'rank': '', 'score': ''}, {'indicator_id': '3924415', 'indicator_name': 'International Student Diversity', 'rank': '', 'score': ''}], 'Sustainability': [{'indicator_id': '3897497', 'indicator_name': 'Sustainability Score', 'rank': '', 'score': ''}]}, 'detail_infors': {'fee': None, 'scholarship': None, 'domestic': None, 'international': None, 'english_test': None, 'academic_test': None, 'total_stu': None, 'ug_rate': None, 'pg_rate': None, 'inter_total': None, 'inter_ug_rate': None, 'inter_pg_rate': None}, 'entry_infor': {'bachelor': {'exists': False, 'SAT': None, 'GRE': None, 'GMAT': None, 'ACT': None, 'ATAR': None, 'GPA': None, 'TOEFL': None, 'IELTS': None}, 'master': {'exists': False, 'SAT': None, 'GRE': None, 'GMAT': None, 'ACT': None, 'ATAR': None, 'GPA': None, 'TOEFL': None, 'IELTS': None}}}
 # print(UniversityModel.get_universities_with_condition(conditions)[0])
 
-# UniversityModel.add_university(sample_data)
-UniversityModel.update_university(sample_data,1514)
+# UniversityModel.add_university(sample_data_1)
+# UniversityModel.update_university(sample_data_1,1514)

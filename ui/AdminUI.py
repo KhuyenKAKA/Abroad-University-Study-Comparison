@@ -3,10 +3,12 @@ import os
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 )
+from controller.UniversityController import UniversityController
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
 import requests 
+from db import get_connection
 from io import BytesIO
 from controller.UniversityController import UniversityController
 from tkinter import messagebox as mess
@@ -47,8 +49,8 @@ def create_ui():
     
     try:
         # Giả sử bạn đã có file search.png trong thư mục assets
-        # img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
-        img = Image.open("assets/search.png")
+        img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
+        # img = Image.open("assets/search.png")
         img = img.resize((24, 24), Image.LANCZOS)
         search_photo = ImageTk.PhotoImage(img)
         tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
@@ -114,7 +116,14 @@ def create_ui():
         pass 
 
     def on_click_delete_university(id):
-        pass
+        result = mess.askyesno("Xác nhận xóa","Bạn có chắc chắn muốn xóa chứ?")
+        if result:
+            UniversityController.delete_university(id)
+            mess.showinfo("Da xoa", "Ban da xoa thanh cong")
+            global universities_data
+            universities_data = crawl_data()
+            render_university_list()
+        
     
     def on_click_delete_user(id):
         pass
@@ -133,6 +142,8 @@ def create_ui():
 
         start = (page - 1) * per_page
         end = start + per_page
+
+        number_of_Results.config(text=f'{len(user_data)} kết quả')
         for stt, data in enumerate(user_data[start:end], start=1):
             create_university_table_row(unversities_card_frame, data, stt)
         
@@ -154,18 +165,12 @@ def create_ui():
         start = (page - 1) * per_page
         end = start + per_page
 
+        render_pagination_bar()
         for data in universities_data[start:end]:
             create_university_block(unversities_card_frame, data)
 
-        render_pagination_bar()
+        
     
-    def take_compare_universities():
-        global compare_list
-        checked_list = [v for v in compare_list if compare_list[v].get()]
-        if len(checked_list)>1: 
-            pass
-        else:
-            mess.showwarning("Thông báo","Hãy chọn trường đại học để so sánh!")
 
     # Nút Quick View và Table View
     view_frame = tk.Frame(toolbar_frame, bg="#f8f9fa", bd=1, relief='solid')
@@ -183,9 +188,211 @@ def create_ui():
     entry_search = tk.Entry(search_entry_frame, width=30, font=("Arial", 10), relief='flat')
     entry_search.pack(side="left", padx=5)
     
-    # Nút Apply Filters & Compare
+    def create_university_form():
+        if current_view_mode == 1:
+            mydb = get_connection()
+            cursor = mydb.cursor()
+            cursor.execute("SELECT region FROM universities")
+            region_data = [x[0] for x in cursor.fetchall() if x[0] is not None]
+            region_data = list(dict.fromkeys(region_data))
+            region_data.sort()
+
+            cursor.execute("""
+                SELECT c.name 
+                FROM universities u 
+                JOIN countries c ON u.country_id = c.id
+            """)
+            country_data = [x[0] for x in cursor.fetchall() if x[0] is not None]
+            country_data = list(dict.fromkeys(country_data))
+            country_data.sort()
+
+            window = tk.Toplevel(root)
+            window.title("Create University Data")
+            window.geometry("700x700")
+            def only_int(P):
+                return P.isdigit() or P == ""
+            vcmd = window.register(only_int)
+
+            canvas = tk.Canvas(window)
+            scrollbar = ttk.Scrollbar(window, orient="vertical", command=canvas.yview)
+            frame = ttk.Frame(canvas)
+
+            frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+            canvas.create_window((0, 0), window=frame, anchor="nw")
+            canvas.configure(yscrollcommand=scrollbar.set)
+            def on_mouse_wheel(event):
+                canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+            
+            canvas.bind_all("<MouseWheel>", on_mouse_wheel)
+            canvas.pack(side="left", fill="both", expand=True)
+            scrollbar.pack(side="right", fill="y")
+
+            # ========== BASIC INFO ==========
+            ttk.Label(frame, text="BASIC UNIVERSITY INFORMATION", font=("Segoe UI", 14, "bold")).pack(pady=5)
+
+            basic_fields = ["title", "path", "region", "country", "city", "logo", "overall_score", "rank"]
+            basic_entries = {}
+
+            box = ttk.LabelFrame(frame, text="Basic Info")
+            box.pack(padx=10, pady=5, fill="x")
+
+            for i, field in enumerate(basic_fields):
+                if field == "region":
+                    ttk.Label(box, text=field).grid(row=i, column=0, sticky="w", padx=5, pady=3)
+                    e = ttk.Combobox(box, values=region_data,
+                                        width=47, height=6, state="readonly")
+                    e.grid(row=i, column=1, padx=5, pady=3)
+                    basic_entries[field] = e
+                elif field == "country":
+                    ttk.Label(box, text=field).grid(row=i, column=0, sticky="w", padx=5, pady=3)
+                    e = ttk.Combobox(box, values=country_data,
+                                        width=47, height=6, state="readonly")
+                    e.grid(row=i, column=1, padx=5, pady=3)
+                    basic_entries[field] = e
+                else:   
+                    ttk.Label(box, text=field).grid(row=i, column=0, sticky="w", padx=5, pady=3)
+                    e = ttk.Entry(box, width=50)
+                    e.grid(row=i, column=1, padx=5, pady=3)
+                    basic_entries[field] = e
+
+            # ========== SCORES ==========
+            ttk.Label(frame, text="SCORES - <RANK - SCORE>", font=("Segoe UI", 14, "bold")).pack(pady=5)
+
+            categories = {
+                "Research & Discovery": [("Citations per Faculty", '73'), ("Academic Reputation", '76')],
+                "Learning Experience": [("Faculty Student Ratio", '36')],
+                "Employability": [("Employer Reputation", '77'), ("Employment Outcomes",'3819456' )],
+                "Global Engagement": [
+                    ("International Student Ratio", '14'),
+                    ("International Research Network", '15'),
+                    ("International Faculty Ratio", '18'),
+                    ("International Student Diversity", '3924415')
+                ],
+                "Sustainability": [("Sustainability Score", '3897497')]
+            }
+
+            score_entries = {}
+
+            for cat, indicators in categories.items():
+                cf = ttk.LabelFrame(frame, text=cat)
+                cf.pack(padx=10, pady=4, fill="x")
+
+                score_entries[cat] = []
+
+                for i, (name, id) in enumerate(indicators):
+                    ttk.Label(cf, text=name).grid(row=i, column=0, sticky="w")
+
+                    r = ttk.Entry(cf, validate="key", validatecommand=(vcmd, "%P"),width=8)
+                    r.grid(row=i, column=1, padx=2)
+                    r.insert(0, "")
+
+                    s = ttk.Entry(cf, width=8)
+                    s.grid(row=i, column=2, padx=2)
+                    s.insert(0, "")
+
+                    score_entries[cat].append((id, name, r, s))
+
+            # ========== DETAIL INFOS ==========
+            ttk.Label(frame, text="DETAIL INFORS", font=("Segoe UI", 14, "bold")).pack(pady=5)
+
+            detail_keys = [
+                'fee', 'scholarship', 'domestic', 'international',
+                'english_test', 'academic_test', 'total_stu',
+                'ug_rate', 'pg_rate', 'inter_total',
+                'inter_ug_rate', 'inter_pg_rate'
+            ]
+
+            detail_entries = {}
+            df = ttk.LabelFrame(frame, text="Detail Infos")
+            df.pack(padx=10, pady=5, fill="x")
+
+            for i, key in enumerate(detail_keys):
+                ttk.Label(df, text=key).grid(row=i, column=0, sticky="w", padx=4)
+                e = ttk.Entry(df, validate="key", validatecommand=(vcmd, "%P"), width=40)
+                e.grid(row=i, column=1, padx=4)
+                detail_entries[key] = e
+
+            # ========== ENTRY INFORS ==========
+            ttk.Label(frame, text="ENTRY REQUIREMENTS", font=("Segoe UI", 14, "bold")).pack(pady=5)
+
+            entry_data = {}
+            entry_frame = ttk.LabelFrame(frame, text="Entry Info")
+            entry_frame.pack(padx=10, pady=5, fill="x")
+
+            for col, level in enumerate(["bachelor", "master"]):
+                lf = ttk.LabelFrame(entry_frame, text=level.upper())
+                lf.grid(row=0, column=col, padx=20, pady=5)
+
+                exists = tk.BooleanVar()
+                ttk.Checkbutton(lf, text="Exists", variable=exists).grid(row=0, column=0, sticky="w")
+
+                fields = ["SAT", "GRE", "GMAT", "ACT", "ATAR", "GPA", "TOEFL", "IELTS"]
+
+                entry_data[level] = {"exists": exists, "entries": {}}
+
+                for i, f in enumerate(fields, 1):
+                    ttk.Label(lf, text=f).grid(row=i, column=0, sticky="w")
+                    e = ttk.Entry(lf, validate="key", validatecommand=(vcmd, "%P"), width=25)
+                    e.grid(row=i, column=1)
+                    entry_data[level]["entries"][f] = e
+
+            # ========== GENERATE DATA ==========
+            def generate_data():
+                data = {}
+                if not basic_entries['title'].get():
+                    mess.showerror("Thiếu tên trường","Xin hãy nhập tên trường!")
+                    return
+                if not basic_entries['region'].get():
+                    mess.showerror("Thiếu tên khu vực","Xin hãy chọn khu vực!")
+                    return
+                if not basic_entries['country'].get():
+                    mess.showerror("Thiếu tên quốc gia","Xin hãy chọn quốc gia!")
+                    return
+                if not basic_entries['rank'].get():
+                    mess.showerror("Thiếu thứ hạng","Xin hãy nhập thứ hạng!")
+                    return
+                for k, e in basic_entries.items():
+                    data[k] = e.get()
+                    if k == 'overall_score' and not e.get():
+                        data[k] = "0"
+
+                # scores
+                data["scores"] = {}
+                for cat, indicators in score_entries.items():
+                    data["scores"][cat] = []
+                    for id, name, r, s in indicators:
+                        data["scores"][cat].append({
+                            "indicator_id": f"{id}",
+                            "indicator_name": name,
+                            "rank": r.get(),
+                            "score": s.get()
+                        })
+
+                # detail_infors
+                data["detail_infors"] = {}
+                for k, e in detail_entries.items():
+                    val = e.get()
+                    data["detail_infors"][k] = val if val != "" else None
+
+                # entry_infor
+                data["entry_infor"] = {}
+
+                for level in entry_data:
+                    data["entry_infor"][level] = {}
+                    data["entry_infor"][level]["exists"] = entry_data[level]["exists"].get()
+
+                    for k, e in entry_data[level]["entries"].items():
+                        v = e.get()
+                        data["entry_infor"][level][k] = v if v != "" else None
+                UniversityController.add_university(data)
+                mess.showinfo("Thành công", "Bạn đã thêm thành công!")
+                window.destroy()
+            tk.Button(frame,bg= "#0013e9", fg='white' ,text="Thêm trường đại học", command=generate_data).pack(pady=15)
+            window.mainloop()
+
+
     # tk.Button(toolbar_frame, text="So sánh",command=take_compare_universities, fg="white", background="#0013e9", font=("Arial", 9, "bold"), relief='flat').pack(side="right",padx=(20,0))
-    btn_add = tk.Button(toolbar_frame, text="Thêm trường đại học", fg="white", background="#1e90ff", font=("Arial", 9, "bold"), relief='flat')
+    btn_add = tk.Button(toolbar_frame, text="Thêm trường đại học",command= create_university_form, fg="white", background="#1e90ff", font=("Arial", 9, "bold"), relief='flat')
     btn_add.pack(side="right")
     number_of_Results = tk.Label(toolbar_frame, text="2 Results", font=("Arial", 15, "bold"), fg="#555", bg="#f8f9fa") # Khoảng cách mô phỏng
     number_of_Results.pack(side="right", padx=(100, 20))
@@ -227,12 +434,6 @@ def create_ui():
     compare_list = {}
     short_list = {}
     # # Khối thông tin Trường Đại học
-    def check_number_of_compare(current_compare):
-        global compare_list
-        checked = sum(v.get() for v in compare_list.values())
-        if checked > 5:
-            current_compare.set(0)
-            mess.showwarning("Đạt số lượng so sánh tối đa là 5!","Không thêm được các trường nữa")
             
     def link_to_detail(event,id):
         pass
@@ -264,15 +465,18 @@ def create_ui():
         # Logo (Mô phỏng)
         try:
             # Sửa lỗi: Chuyển sang đường dẫn tương đối đơn giản hơn
-            response = requests.get(data['logo'])
-            image_data = BytesIO(response.content)
-            pil_image = Image.open(image_data)
-            pil_image = pil_image.resize((70, 70), Image.Resampling.LANCZOS)
-            tk_image = ImageTk.PhotoImage(pil_image)
-            logo_label = tk.Label(header_details_frame, image=tk_image, bg="white")
-            logo_label.pack(side="left", padx=(0, 10))
-            # logo_label.pack(padx=(0, 10))
-            images_reference.append(tk_image) # Lưu reference
+            if data['logo']:
+                response = requests.get(data['logo'])
+                image_data = BytesIO(response.content)
+                pil_image = Image.open(image_data)
+                pil_image = pil_image.resize((70, 70), Image.Resampling.LANCZOS)
+                tk_image = ImageTk.PhotoImage(pil_image)
+                logo_label = tk.Label(header_details_frame, image=tk_image, bg="white")
+                logo_label.pack(side="left", padx=(0, 10))
+                # logo_label.pack(padx=(0, 10))
+                images_reference.append(tk_image) # Lưu reference
+            else:
+                tk.Label(header_details_frame, text="[Logo]", font=("Arial", 8), bg="white", fg="gray", width=5).pack(side="left", padx=(0, 10))    
         except FileNotFoundError:
             tk.Label(header_details_frame, text="[Logo]", font=("Arial", 8), bg="white", fg="gray", width=5).pack(side="left", padx=(0, 10))
         
@@ -290,24 +494,24 @@ def create_ui():
         action_frame.pack(side="right")
         # tk.Button(action_frame, text="Shortlist", font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=5)
 
-        # img = Image.open("Abroad-University-Study-Comparison/assets/detail_icon.png")
-        img = Image.open("assets/detail_icon.png")
+        img = Image.open("Abroad-University-Study-Comparison/assets/detail_icon.png")
+        # img = Image.open("assets/detail_icon.png")
         img = img.resize((24, 24), Image.LANCZOS)
         detail_photo = ImageTk.PhotoImage(img)
         # tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
         tk.Button(action_frame, command=lambda name=data['id']: on_click_detail(name), image=detail_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
         images_reference.append(detail_photo)
 
-        # img = Image.open("Abroad-University-Study-Comparison/assets/updates_icon.png")
-        img = Image.open("assets/updates_icon.png")
+        img = Image.open("Abroad-University-Study-Comparison/assets/updates_icon.png")
+        # img = Image.open("assets/updates_icon.png")
         img = img.resize((24, 24), Image.LANCZOS)
         update_photo = ImageTk.PhotoImage(img)
         # tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
         tk.Button(action_frame, command= lambda name=data['id']: on_click_update(name), image=update_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
         images_reference.append(update_photo)
 
-        # img = Image.open("Abroad-University-Study-Comparison/assets/delete_icon.png")
-        img = Image.open("assets/delete_icon.png")
+        img = Image.open("Abroad-University-Study-Comparison/assets/delete_icon.png")
+        # img = Image.open("assets/delete_icon.png")
         img = img.resize((24, 24), Image.LANCZOS)
         delete_photo = ImageTk.PhotoImage(img)
         # tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
@@ -354,16 +558,16 @@ def create_ui():
         # tk.Button(action_frame, command=lambda name=data['id']: on_click_detail(name), image=detail_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
         # images_reference.append(detail_photo)
 
-        # img = Image.open("Abroad-University-Study-Comparison/assets/updates_icon.png")
-        img = Image.open("assets/updates_icon.png")
+        img = Image.open("Abroad-University-Study-Comparison/assets/updates_icon.png")
+        # img = Image.open("assets/updates_icon.png")
         img = img.resize((24, 24), Image.LANCZOS)
         update_photo = ImageTk.PhotoImage(img)
         # tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
         tk.Button(action_frame, command= lambda name=data['id']: on_click_update(name), image=update_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
         images_reference.append(update_photo)
 
-        # img = Image.open("Abroad-University-Study-Comparison/assets/delete_icon.png")
-        img = Image.open("assets/delete_icon.png")
+        img = Image.open("Abroad-University-Study-Comparison/assets/delete_icon.png")
+        # img = Image.open("assets/delete_icon.png")
         img = img.resize((24, 24), Image.LANCZOS)
         delete_photo = ImageTk.PhotoImage(img)
         # tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
@@ -566,14 +770,14 @@ def create_ui():
     tk.Label(social_frame, text="Theo dõi chúng tôi", font=("Arial", 10, "bold"), bg="white").pack(side="left", padx=(0, 10))
     
     # Mô phỏng Social Icons (sử dụng Label với màu nền)
-    social_icons = ["assets/104498_facebook_icon.png", 
-                    "assets/1161953_instagram_icon.png", 
-                    "assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
-                    "assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
-    # social_icons = ["Abroad-University-Study-Comparison/assets/104498_facebook_icon.png", 
-    #                 "Abroad-University-Study-Comparison/assets/1161953_instagram_icon.png", 
-    #                 "Abroad-University-Study-Comparison/assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
-    #                 "Abroad-University-Study-Comparison/assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
+    # social_icons = ["assets/104498_facebook_icon.png", 
+    #                 "assets/1161953_instagram_icon.png", 
+    #                 "assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
+    #                 "assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
+    social_icons = ["Abroad-University-Study-Comparison/assets/104498_facebook_icon.png", 
+                    "Abroad-University-Study-Comparison/assets/1161953_instagram_icon.png", 
+                    "Abroad-University-Study-Comparison/assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
+                    "Abroad-University-Study-Comparison/assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
     for icon in social_icons:
         img = Image.open(icon)
         img = img.resize((15, 15), Image.LANCZOS)

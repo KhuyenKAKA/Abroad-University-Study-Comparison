@@ -1,12 +1,36 @@
 import tkinter as tk
 from tkinter import ttk
 import json
+from tkinter import messagebox
+import sys
+import os
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+)
+from db import get_connection
+def create_university_form(window):
+    mydb = get_connection()
+    cursor = mydb.cursor()
+    cursor.execute("SELECT region FROM universities")
+    region_data = [x[0] for x in cursor.fetchall() if x[0] is not None]
+    region_data = list(dict.fromkeys(region_data))
+    region_data.sort()
 
-def create_university_form():
+    cursor.execute("""
+        SELECT c.name 
+        FROM universities u 
+        JOIN countries c ON u.country_id = c.id
+    """)
+    country_data = [x[0] for x in cursor.fetchall() if x[0] is not None]
+    country_data = list(dict.fromkeys(country_data))
+    country_data.sort()
 
-    root = tk.Tk()
+    root = tk.Toplevel(window)
     root.title("Create University Data")
-    root.geometry("900x700")
+    root.geometry("700x700")
+    def only_int(P):
+        return P.isdigit() or P == ""
+    vcmd = root.register(only_int)
 
     canvas = tk.Canvas(root)
     scrollbar = ttk.Scrollbar(root, orient="vertical", command=canvas.yview)
@@ -23,7 +47,7 @@ def create_university_form():
     scrollbar.pack(side="right", fill="y")
 
     # ========== BASIC INFO ==========
-    ttk.Label(frame, text="BASIC INFORMATION", font=("Segoe UI", 14, "bold")).pack(pady=5)
+    ttk.Label(frame, text="BASIC UNIVERSITY INFORMATION", font=("Segoe UI", 14, "bold")).pack(pady=5)
 
     basic_fields = ["title", "path", "region", "country", "city", "logo", "overall_score", "rank"]
     basic_entries = {}
@@ -32,46 +56,38 @@ def create_university_form():
     box.pack(padx=10, pady=5, fill="x")
 
     for i, field in enumerate(basic_fields):
-        ttk.Label(box, text=field).grid(row=i, column=0, sticky="w", padx=5, pady=3)
-        e = ttk.Entry(box, width=50)
-        e.grid(row=i, column=1, padx=5, pady=3)
-        basic_entries[field] = e
-
-    # ========== MORE INFO ==========
-    ttk.Label(frame, text="MORE INFO", font=("Segoe UI", 14, "bold")).pack(pady=5)
-
-    more_info_labels = [
-        "International Fees",
-        "Scholarship",
-        "Student Mix",
-        "English Tests",
-        "Academic Tests"
-    ]
-
-    more_entries = {}
-    more_frame = ttk.LabelFrame(frame, text="More Info")
-    more_frame.pack(padx=10, pady=5, fill="x")
-
-    for i, label in enumerate(more_info_labels):
-        ttk.Label(more_frame, text=label).grid(row=i, column=0, sticky="w", padx=5, pady=2)
-        e = ttk.Entry(more_frame, width=60)
-        e.grid(row=i, column=1, padx=5)
-        more_entries[label] = e
+        if field == "region":
+            ttk.Label(box, text=field).grid(row=i, column=0, sticky="w", padx=5, pady=3)
+            e = ttk.Combobox(box, values=region_data,
+                                width=47, height=6, state="readonly")
+            e.grid(row=i, column=1, padx=5, pady=3)
+            basic_entries[field] = e
+        elif field == "country":
+            ttk.Label(box, text=field).grid(row=i, column=0, sticky="w", padx=5, pady=3)
+            e = ttk.Combobox(box, values=country_data,
+                                width=47, height=6, state="readonly")
+            e.grid(row=i, column=1, padx=5, pady=3)
+            basic_entries[field] = e
+        else:   
+            ttk.Label(box, text=field).grid(row=i, column=0, sticky="w", padx=5, pady=3)
+            e = ttk.Entry(box, width=50)
+            e.grid(row=i, column=1, padx=5, pady=3)
+            basic_entries[field] = e
 
     # ========== SCORES ==========
-    ttk.Label(frame, text="SCORES", font=("Segoe UI", 14, "bold")).pack(pady=5)
+    ttk.Label(frame, text="SCORES - <RANK - SCORE>", font=("Segoe UI", 14, "bold")).pack(pady=5)
 
     categories = {
-        "Research & Discovery": ["Citations per Faculty", "Academic Reputation"],
-        "Learning Experience": ["Faculty Student Ratio"],
-        "Employability": ["Employer Reputation", "Employment Outcomes"],
+        "Research & Discovery": [("Citations per Faculty", '73'), ("Academic Reputation", '76')],
+        "Learning Experience": [("Faculty Student Ratio", '36')],
+        "Employability": [("Employer Reputation", '77'), ("Employment Outcomes",'3819456' )],
         "Global Engagement": [
-            "International Student Ratio",
-            "International Research Network",
-            "International Faculty Ratio",
-            "International Student Diversity"
+            ("International Student Ratio", '14'),
+            ("International Research Network", '15'),
+            ("International Faculty Ratio", '18'),
+            ("International Student Diversity", '3924415')
         ],
-        "Sustainability": ["Sustainability Score"]
+        "Sustainability": [("Sustainability Score", '3897497')]
     }
 
     score_entries = {}
@@ -82,10 +98,10 @@ def create_university_form():
 
         score_entries[cat] = []
 
-        for i, name in enumerate(indicators):
+        for i, (name, id) in enumerate(indicators):
             ttk.Label(cf, text=name).grid(row=i, column=0, sticky="w")
 
-            r = ttk.Entry(cf, width=8)
+            r = ttk.Entry(cf, validate="key", validatecommand=(vcmd, "%P"),width=8)
             r.grid(row=i, column=1, padx=2)
             r.insert(0, "")
 
@@ -93,7 +109,7 @@ def create_university_form():
             s.grid(row=i, column=2, padx=2)
             s.insert(0, "")
 
-            score_entries[cat].append((name, r, s))
+            score_entries[cat].append((id, name, r, s))
 
     # ========== DETAIL INFOS ==========
     ttk.Label(frame, text="DETAIL INFORS", font=("Segoe UI", 14, "bold")).pack(pady=5)
@@ -111,7 +127,7 @@ def create_university_form():
 
     for i, key in enumerate(detail_keys):
         ttk.Label(df, text=key).grid(row=i, column=0, sticky="w", padx=4)
-        e = ttk.Entry(df, width=40)
+        e = ttk.Entry(df, validate="key", validatecommand=(vcmd, "%P"), width=40)
         e.grid(row=i, column=1, padx=4)
         detail_entries[key] = e
 
@@ -135,7 +151,7 @@ def create_university_form():
 
         for i, f in enumerate(fields, 1):
             ttk.Label(lf, text=f).grid(row=i, column=0, sticky="w")
-            e = ttk.Entry(lf, width=25)
+            e = ttk.Entry(lf, validate="key", validatecommand=(vcmd, "%P"), width=25)
             e.grid(row=i, column=1)
             entry_data[level]["entries"][f] = e
 
@@ -143,28 +159,30 @@ def create_university_form():
     def generate_data():
 
         data = {}
-
+        if not basic_entries['title'].get():
+            messagebox.showerror("Thiếu tên trường","Xin hãy nhập tên trường!")
+            return
+        if not basic_entries['region'].get():
+            messagebox.showerror("Thiếu tên khu vực","Xin hãy chọn khu vực!")
+            return
+        if not basic_entries['country'].get():
+            messagebox.showerror("Thiếu tên quốc gia","Xin hãy chọn quốc gia!")
+            return
+        if not basic_entries['rank'].get():
+            messagebox.showerror("Thiếu thứ hạng","Xin hãy nhập thứ hạng!")
+            return
         for k, e in basic_entries.items():
             data[k] = e.get()
-
-        # rank_display tự tạo
-        data["rank_display"] = data.get("rank", "")
-
-        # more_info
-        data["more_info"] = []
-        for key, entry in more_entries.items():
-            data["more_info"].append({
-                "label": key,
-                "value": entry.get()
-            })
+            if k == 'overall_score' and not e.get():
+                data[k] = "0"
 
         # scores
         data["scores"] = {}
         for cat, indicators in score_entries.items():
             data["scores"][cat] = []
-            for name, r, s in indicators:
+            for id, name, r, s in indicators:
                 data["scores"][cat].append({
-                    "indicator_id": "",
+                    "indicator_id": f"{id}",
                     "indicator_name": name,
                     "rank": r.get(),
                     "score": s.get()
@@ -188,11 +206,13 @@ def create_university_form():
                 data["entry_infor"][level][k] = v if v != "" else None
 
         print("\n✅ GENERATED DATA:\n")
-        print(json.dumps(data, indent=4))
+        print(data)
 
-    ttk.Button(frame, text="GENERATE DATA", command=generate_data).pack(pady=15)
+    tk.Button(frame,bg= "#0013e9", fg='white' ,text="GENERATE DATA", command=generate_data).pack(pady=15)
 
     root.mainloop()
 
+window = tk.Tk()
+create_university_form(window)
 
-create_university_form()
+window.mainloop()

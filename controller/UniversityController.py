@@ -12,3 +12,14 @@ class UniversityController:
         return UniversityModel.get_all_university()
     def get_all_university_by_condition(dict):
         return UniversityModel.get_universities_with_condition(dict)
+    
+    def delete_university(id):
+        return UniversityModel.delete_university(id)
+    
+    def update_university(data, id):
+        return UniversityModel.update_university(data, id)
+    
+    def add_university(data):
+        return UniversityModel.add_university(data)
+    
+    
