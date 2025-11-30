@@ -167,7 +167,6 @@ class UniversityModel:
                 data['score'][x[7]][x[8]] = x[9]
             uni_data.append(data)
         return uni_data
-    
 
     # done
     # cau truc filter: { 'region': '', 'country': '', 'ranking': (int(),int()) }
@@ -270,9 +269,6 @@ class UniversityModel:
 
     # not working yet
     def add_university(data):
-        """
-        Thêm 1 trường đại học, score, detail_infors
-        """
         import mysql.connector
         conn = mysql.connector.connect(
             host="127.0.0.1",
@@ -293,15 +289,17 @@ class UniversityModel:
 
         # 2️⃣ Thêm vào universities
         cursor.execute("""
-            INSERT INTO universities (name, region, country_id, city, logo, overall_score)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            INSERT INTO universities (name, region, country_id, city, logo, overall_score, rank_int, path)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """, (
-            data.get("name"),
+            data.get("title"),
             data.get("region"),
             country_id,
             data.get("city"),
             data.get("logo"),
-            data.get("overall_score")
+            data.get("overall_score"),
+            data.get('rank'),
+            data.get('path')
         ))
         conn.commit()
         university_id = cursor.lastrowid
@@ -309,8 +307,7 @@ class UniversityModel:
         # 3️⃣ Thêm detail_infors
         d = data.get("detail_infors", {})
         cursor.execute("""
-            INSERT INTO detail_infors (university_id, fee, scholarship, domestic, international, english_test, academic_test,
-                                    total_stu, ug_rate, pg_rate, inter_total, inter_ug_rate, inter_pg_rate)
+            INSERT INTO detail_infors (university_id, fee, scholarship, domestic, international, english_test, academic_test, total_stu, ug_rate, pg_rate, inter_total, inter_ug_rate, inter_pg_rate)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """, (
             university_id,
@@ -332,7 +329,7 @@ class UniversityModel:
         # 4️⃣ Thêm scores
         score_type_map = {}
         indicator_map = {}
-        for st_name, indicators in data.get("score", {}).items():
+        for st_name, indicators in data.get("scores", {}).items():
             # score_type
             cursor.execute("INSERT IGNORE INTO score_types (name) VALUES (%s)", (st_name,))
             conn.commit()
@@ -340,24 +337,63 @@ class UniversityModel:
             st_id = cursor.fetchone()[0]
             score_type_map[st_name] = st_id
 
-            for ind_name, value in indicators.items():
-                if value:
-                    rank_val, score_val = value
-                else:
-                    rank_val, score_val = None, None
+            for sc in indicators:
+                indicator_id = sc["indicator_id"]
+                if indicator_id not in indicator_map:
+                    cursor.execute("INSERT IGNORE INTO indicators (id, name) VALUES (%s, %s)", (indicator_id, sc["indicator_name"]))
+                    conn.commit()
+                    indicator_map[indicator_id] = indicator_id
 
-                # indicator
-                cursor.execute("INSERT IGNORE INTO indicators (name) VALUES (%s)", (ind_name,))
-                conn.commit()
-                cursor.execute("SELECT id FROM indicators WHERE name=%s", (ind_name,))
-                ind_id = cursor.fetchone()[0]
-                indicator_map[ind_name] = ind_id
+                rank_val = ''.join([c for c in sc["rank"] if c.isdigit()])
+                rank_val = int(rank_val) if rank_val else None
 
-                # score
                 cursor.execute("""
                     INSERT INTO scores (indicator_id, score_type_id, rank_int, score, university_id)
                     VALUES (%s, %s, %s, %s, %s)
-                """, (ind_id, st_id, rank_val, score_val, university_id))
+                """, (
+                    indicator_id,
+                    score_type_map[st_name],
+                    rank_val,
+                    float(sc["score"]) if sc["score"] and str(sc["score"]).replace('.', '', 1).isdigit() else None,
+                    university_id
+                ))
+        conn.commit()
+
+        if data['entry_infor']['bachelor']['exists']:
+            cursor.execute("""
+            INSERT INTO entry_infor (
+                university_id, degree_type, SAT, GRE, GMAT, ACT, ATAR, GPA, TOEFL, IELTS
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (
+            university_id,
+            1,
+            data['entry_infor']['bachelor']["SAT"],
+            data['entry_infor']['bachelor']["GRE"],
+            data['entry_infor']['bachelor']["GMAT"],
+            data['entry_infor']['bachelor']["ACT"],
+            data['entry_infor']['bachelor']["ATAR"],
+            data['entry_infor']['bachelor']["GPA"],
+            data['entry_infor']['bachelor']["TOEFL"],
+            data['entry_infor']['bachelor']["IELTS"]
+        ))
+            
+        if data['entry_infor']['master']['exists']:
+            cursor.execute("""
+            INSERT INTO entry_infor (
+                university_id, degree_type, SAT, GRE, GMAT, ACT, ATAR, GPA, TOEFL, IELTS
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (
+            university_id,
+            2,
+            data['entry_infor']['master']["SAT"],
+            data['entry_infor']['master']["GRE"],
+            data['entry_infor']['master']["GMAT"],
+            data['entry_infor']['master']["ACT"],
+            data['entry_infor']['master']["ATAR"],
+            data['entry_infor']['master']["GPA"],
+            data['entry_infor']['master']["TOEFL"],
+            data['entry_infor']['master']["IELTS"]
+        ))
         conn.commit()
         return university_id
 
@@ -479,6 +515,7 @@ class UniversityModel:
         cursor.execute("DELETE FROM detail_infors WHERE university_id=%s", (uni_id,))
         # xóa university_texts nếu có
         cursor.execute("DELETE FROM university_texts WHERE university_id=%s", (uni_id,))
+        cursor.execute("DELETE FROM entry_infor WHERE university_id=%s", (uni_id,))
         # xóa universities
         cursor.execute("DELETE FROM universities WHERE id=%s", (uni_id,))
         conn.commit()
@@ -554,80 +591,151 @@ structure_sample_data = {
 }
 
 sample_data = {
-    "name": "Đại học EMI, Đại học Kông ngiệp",
-    "region": "Asia", #varchar
-    "country": "Địa linh", #varchar
-    "city": "Đất vua", #varchar
-    "logo": "https://duocphamtim.vn/wp-content/uploads/2022/12/rau-ma-scaled.jpeg", #varchar
-    "overall_score": 36.36, #float
-    'score': {
-        "Research & Discovery":{
-            "Citations per Faculty":(36, 36.36), #(rank_int, score) 
-            "Academic Reputation":(36, 36.36) #(rank_int, score)
+        "title": "Ghost University",
+        "path": "/universities/massachusetts-institute-technology-mit",
+        "region": "North America",
+        "country": "United States",
+        "city": "Cambridge",
+        "logo": "https://duocphamtim.vn/wp-content/uploads/2022/12/rau-ma-scaled.jpeg",
+        "overall_score": 0,
+        "rank_display": "1",
+        "rank": "1505",
+        "more_info": [
+            {
+                "label": "International Fees",
+                "value": ""
+            },
+            {
+                "label": "Scholarship",
+                "value": "No"
+            },
+            {
+                "label": "Student Mix",
+                "value": "Domestic 67%   International 33%"
+            },
+            {
+                "label": "English Tests",
+                "value": "Generate Result"
+            },
+            {
+                "label": "Academic Tests",
+                "value": "Generate Result"
+            }
+        ],
+        "scores": {
+            "Research & Discovery": [
+                {
+                    "indicator_id": "73",
+                    "indicator_name": "Citations per Faculty",
+                    "rank": "7",
+                    "score": "100"
+                },
+                {
+                    "indicator_id": "76",
+                    "indicator_name": "Academic Reputation",
+                    "rank": "4",
+                    "score": "100"
+                }
+            ],
+            "Learning Experience": [
+                {
+                    "indicator_id": "36",
+                    "indicator_name": "Faculty Student Ratio",
+                    "rank": "16",
+                    "score": "100"
+                }
+            ],
+            "Employability": [
+                {
+                    "indicator_id": "77",
+                    "indicator_name": "Employer Reputation",
+                    "rank": "2",
+                    "score": "100"
+                },
+                {
+                    "indicator_id": "3819456",
+                    "indicator_name": "Employment Outcomes",
+                    "rank": "7",
+                    "score": "100"
+                }
+            ],
+            "Global Engagement": [
+                {
+                    "indicator_id": "14",
+                    "indicator_name": "International Student Ratio",
+                    "rank": "153",
+                    "score": "91.6"
+                },
+                {
+                    "indicator_id": "15",
+                    "indicator_name": "International Research Network",
+                    "rank": "98",
+                    "score": "94.1"
+                },
+                {
+                    "indicator_id": "18",
+                    "indicator_name": "International Faculty Ratio",
+                    "rank": "63",
+                    "score": "100"
+                },
+                {
+                    "indicator_id": "3924415",
+                    "indicator_name": "International Student Diversity",
+                    "rank": "130",
+                    "score": "92.3"
+                }
+            ],
+            "Sustainability": [
+                {
+                    "indicator_id": "3897497",
+                    "indicator_name": "Sustainability Score",
+                    "rank": "33",
+                    "score": "93.8"
+                }
+            ]
         },
-        "Learning Experience":{
-            "Faculty Student Ratio":(36, 36.36) #(rank_int, score)
+        'detail_infors': {
+            'fee': None, #double
+            'scholarship': None, #bool
+            'domestic': None, #float
+            'international': None, #float
+            'english_test': None, #string
+            'academic_test': None, #string
+            'total_stu': None, #int
+            'ug_rate': None, # float
+            'pg_rate': None, # float
+            'inter_total': None, #int
+            'inter_ug_rate': None, #float
+            'inter_pg_rate': None #float
         },
-        "Employability":{
-            "Employer Reputation": (36, 36.36), #(rank_int, score)
-            "Employment Outcomes": (36, 36.36), #(rank_int, score)
-        },
-        "Global Engagement":{
-            "International Student Ratio": (36, 36.36), #(rank_int, score)
-            "International Research Network": (36, 36.36), #(rank_int, score)
-            "International Faculty Ratio": (36, 36.36), #(rank_int, score)
-            "International Student Diversity": (36, 36.36) #(rank_int, score)
-        },
-        "Sustainability":{
-            "Sustainability Score": (36, 36.36) #(rank_int, score)
+        'entry_infor': {
+            'bachelor':{
+                "exists": True,
+                "SAT": None,
+                "GRE": None,
+                "GMAT": None,
+                "ACT": None,
+                "ATAR" :None,
+                "GPA":None,
+                "TOEFL": None,
+                "IELTS": None
+            },
+            'master':{
+                "exists": False,
+                "SAT": None,
+                "GRE": None,
+                "GMAT": None,
+                "ACT": None,
+                "ATAR" :None,
+                "GPA":None,
+                "TOEFL": None,
+                "IELTS": None
+            },
         }
-    },
-    "entry_degree_requirement": {
-        "General": {
-            "SAT": 36,  #int
-            "GRE": 36,  #int
-            "GMAT" : 36, #int
-            "ACT": 36, #float
-            "ATAR": 36, #float
-            "GPA": 36, #float
-            "TOEFL": 36,  #int
-            "IELTS": 36 #float
-        },
-        "Master": {
-            "SAT": 36,  #int
-            "GRE": 36,  #int
-            "GMAT" : 36, #int
-            "ACT": 36, #float
-            "ATAR": 36, #float
-            "GPA": 36, #float
-            "TOEFL": 36,  #int
-            "IELTS": 36 #float
-        }
-    },
-    "detail_infors": {
-        'fee': 36, #int
-        'scholarship': 36,  #int
-        'domestic': 36,  #int
-        'international': 36, #int
-        'english_test': "36", #varchar
-        'academic_test': "36", #varchar
-        'total_stu': 36, #int
-        'ug_rate': 36, #float
-        'pg_rate': 36, #float
-        'inter_total': 36, #int
-        'inter_ug_rate': 36, #float
-        'inter_pg_rate': 36 #float
     }
-}
 
-# conditions = {
-#     'region':  None,
-#     'country': 'United States',
-#     'city': None,
-#     'ranking': (10,100)
-# }
 
 # print(UniversityModel.get_universities_with_condition(conditions)[0])
 
 # UniversityModel.add_university(sample_data)
-# UniversityModel.delete_university(1508)
+# UniversityModel.delete_university(1513)

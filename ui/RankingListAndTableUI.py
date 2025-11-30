@@ -47,8 +47,8 @@ def create_ui():
     
     try:
         # Giả sử bạn đã có file search.png trong thư mục assets
-        # img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
-        img = Image.open("assets/search.png")
+        img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
+        # img = Image.open("assets/search.png")
         img = img.resize((24, 24), Image.LANCZOS)
         search_photo = ImageTk.PhotoImage(img)
         tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
@@ -783,14 +783,14 @@ def create_ui():
     tk.Label(social_frame, text="Theo dõi chúng tôi", font=("Arial", 10, "bold"), bg="white").pack(side="left", padx=(0, 10))
     
     # Mô phỏng Social Icons (sử dụng Label với màu nền)
-    social_icons = ["assets/104498_facebook_icon.png", 
-                    "assets/1161953_instagram_icon.png", 
-                    "assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
-                    "assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
-    # social_icons = ["Abroad-University-Study-Comparison/assets/104498_facebook_icon.png", 
-    #                 "Abroad-University-Study-Comparison/assets/1161953_instagram_icon.png", 
-    #                 "Abroad-University-Study-Comparison/assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
-    #                 "Abroad-University-Study-Comparison/assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
+    # social_icons = ["assets/104498_facebook_icon.png", 
+    #                 "assets/1161953_instagram_icon.png", 
+    #                 "assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
+    #                 "assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
+    social_icons = ["Abroad-University-Study-Comparison/assets/104498_facebook_icon.png", 
+                    "Abroad-University-Study-Comparison/assets/1161953_instagram_icon.png", 
+                    "Abroad-University-Study-Comparison/assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
+                    "Abroad-University-Study-Comparison/assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
     for icon in social_icons:
         img = Image.open(icon)
         img = img.resize((15, 15), Image.LANCZOS)
