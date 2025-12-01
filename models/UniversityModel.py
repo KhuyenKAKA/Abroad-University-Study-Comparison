@@ -164,7 +164,7 @@ class UniversityModel:
     def get_universities_with_condition(filter):
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("use universities_db_clone")
+        cursor.execute("use universities_db")
         # universities, country, 
         where_condition = ""
         if filter['region'] is not None:
@@ -544,7 +544,131 @@ class UniversityModel:
         cursor.execute("DELETE FROM universities WHERE id=%s", (uni_id,))
         conn.commit()
 
+    def get_uni_detail(list_id):
+        conn = get_connection()
+        cursor = conn.cursor()
+        data = []
+        if list_id:
+            var = ",".join(["%s"] * len(list_id))   
+
+            query = f"""
+                SELECT u.name as name,
+                    COALESCE(d.fee, 'Chưa có ') AS fee,
+                    CASE 
+                        WHEN d.scholarship = 0 THEN 'Không'
+                        WHEN d.scholarship = 1 THEN 'Có'
+                        ELSE 'Chưa có '
+                        END AS scholarship,
+                        coalesce(d.domestic, 'Chưa có ') as domestic,
+                        coalesce(d.international, 'Chưa có ') as international,
+                        coalesce(d.total_stu, 'Chưa có ') as total_stu,
+                        coalesce(d.ug_rate, 'Chưa có ') as ug_rate,
+                        coalesce(d.pg_rate, 'Chưa có ') as pg_rate,
+                        coalesce(d.inter_total, 'Chưa có ') as inter_total,
+                        coalesce(d.inter_ug_rate, 'Chưa có ') as inter_ug_rate,
+                        coalesce(d.inter_pg_rate, 'Chưa có ') as inter_pg_rate
+                FROM 
+                    universities as u
+                LEFT JOIN detail_infors as d 
+                    ON u.id = d.university_id
+                WHERE u.id IN ({var});
+            """
+
+            cursor.execute(query, list_id)  
+            data = cursor.fetchall()
+        return data
     
+    def get_data_chart(list_id):
+        conn = get_connection()
+        cursor = conn.cursor()
+        data = []
+        if list_id:
+            var = ",".join(["%s"] * len(list_id))   
+
+            query = f"""
+                sELECT u.name as name,
+                        COALESCE(d.SAT, 0) AS SAT,
+                        coalesce(d.GRE, 0) as GRE,
+                        coalesce(d.GMAT, 0) as GMAT,
+                        coalesce(d.ACT, 0) as ACT,
+                        coalesce(d.ATAR, 0) as ATAR,
+                        coalesce(d.GPA, 0) as GPA,
+                        coalesce(d.TOEFL, 0) as TOEFL,
+                        coalesce(d.IELTS, 0) as IELTS
+                FROM 
+                    universities as u
+                LEFT JOIN entry_infor as d 
+                    ON u.id = d.university_id
+                WHERE d.degree_type = 1 and  u.id IN ({var});
+            """
+            cursor.execute(query, list_id)  
+            data = cursor.fetchall()
+        return data
+    def get_uni(id):
+        conn = get_connection()
+        cursor = conn.cursor()
+        query = """
+            SELECT u.name,
+                    CONCAT(c.name, ',', u.city) AS address,
+                    u.rank_int as ranks
+                FROM 
+                universities as u
+                left join countries as c on u.country_id = c.id
+                where u.id = %s
+            """
+        cursor.execute(query,(id,))
+        data = cursor.fetchone()
+        return data
+    def get_data_detail_entry(typeDegree, id):
+        conn = get_connection()
+        cursor = conn.cursor()
+        if id: 
+            query = """
+                sELECT
+                        COALESCE(d.SAT, 0) AS SAT,
+                        coalesce(d.GRE, 0) as GRE,
+                        coalesce(d.GMAT, 0) as GMAT,
+                        coalesce(d.ACT, 0) as ACT,
+                        coalesce(d.ATAR, 0) as ATAR,
+                        coalesce(d.GPA, 0) as GPA,
+                        coalesce(d.TOEFL, 0) as TOEFL,
+                        coalesce(d.IELTS, 0) as IELTS
+                FROM 
+                    universities as u
+                LEFT JOIN entry_infor as d 
+                    ON u.id = d.university_id
+                WHERE d.degree_type = %s and  u.id = %s ;
+            """
+            cursor.execute(query,(typeDegree, id,))  
+            data = cursor.fetchone()
+        return data
+    def get_data_detail_2(id):
+        conn = get_connection()
+        cursor = conn.cursor()
+        if id: 
+            query = """
+               SELECT 
+                    COALESCE(d.fee, 0) AS fee,
+                    CASE 
+                        WHEN d.scholarship = 0 THEN 'Không có'
+                        WHEN d.scholarship = 1 THEN 'Có'
+                        ELSE 'Chưa có thông tin'
+                        END AS scholarship,
+                        coalesce(d.domestic, 0) as domestic,
+                        coalesce(d.international, 0) as international,
+                        coalesce(d.total_stu, 0) as total_stu,
+                        coalesce(d.ug_rate, 0) as ug_rate,
+                        coalesce(d.pg_rate, 0) as pg_rate,
+                        coalesce(d.inter_total,0) as inter_total,
+                        coalesce(d.inter_ug_rate, 0) as inter_ug_rate,
+                        coalesce(d.inter_pg_rate, 0) as inter_pg_rate
+                FROM 
+                    detail_infors as d
+                WHERE d.id = %s
+            """
+            cursor.execute(query,(id,))  
+            data = cursor.fetchone()
+        return data
 sample_data = {
         "title": "Ghost University",
         "path": "/universities/massachusetts-institute-technology-mit",

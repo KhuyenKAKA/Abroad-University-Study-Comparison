@@ -4,6 +4,7 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 )
 import tkinter as tk
+from ui.CompareUniUI import create_ui as compare_ui
 from tkinter import ttk
 from PIL import Image, ImageTk
 from db import get_connection
@@ -232,7 +233,9 @@ def create_ui():
         global compare_list
         checked_list = [v for v in compare_list if compare_list[v].get()]
         if len(checked_list)>1: 
-            pass
+            root.destroy()
+            compare_ui(checked_list)
+            
         else:
             mess.showwarning("Thông báo","Hãy chọn trường đại học để so sánh!")
 
@@ -412,7 +415,9 @@ def create_ui():
             mess.showwarning("Đạt số lượng so sánh tối đa là 5!","Không thêm được các trường nữa")
             
     def link_to_detail(event,id):
-        pass
+        from ui.UniversityDetailUI import create_ui as detail_ui
+        root.destroy()
+        detail_ui(id)
     
     def create_university_block(parent,data):
         uni_block = tk.Frame(parent, bg="white", bd=1, relief='solid', padx=20, pady=15)
