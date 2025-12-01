@@ -8,23 +8,15 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from controller.AuthController import AuthController
+from controller.UniversityController import UniversityController
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
-line_data = [
-    {"name": "Trường 1", "SAT": 1200, "GRE": 320, "GMAT": 600, "ACT": 29, "ATAR": 85, "GPA": 3.5, "TOEFL": 95, "IELTS": 6.5},
-    {"name": "Trường 2", "SAT": 1250, "GRE": 315, "GMAT": 650, "ACT": 28, "ATAR": 80, "GPA": 3.2, "TOEFL": 100, "IELTS": 7.0},
-    {"name": "Trường 3", "SAT": 1100, "GRE": 300, "GMAT": 580, "ACT": 26, "ATAR": 75, "GPA": 3.0, "TOEFL": 90, "IELTS": 6.0},
-]
-table_data = [
-    {"name": "MIT",                         "fee": 100, "scholarship": 100,     "domestic": 100, "international": 100, "total_stu": 11500, "ug_rate": 60, "pg_rate": 40, "inter_total": 30, "inter_ug_rate": 20, "inter_pg_rate": 10},
-    {"name": "Imperial College London",     "fee": 95,  "scholarship": 99.6,    "domestic": 99.3, "international": 100, "total_stu": 19000, "ug_rate": 55, "pg_rate": 45, "inter_total": 35, "inter_ug_rate": 25, "inter_pg_rate": 10},
-    {"name": "Stanford University",         "fee": 98,  "scholarship": 98.5,    "domestic": 99.5, "international": 95, "total_stu": 17000, "ug_rate": 50, "pg_rate": 50, "inter_total": 25, "inter_ug_rate": 15, "inter_pg_rate": 10},
-    {"name": "ETH Zurich",                  "fee": 90,  "scholarship": 95,      "domestic": 100, "international": 90, "total_stu": 24000, "ug_rate": 65, "pg_rate": 35, "inter_total": 40, "inter_ug_rate": 30, "inter_pg_rate": 10},
-    {"name": "National University of SGP",  "fee": 92,  "scholarship": 97,      "domestic": 95, "international": 98, "total_stu": 35000, "ug_rate": 70, "pg_rate": 30, "inter_total": 20, "inter_ug_rate": 10, "inter_pg_rate": 10}
-]
-criteria = ["SAT", "GRE", "GMAT", "ACT", "ATAR", "GPA", "TOEFL", "IELTS"]
-def create_ui():
 
+
+criteria = ["SAT", "GRE", "GMAT", "ACT", "ATAR", "GPA", "TOEFL", "IELTS"]
+def create_ui(checked_list):
+    line_data = UniversityController.get_data_chart(checked_list)
+    table_data = UniversityController.get_uni_detail(checked_list)
     root = tk.Tk()
     root.title("UniCompare - Định hướng tương lai cùng bạn")
     root.geometry("1000x800")
@@ -111,7 +103,7 @@ def create_ui():
         # Re_Dis_frame = tk.Frame(header, bg="white")
         # Re_Dis_frame.pack(side="left", fill='y')
         # tk.Label(Re_Dis_frame,text="Overall Rank",font=("Arial", 10, "bold"),bg="white", width=10).pack(side="left", padx=5, pady=5)
-        tk.Label(header,text=data['name'],font=("Arial", 10, "bold"),bg="#f0f0f0", width=38).pack(side="left", padx=5, pady=5)
+        tk.Label(header,text=data[0],font=("Arial", 10, "bold"),bg="#f0f0f0", width=38).pack(side="left", padx=5, pady=5)
         
         Re_Dis_frame = tk.Frame(header, bg="white")
         Re_Dis_frame.pack(side="left", fill='y')
@@ -119,14 +111,14 @@ def create_ui():
         # upper_frame.pack(fill='y',padx=5,pady=5)
         fee_frame = tk.Frame(Re_Dis_frame,bg= 'white')
         fee_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(fee_frame, text=data['fee'], font=("Arial", 8,), bg="white",width=10).pack(side="left")
+        tk.Label(fee_frame, text=data[1], font=("Arial", 8,), bg="white",width=10).pack(side="left")
 
         Re_Dis_frame = tk.Frame(header, bg= '#f0f0f0')
         Re_Dis_frame.pack(side="left", fill='y')
         # tk.Label(upper_frame, text='Reserach & Discovery', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
         Scholarship_frame = tk.Frame(Re_Dis_frame,bg= '#f0f0f0')
         Scholarship_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(Scholarship_frame, text=data['scholarship'], font=("Arial", 8), bg= '#f0f0f0',width=10).pack(side="left")
+        tk.Label(Scholarship_frame, text=data[2], font=("Arial", 8), bg= '#f0f0f0',width=10).pack(side="left")
 
         Re_Dis_frame = tk.Frame(header, bg="white")
         Re_Dis_frame.pack(side="left", fill='y')
@@ -134,14 +126,14 @@ def create_ui():
         # upper_frame.pack(fill='y',padx=5,pady=5)
         fee_frame = tk.Frame(Re_Dis_frame,bg= 'white')
         fee_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(fee_frame, text=data['domestic'], font=("Arial", 8,), bg="white",width=13).pack(side="left")
+        tk.Label(fee_frame, text=data[3], font=("Arial", 8,), bg="white",width=13).pack(side="left")
 
         Re_Dis_frame = tk.Frame(header, bg= '#f0f0f0')
         Re_Dis_frame.pack(side="left", fill='y')
         # tk.Label(upper_frame, text='Reserach & Discovery', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
         Scholarship_frame = tk.Frame(Re_Dis_frame,bg= '#f0f0f0')
         Scholarship_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(Scholarship_frame, text=data['international'], font=("Arial", 8), bg= '#f0f0f0',width=13).pack(side="left")
+        tk.Label(Scholarship_frame, text=data[4], font=("Arial", 8), bg= '#f0f0f0',width=13).pack(side="left")
         
         Re_Dis_frame = tk.Frame(header, bg="white")
         Re_Dis_frame.pack(side="left", fill='y')
@@ -149,14 +141,14 @@ def create_ui():
         # upper_frame.pack(fill='y',padx=5,pady=5)
         fee_frame = tk.Frame(Re_Dis_frame,bg= 'white')
         fee_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(fee_frame, text=data['total_stu'], font=("Arial", 8,), bg="white",width=10).pack(side="left")
+        tk.Label(fee_frame, text=data[5], font=("Arial", 8,), bg="white",width=10).pack(side="left")
 
         Re_Dis_frame = tk.Frame(header, bg= '#f0f0f0')
         Re_Dis_frame.pack(side="left", fill='y')
         # tk.Label(upper_frame, text='Reserach & Discovery', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
         Scholarship_frame = tk.Frame(Re_Dis_frame,bg= '#f0f0f0')
         Scholarship_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(Scholarship_frame, text=data['ug_rate'], font=("Arial", 8), bg= '#f0f0f0',width=15).pack(side="left")
+        tk.Label(Scholarship_frame, text=data[6], font=("Arial", 8), bg= '#f0f0f0',width=15).pack(side="left")
         
         Re_Dis_frame = tk.Frame(header, bg="white")
         Re_Dis_frame.pack(side="left", fill='y')
@@ -164,14 +156,14 @@ def create_ui():
         # upper_frame.pack(fill='y',padx=5,pady=5)
         fee_frame = tk.Frame(Re_Dis_frame,bg= 'white')
         fee_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(fee_frame, text=data['pg_rate'], font=("Arial", 8,), bg="white",width=20).pack(side="left")
+        tk.Label(fee_frame, text=data[7], font=("Arial", 8,), bg="white",width=20).pack(side="left")
 
         Re_Dis_frame = tk.Frame(header, bg= '#f0f0f0')
         Re_Dis_frame.pack(side="left", fill='y')
         # tk.Label(upper_frame, text='Reserach & Discovery', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
         Scholarship_frame = tk.Frame(Re_Dis_frame,bg= '#f0f0f0')
         Scholarship_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(Scholarship_frame, text=data['inter_total'], font=("Arial", 8), bg= '#f0f0f0',width=15).pack(side="left")
+        tk.Label(Scholarship_frame, text=data[8], font=("Arial", 8), bg= '#f0f0f0',width=15).pack(side="left")
         
         Re_Dis_frame = tk.Frame(header, bg="white")
         Re_Dis_frame.pack(side="left", fill='y')
@@ -179,14 +171,14 @@ def create_ui():
         # upper_frame.pack(fill='y',padx=5,pady=5)
         fee_frame = tk.Frame(Re_Dis_frame,bg= 'white')
         fee_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(fee_frame, text=data['inter_ug_rate'], font=("Arial", 8,), bg="white",width=10).pack(side="left")
+        tk.Label(fee_frame, text=data[9], font=("Arial", 8,), bg="white",width=10).pack(side="left")
 
         Re_Dis_frame = tk.Frame(header, bg= '#f0f0f0')
         Re_Dis_frame.pack(side="left", fill='y')
         # tk.Label(upper_frame, text='Reserach & Discovery', font=("Arial", 10,), fg="#1e90ff", bg="white").pack()
         Scholarship_frame = tk.Frame(Re_Dis_frame,bg= '#f0f0f0')
         Scholarship_frame.pack(fill='y',padx=5,pady=5,side='left')
-        tk.Label(Scholarship_frame, text=data['inter_pg_rate'], font=("Arial", 8), bg= '#f0f0f0',width=25).pack(side="left")
+        tk.Label(Scholarship_frame, text=data[10], font=("Arial", 8), bg= '#f0f0f0',width=25).pack(side="left")
 
 
     def render_table_view():
@@ -294,7 +286,6 @@ def create_ui():
     frame_chart.pack(fill='x') 
 
     draw_chart_in_frame(frame_chart, criteria, line_data)
-
     # ===============================================
     # Phần Footer
     # ===============================================
@@ -381,7 +372,7 @@ def draw_chart_in_frame(master_frame, criteria, line_data):
     for widget in master_frame.winfo_children():
         widget.destroy()
 
-    ttk.Label(master_frame, text="Chỉ số Tiêu chí Tuyển sinh", 
+    ttk.Label(master_frame, text="Chỉ số Tiêu chí tuyển sinh", 
               font=("Arial", 14, "bold"), background=master_frame['bg']).pack(pady=(5, 5))
 
     fig_chart = plt.Figure(figsize=(10, 5), dpi=100)
@@ -394,17 +385,33 @@ def draw_chart_in_frame(master_frame, criteria, line_data):
     data_points = []
     
     for i, school in enumerate(line_data):
-        values = [school[c] for c in criteria]
-        line, = ax_chart.plot(x_pos, values, marker="o", label=school["name"])
-        plots.append(line)
 
-        for j, val in enumerate(values):
-            data_points.append({
-                'x': x_pos[j],
-                'y': val,
-                'school': school['name'],
-                'criterion': criteria[j]
-            })
+        values = []
+        valid_x = []
+        valid_y = []
+
+        for j, c in enumerate(criteria):
+            if c in school and school[c] is not None:
+                values.append(school[c])
+                valid_x.append(x_pos[j])
+                valid_y.append(school[c])
+
+                # lưu điểm hợp lệ
+                data_points.append({
+                    'x': x_pos[j],
+                    'y': school[c],
+                    'school': school['name'],
+                    'criterion': c
+                })
+            else:
+                values.append(None)  # để giữ đúng vị trí khi vẽ line
+
+        # Vẽ LINE (mất đoạn nếu thiếu dữ liệu — đúng chuẩn matplotlib)
+        ax_chart.plot(x_pos, values, label=school["name"])
+
+        # Vẽ marker chỉ ở những điểm có dữ liệu hợp lệ
+        ax_chart.scatter(valid_x, valid_y, marker="o")
+
 
     ax_chart.set_xticks(x_pos) 
     ax_chart.set_xticklabels(criteria, rotation=15, ha="right")
@@ -455,6 +462,7 @@ def draw_chart_in_frame(master_frame, criteria, line_data):
                     fig_chart.canvas.draw_idle()
 
     canvas.mpl_connect("motion_notify_event", hover)
+
 
 if __name__ == "__main__":
     create_ui()
