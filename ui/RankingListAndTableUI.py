@@ -1,19 +1,18 @@
-import sys
-import os
-sys.path.append(
-    os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-)
-import tkinter as tk
-from ui.CompareUniUI import create_ui as compare_ui
-from tkinter import ttk
-from PIL import Image, ImageTk
-from db import get_connection
-import requests 
-from io import BytesIO
-from controller.UniversityController import UniversityController
-from tkinter import messagebox as mess
-import mysql.connector
 def create_ui():
+    import sys
+    import os
+    sys.path.append(
+        os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    )
+    import tkinter as tk
+    from tkinter import ttk
+    from PIL import Image, ImageTk
+    from db import get_connection
+    import requests 
+    from io import BytesIO
+    from controller.UniversityController import UniversityController
+    from tkinter import messagebox as mess
+    import mysql.connector
     global current_view_mode
     current_view_mode = 1
     global universities_data
@@ -46,11 +45,10 @@ def create_ui():
     right_nav_frame.grid(row=0, column=7, sticky="e", padx=(0, 20))
 
     tk.Button(right_nav_frame, text="Tư vấn miễn phí",foreground='white', background='#28a745', ).pack(side='left', padx=5)
-    
     try:
         # Giả sử bạn đã có file search.png trong thư mục assets
-        img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
-        # img = Image.open("assets/search.png")
+        # img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
+        img = Image.open("assets/search.png")
         img = img.resize((24, 24), Image.LANCZOS)
         search_photo = ImageTk.PhotoImage(img)
         tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
@@ -233,9 +231,9 @@ def create_ui():
         global compare_list
         checked_list = [v for v in compare_list if compare_list[v].get()]
         if len(checked_list)>1: 
-            root.destroy()
+            from ui.CompareUniUI import create_ui as compare_ui
             compare_ui(checked_list)
-            
+            root.destroy()
         else:
             mess.showwarning("Thông báo","Hãy chọn trường đại học để so sánh!")
 
@@ -783,14 +781,14 @@ def create_ui():
     tk.Label(social_frame, text="Theo dõi chúng tôi", font=("Arial", 10, "bold"), bg="white").pack(side="left", padx=(0, 10))
     
     # Mô phỏng Social Icons (sử dụng Label với màu nền)
-    # social_icons = ["assets/104498_facebook_icon.png", 
-    #                 "assets/1161953_instagram_icon.png", 
-    #                 "assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
-    #                 "assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
-    social_icons = ["Abroad-University-Study-Comparison/assets/104498_facebook_icon.png", 
-                    "Abroad-University-Study-Comparison/assets/1161953_instagram_icon.png", 
-                    "Abroad-University-Study-Comparison/assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
-                    "Abroad-University-Study-Comparison/assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
+    social_icons = ["assets/104498_facebook_icon.png", 
+                    "assets/1161953_instagram_icon.png", 
+                    "assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
+                    "assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
+    # social_icons = ["Abroad-University-Study-Comparison/assets/104498_facebook_icon.png", 
+    #                 "Abroad-University-Study-Comparison/assets/1161953_instagram_icon.png", 
+    #                 "Abroad-University-Study-Comparison/assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
+    #                 "Abroad-University-Study-Comparison/assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
     for icon in social_icons:
         img = Image.open(icon)
         img = img.resize((15, 15), Image.LANCZOS)
@@ -836,5 +834,5 @@ def create_ui():
 
     root.mainloop()
 
-if __name__ == "__main__":
-    create_ui()
+# if __name__ == "__main__":
+#     create_ui()

@@ -1,7 +1,11 @@
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
-
+import sys
+import os
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+)
 
 def clickCourseRecommendation(event):
     pass
@@ -46,7 +50,14 @@ def create_ui():
         frame = tk.Frame(parent, bg=bg_color)
         frame.pack(fill='x', pady=(padding_y, 0))
         return frame
+    
+    def link_to_ranking():
+        root.destroy()
+        from ui.RankingListAndTableUI import create_ui as create_ranking_ui
+        create_ranking_ui()
         
+        
+
     nav_frame.grid_columnconfigure(0, weight=0) 
     nav_frame.grid_columnconfigure(1, weight=1) 
     nav_frame.grid_columnconfigure(2, weight=0) 
@@ -55,7 +66,7 @@ def create_ui():
     tk.Label(nav_frame, text="UniCompare", font=("Arial", 16, "bold"), fg="#1e90ff", bg="white").grid(row=0, column=0, padx=(20, 50), pady=10)
     
     menu_items = ["Xếp hạng", "Khám phá", "Sự kiện", "Chuẩn bị", "Học bổng", "Chat với AI"]
-    btnRankings = tk.Button(nav_frame, text=menu_items[0], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=1, padx=5, pady=10, sticky="e", in_=nav_frame)
+    btnRankings = tk.Button(nav_frame, text=menu_items[0], command=link_to_ranking, font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=1, padx=5, pady=10, sticky="e", in_=nav_frame)
     btnDiscover = tk.Button(nav_frame, text=menu_items[1], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=2, padx=5, pady=10, sticky="e", in_=nav_frame)
     btnEvents = tk.Button(nav_frame, text=menu_items[2], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=3, padx=5, pady=10, sticky="e", in_=nav_frame)
     btnPrepare = tk.Button(nav_frame, text=menu_items[3], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=4, padx=5, pady=10, sticky="e", in_=nav_frame)
@@ -259,40 +270,40 @@ def create_ui():
     #     tk.Button(right_nav_frame, image=photo,bg= 'white',relief='flat').pack(side='left', padx=5)
     # except FileNotFoundError:
     #     tk.Label(right_nav_frame, text="🔍", font=("Arial", 16), bg="white").pack(side='left', padx=5)
-    # logo_texts = [
-    #     "assets/American_university.png",
-    #     "assets/Auckland-University-Logo.png",
-    #     "assets/Boston-University-Logo.png",
-    #     "assets/Brown-Unversity-Logo.png",
-    #     "assets/Cairo-University-Logo.png",
-    #     "assets/Chicago-University-Logo.png",
-    #     "assets/Columbia-University-Logo.png",
-    #     "assets/Cornell-University-Logo.png",
-    #     "assets/Duke-University-Logo.png",
-    #     "assets/Georgetown-University-Logo.png",
-    #     "assets/Harvard-University-Logo.png",
-    #     "assets/Melbourne-University-Logo.png",
-    #     "assets/Moscow-State-University-Logo.png",
-    #     "assets/National-University-of-Singapore-Logo.png",
-    #     "assets/Northeastern-University-Logo.png",
-    # ]
     logo_texts = [
-        "Abroad-University-Study-Comparison/assets/American_university.png",
-        "Abroad-University-Study-Comparison/assets/Auckland-University-Logo.png",
-        "Abroad-University-Study-Comparison/assets/Boston-University-Logo.png",
-        "Abroad-University-Study-Comparison/assets/Brown-Unversity-Logo.png",
-        "Abroad-University-Study-Comparison/assets/Cairo-University-Logo.png",
-        "Abroad-University-Study-Comparison/assets/Chicago-University-Logo.png",
-        "Abroad-University-Study-Comparison/assets/Columbia-University-Logo.png",
-        "Abroad-University-Study-Comparison/assets/Cornell-University-Logo.png",
-        "Abroad-University-Study-Comparison/assets/Duke-University-Logo.png",
-        "Abroad-University-Study-Comparison/assets/Georgetown-University-Logo.png",
-        "Abroad-University-Study-Comparison/assets/Harvard-University-Logo.png",
-        "Abroad-University-Study-Comparison/assets/Melbourne-University-Logo.png",
-        "Abroad-University-Study-Comparison/assets/Moscow-State-University-Logo.png",
-        "Abroad-University-Study-Comparison/assets/National-University-of-Singapore-Logo.png",
-        "Abroad-University-Study-Comparison/assets/Northeastern-University-Logo.png",   
+        "assets/American_university.png",
+        "assets/Auckland-University-Logo.png",
+        "assets/Boston-University-Logo.png",
+        "assets/Brown-Unversity-Logo.png",
+        "assets/Cairo-University-Logo.png",
+        "assets/Chicago-University-Logo.png",
+        "assets/Columbia-University-Logo.png",
+        "assets/Cornell-University-Logo.png",
+        "assets/Duke-University-Logo.png",
+        "assets/Georgetown-University-Logo.png",
+        "assets/Harvard-University-Logo.png",
+        "assets/Melbourne-University-Logo.png",
+        "assets/Moscow-State-University-Logo.png",
+        "assets/National-University-of-Singapore-Logo.png",
+        "assets/Northeastern-University-Logo.png",
     ]
+    # logo_texts = [
+    #     "Abroad-University-Study-Comparison/assets/American_university.png",
+    #     "Abroad-University-Study-Comparison/assets/Auckland-University-Logo.png",
+    #     "Abroad-University-Study-Comparison/assets/Boston-University-Logo.png",
+    #     "Abroad-University-Study-Comparison/assets/Brown-Unversity-Logo.png",
+    #     "Abroad-University-Study-Comparison/assets/Cairo-University-Logo.png",
+    #     "Abroad-University-Study-Comparison/assets/Chicago-University-Logo.png",
+    #     "Abroad-University-Study-Comparison/assets/Columbia-University-Logo.png",
+    #     "Abroad-University-Study-Comparison/assets/Cornell-University-Logo.png",
+    #     "Abroad-University-Study-Comparison/assets/Duke-University-Logo.png",
+    #     "Abroad-University-Study-Comparison/assets/Georgetown-University-Logo.png",
+    #     "Abroad-University-Study-Comparison/assets/Harvard-University-Logo.png",
+    #     "Abroad-University-Study-Comparison/assets/Melbourne-University-Logo.png",
+    #     "Abroad-University-Study-Comparison/assets/Moscow-State-University-Logo.png",
+    #     "Abroad-University-Study-Comparison/assets/National-University-of-Singapore-Logo.png",
+    #     "Abroad-University-Study-Comparison/assets/Northeastern-University-Logo.png",   
+    # ]
     row_count = 3
     col_count = 5
     images_reference = []
@@ -340,14 +351,14 @@ def create_ui():
     tk.Label(social_frame, text="Theo dõi chúng tôi", font=("Arial", 10, "bold"), bg="white").pack(side="left", padx=(0, 10))
     
     # Mô phỏng Social Icons (sử dụng Label với màu nền)
-    # social_icons = ["assets/104498_facebook_icon.png", 
-    #                 "assets/1161953_instagram_icon.png", 
-    #                 "assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
-    #                 "assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
-    social_icons = ["Abroad-University-Study-Comparison/assets/104498_facebook_icon.png", 
-                    "Abroad-University-Study-Comparison/assets/1161953_instagram_icon.png", 
-                    "Abroad-University-Study-Comparison/assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
-                    "Abroad-University-Study-Comparison/assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
+    social_icons = ["assets/104498_facebook_icon.png", 
+                    "assets/1161953_instagram_icon.png", 
+                    "assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
+                    "assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
+    # social_icons = ["Abroad-University-Study-Comparison/assets/104498_facebook_icon.png", 
+    #                 "Abroad-University-Study-Comparison/assets/1161953_instagram_icon.png", 
+    #                 "Abroad-University-Study-Comparison/assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
+    #                 "Abroad-University-Study-Comparison/assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
     for icon in social_icons:
         img = Image.open(icon)
         img = img.resize((15, 15), Image.LANCZOS)
