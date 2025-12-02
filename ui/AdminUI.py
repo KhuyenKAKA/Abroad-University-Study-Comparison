@@ -50,8 +50,8 @@ def create_ui():
     
     try:
         # Giả sử bạn đã có file search.png trong thư mục assets
-        # img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
-        img = Image.open("assets/search.png")
+        img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
+        # img = Image.open("assets/search.png")
         img = img.resize((24, 24), Image.LANCZOS)
         search_photo = ImageTk.PhotoImage(img)
         tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
@@ -523,6 +523,10 @@ def create_ui():
         
         if current_view_mode == 1:
             update_university_form(university_id)
+        else:
+            from ui.AddAccountUI import create_update_ui as create_update
+            root.destroy()
+            create_update(university_id)
 
     def on_click_delete_university(id):
         result = mess.askyesno("Xác nhận xóa","Bạn có chắc chắn muốn xóa chứ?")
@@ -920,24 +924,24 @@ def create_ui():
         action_frame.pack(side="right")
         # tk.Button(action_frame, text="Shortlist", font=("Arial", 9), bg="white", relief='flat').pack(side="left", padx=5)
 
-        # img = Image.open("Abroad-University-Study-Comparison/assets/detail_icon.png")
-        img = Image.open("assets/detail_icon.png")
+        img = Image.open("Abroad-University-Study-Comparison/assets/detail_icon.png")
+        # img = Image.open("assets/detail_icon.png")
         img = img.resize((24, 24), Image.LANCZOS)
         detail_photo = ImageTk.PhotoImage(img)
         # tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
         tk.Button(action_frame, command=lambda name=data['id']: on_click_detail(name), image=detail_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
         images_reference.append(detail_photo)
 
-        # img = Image.open("Abroad-University-Study-Comparison/assets/updates_icon.png")
-        img = Image.open("assets/updates_icon.png")
+        img = Image.open("Abroad-University-Study-Comparison/assets/updates_icon.png")
+        # img = Image.open("assets/updates_icon.png")
         img = img.resize((24, 24), Image.LANCZOS)
         update_photo = ImageTk.PhotoImage(img)
         # tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
         tk.Button(action_frame, command= lambda name=data['id']: on_click_update(name), image=update_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
         images_reference.append(update_photo)
 
-        # img = Image.open("Abroad-University-Study-Comparison/assets/delete_icon.png")
-        img = Image.open("assets/delete_icon.png")
+        img = Image.open("Abroad-University-Study-Comparison/assets/delete_icon.png")
+        # img = Image.open("assets/delete_icon.png")
         img = img.resize((24, 24), Image.LANCZOS)
         delete_photo = ImageTk.PhotoImage(img)
         # tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
@@ -984,16 +988,16 @@ def create_ui():
         # tk.Button(action_frame, command=lambda name=data['id']: on_click_detail(name), image=detail_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
         # images_reference.append(detail_photo)
 
-        # img = Image.open("Abroad-University-Study-Comparison/assets/updates_icon.png")
-        img = Image.open("assets/updates_icon.png")
+        img = Image.open("Abroad-University-Study-Comparison/assets/updates_icon.png")
+        # img = Image.open("assets/updates_icon.png")
         img = img.resize((24, 24), Image.LANCZOS)
         update_photo = ImageTk.PhotoImage(img)
         # tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
         tk.Button(action_frame, command= lambda name=data['id']: on_click_update(name), image=update_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
         images_reference.append(update_photo)
 
-        # img = Image.open("Abroad-University-Study-Comparison/assets/delete_icon.png")
-        img = Image.open("assets/delete_icon.png")
+        img = Image.open("Abroad-University-Study-Comparison/assets/delete_icon.png")
+        # img = Image.open("assets/delete_icon.png")
         img = img.resize((24, 24), Image.LANCZOS)
         delete_photo = ImageTk.PhotoImage(img)
         # tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
@@ -1197,14 +1201,14 @@ def create_ui():
     tk.Label(social_frame, text="Theo dõi chúng tôi", font=("Arial", 10, "bold"), bg="white").pack(side="left", padx=(0, 10))
     
     # Mô phỏng Social Icons (sử dụng Label với màu nền)
-    social_icons = ["assets/104498_facebook_icon.png", 
-                    "assets/1161953_instagram_icon.png", 
-                    "assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
-                    "assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
-    # social_icons = ["Abroad-University-Study-Comparison/assets/104498_facebook_icon.png", 
-    #                 "Abroad-University-Study-Comparison/assets/1161953_instagram_icon.png", 
-    #                 "Abroad-University-Study-Comparison/assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
-    #                 "Abroad-University-Study-Comparison/assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
+    # social_icons = ["assets/104498_facebook_icon.png", 
+    #                 "assets/1161953_instagram_icon.png", 
+    #                 "assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
+    #                 "assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
+    social_icons = ["Abroad-University-Study-Comparison/assets/104498_facebook_icon.png", 
+                    "Abroad-University-Study-Comparison/assets/1161953_instagram_icon.png", 
+                    "Abroad-University-Study-Comparison/assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
+                    "Abroad-University-Study-Comparison/assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
     for icon in social_icons:
         img = Image.open(icon)
         img = img.resize((15, 15), Image.LANCZOS)

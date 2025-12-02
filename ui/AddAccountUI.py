@@ -15,6 +15,9 @@ gender_var = None
 # --- HÀM LẤY VÀ XỬ LÝ DỮ LIỆU ---
 
 def get_user_data():
+    if user_entries.get("first_name") == "" or user_entries.get("last_name") =="":
+        messagebox.showerror("Loi", "Xin hay dien day du thong tin") 
+        return
     """Thu thập dữ liệu từ các trường nhập liệu của bảng users."""
     data = {k: v.get() for k, v in user_entries.items()}
     # Đảm bảo gender_var đã được khởi tạo
@@ -44,92 +47,8 @@ def get_study_data():
                 return None, f"Lỗi: Trường '{key}' phải là số."
         else:
             data[key] = None
-    return data, None
+    return data, None   
 
-def save_data():
-
-    """Hàm xử lý việc lưu dữ liệu vào cơ sở dữ liệu."""
-    user_data = get_user_data()
-    study_data, error = get_study_data()
-    
-    if error:
-        messagebox.showerror("Lỗi Nhập Liệu", error)
-        return
-        
-    # --- LOGIC KẾT NỐI VÀ CHÈN DỮ LIỆU CƠ SỞ DỮ LIỆU TẠI ĐÂY ---
-    # Thay thế phần này bằng code kết nối CSDL thực tế.
-    
-    try:
-        # user_id = 101 # Giả lập ID người dùng
-        
-        # if study_data:
-        #     study_data['user_id'] = user_id
-
-        # print("--- Dữ liệu đã chuẩn bị cho DB ---")
-        # print("users:", user_data)
-        # print("study_bg (kèm user_id):", study_data)
-        
-        # messagebox.showinfo("Thành công", f"Đã lưu dữ liệu thành công cho User ID: {user_id}")
-        # clear_form()
-        mydb = get_connection()
-        cursor = mydb.cursor()
-        query = """
-        INSERT INTO users
-        (first_name, last_name, password, image, phone_number, gender, dob,
-        country_id, email, main_lang, add_lang, ethnic_group, special, postal_code)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """
-        gender = True if gender_var.get() == "Nam" else False
-        values = (
-            user_data.get("first_name"),
-            user_data.get("last_name"),
-            user_data.get("password"),
-            user_data.get("image"),
-            user_data.get("phone_number"),
-            gender,      
-            user_data.get("dob") if user_data.get("dob")!="" else None,         
-            user_data.get("country_id") if user_data.get("country_id")!="" else None,  
-            user_data.get("email"),
-            user_data.get("main_lang"),
-            user_data.get("add_lang"),
-            user_data.get("ethnic_group"),
-            user_data.get("special"),
-            user_data.get("postal_code")
-        )
-        cursor.execute(query, values)
-        
-        user_id = cursor.lastrowid
-        query = """
-        INSERT INTO study_bg
-        (user_id, level, major, academic_rate, gpa, graduate_year,
-        act, gmat, sat, cat, gre, stat,
-        ielts, toefl, pearson_test, cam_adv_test, inter_bac)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """
-        values = (
-            user_id,
-            study_data.get("level"),
-            study_data.get("major"),
-            study_data.get("academic_rate"),
-            float(study_data.get("gpa") or 0),
-            int(study_data.get("graduate_year") or 0),
-            float(study_data.get("act") or 0),
-            float(study_data.get("gmat") or 0),
-            float(study_data.get("sat") or 0),
-            float(study_data.get("cat") or 0),
-            float(study_data.get("gre") or 0),
-            float(study_data.get("stat") or 0),
-            float(study_data.get("ielts") or 0),
-            float(study_data.get("toefl") or 0),
-            float(study_data.get("pearson_test") or 0),
-            float(study_data.get("cam_adv_test") or 0),
-            float(study_data.get("inter_bac") or 0)
-        )
-        cursor.execute(query, values)
-        mydb.commit()
-        messagebox.showinfo("Thành công","Thêm người dùng thành công")
-    except Exception as e:
-        messagebox.showerror("Lỗi CSDL", f"Đã xảy ra lỗi khi lưu dữ liệu: {e}")
 
 def clear_form():
     """Xóa nội dung của tất cả các ô nhập liệu."""
@@ -157,7 +76,6 @@ def create_form_fields(parent_frame, fields_list, entries_dict):
 def setup_user_form(content_frame):
     """Tạo Form Thông tin Cá nhân."""
     global gender_var
-    
     ttk.Label(content_frame, text="👤 THÔNG TIN CÁ NHÂN (USERS)", font=('Arial', 14, 'bold'), foreground='#0052cc').pack(fill='x', pady=15)
     
     user_form_frame = ttk.Frame(content_frame)
@@ -193,32 +111,129 @@ def setup_user_form(content_frame):
     ttk.Separator(content_frame, orient='horizontal').pack(fill='x', pady=10, padx=20)
 
 
-def setup_study_form(content_frame):
-    """Tạo Form Học vấn."""
+# def setup_study_form(content_frame):
+#     """Tạo Form Học vấn."""
     
-    ttk.Label(content_frame, text="🎓 THÔNG TIN HỌC VẤN (STUDY_BG)", font=('Arial', 14, 'bold'), foreground='#0052cc').pack(fill='x', pady=15)
+#     ttk.Label(content_frame, text="🎓 THÔNG TIN HỌC VẤN (STUDY_BG)", font=('Arial', 14, 'bold'), foreground='#0052cc').pack(fill='x', pady=15)
     
-    study_form_frame = ttk.Frame(content_frame)
-    study_form_frame.pack(fill='x', padx=20, pady=5)
+#     study_form_frame = ttk.Frame(content_frame)
+#     study_form_frame.pack(fill='x', padx=20, pady=5)
 
-    fields = [
-        ("Cấp độ:", "level"), ("Chuyên ngành:", "major"), ("Tỉ lệ học thuật:", "academic_rate"),
-        ("GPA:", "gpa"), ("Năm tốt nghiệp:", "graduate_year"), 
-        ("Điểm ACT:", "act"), ("Điểm GMAT:", "gmat"), 
-        ("Điểm SAT:", "sat"), ("Điểm CAT:", "cat"), 
-        ("Điểm GRE:", "gre"), ("Điểm STAT:", "stat"), 
-        ("Điểm IELTS:", "ielts"), ("Điểm TOEFL:", "toefl"), 
-        ("Điểm Pearson Test:", "pearson_test"), 
-        ("Điểm Cam Advanced:", "cam_adv_test"),
-        ("Điểm Tú tài Quốc tế:", "inter_bac")
-    ]
+#     fields = [
+#         ("Cấp độ:", "level"), ("Chuyên ngành:", "major"), ("Tỉ lệ học thuật:", "academic_rate"),
+#         ("GPA:", "gpa"), ("Năm tốt nghiệp:", "graduate_year"), 
+#         ("Điểm ACT:", "act"), ("Điểm GMAT:", "gmat"), 
+#         ("Điểm SAT:", "sat"), ("Điểm CAT:", "cat"), 
+#         ("Điểm GRE:", "gre"), ("Điểm STAT:", "stat"), 
+#         ("Điểm IELTS:", "ielts"), ("Điểm TOEFL:", "toefl"), 
+#         ("Điểm Pearson Test:", "pearson_test"), 
+#         ("Điểm Cam Advanced:", "cam_adv_test"),
+#         ("Điểm Tú tài Quốc tế:", "inter_bac")
+#     ]
     
-    create_form_fields(study_form_frame, fields, study_entries)
-    
-    # Thêm nút Lưu Form Học vấn (Nếu bạn muốn lưu riêng)
-    save_btn_study = tk.Button(study_form_frame, text="Lưu Học Vấn", command=save_data, foreground='white', background="#28a745")
-    save_btn_study.grid(row=len(fields), column=1, sticky="e", padx=10, pady=10)
+#     create_form_fields(study_form_frame, fields, study_entries)
+#     def save_data():
+#         """Hàm xử lý việc lưu dữ liệu vào cơ sở dữ liệu."""
+#         user_data = get_user_data()
+#         study_data, error = get_study_data()
+        
+#         if error:
+#             messagebox.showerror("Lỗi Nhập Liệu", error)
+#             return
+            
+#         # --- LOGIC KẾT NỐI VÀ CHÈN DỮ LIỆU CƠ SỞ DỮ LIỆU TẠI ĐÂY ---
+#         # Thay thế phần này bằng code kết nối CSDL thực tế.
+        
+#         try:
+#             mydb = get_connection()
+#             cursor = mydb.cursor()
+#             query = """
+#             INSERT INTO users
+#             (first_name, last_name, password, image, phone_number, gender, dob,
+#             country_id, email, main_lang, add_lang, ethnic_group, special, postal_code)
+#             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+#             """
+#             gender = True if gender_var.get() == "Nam" else False
+#             values = (
+#                 user_data.get("first_name"),
+#                 user_data.get("last_name"),
+#                 user_data.get("password"),
+#                 user_data.get("image"),
+#                 user_data.get("phone_number"),
+#                 gender,      
+#                 user_data.get("dob") if user_data.get("dob")!="" else None,         
+#                 user_data.get("country_id") if user_data.get("country_id")!="" else None,  
+#                 user_data.get("email"),
+#                 user_data.get("main_lang"),
+#                 user_data.get("add_lang"),
+#                 user_data.get("ethnic_group"),
+#                 user_data.get("special"),
+#                 user_data.get("postal_code")
+#             )
+#             cursor.execute(query, values)
+            
+#             user_id = cursor.lastrowid
+#             query = """
+#             INSERT INTO study_bg
+#             (user_id, level, major, academic_rate, gpa, graduate_year,
+#             act, gmat, sat, cat, gre, stat,
+#             ielts, toefl, pearson_test, cam_adv_test, inter_bac)
+#             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+#             """
+#             values = (
+#                 user_id,
+#                 study_data.get("level"),
+#                 study_data.get("major"),
+#                 study_data.get("academic_rate"),
+#                 float(study_data.get("gpa") or 0),
+#                 int(study_data.get("graduate_year") or 0),
+#                 float(study_data.get("act") or 0),
+#                 float(study_data.get("gmat") or 0),
+#                 float(study_data.get("sat") or 0),
+#                 float(study_data.get("cat") or 0),
+#                 float(study_data.get("gre") or 0),
+#                 float(study_data.get("stat") or 0),
+#                 float(study_data.get("ielts") or 0),
+#                 float(study_data.get("toefl") or 0),
+#                 float(study_data.get("pearson_test") or 0),
+#                 float(study_data.get("cam_adv_test") or 0),
+#                 float(study_data.get("inter_bac") or 0)
+#             )
+#             cursor.execute(query, values)
+#             mydb.commit()
+#             messagebox.showinfo("Thành công","Thêm người dùng thành công")
+#             from ui.AdminUI import create_ui as create_admin_ui
+#             create_admin_ui()
+#         except Exception as e:
+#             messagebox.showerror("Lỗi CSDL", f"Đã xảy ra lỗi khi lưu dữ liệu: {e}")
+#     # Thêm nút Lưu Form Học vấn (Nếu bạn muốn lưu riêng)
+#     save_btn_study = tk.Button(study_form_frame, text="Lưu thông tin", command=save_data, foreground='white', background="#28a745")
+#     save_btn_study.grid(row=len(fields), column=1, sticky="e", padx=10, pady=10)
 
+# def setup_update_study_form(content_frame, id):
+#     """Tạo Form Học vấn."""
+    
+#     ttk.Label(content_frame, text="🎓 THÔNG TIN HỌC VẤN (STUDY_BG)", font=('Arial', 14, 'bold'), foreground='#0052cc').pack(fill='x', pady=15)
+    
+#     study_form_frame = ttk.Frame(content_frame)
+#     study_form_frame.pack(fill='x', padx=20, pady=5)
+
+#     fields = [
+#         ("Cấp độ:", "level"), ("Chuyên ngành:", "major"), ("Tỉ lệ học thuật:", "academic_rate"),
+#         ("GPA:", "gpa"), ("Năm tốt nghiệp:", "graduate_year"), 
+#         ("Điểm ACT:", "act"), ("Điểm GMAT:", "gmat"), 
+#         ("Điểm SAT:", "sat"), ("Điểm CAT:", "cat"), 
+#         ("Điểm GRE:", "gre"), ("Điểm STAT:", "stat"), 
+#         ("Điểm IELTS:", "ielts"), ("Điểm TOEFL:", "toefl"), 
+#         ("Điểm Pearson Test:", "pearson_test"), 
+#         ("Điểm Cam Advanced:", "cam_adv_test"),
+#         ("Điểm Tú tài Quốc tế:", "inter_bac")
+#     ]
+    
+#     create_form_fields(study_form_frame, fields, study_entries)
+#     # Thêm nút Lưu Form Học vấn (Nếu bạn muốn lưu riêng)
+#     save_btn_study = tk.Button(study_form_frame, text="Cập nhật Thông tin", command=lambda name=id: update_data(name), foreground='white', background="#28a745")
+#     save_btn_study.grid(row=len(fields), column=1, sticky="e", padx=10, pady=10)
 
 def clickCourseRecommendation(event):
     pass
@@ -313,7 +328,480 @@ def create_ui():
     setup_user_form(form_container)
 
     # 2. Thêm Form Study Background
-    setup_study_form(form_container)
+    ttk.Label(content_frame, text="🎓 THÔNG TIN HỌC VẤN (STUDY_BG)", font=('Arial', 14, 'bold'), foreground='#0052cc').pack(fill='x', pady=15)
+    
+    study_form_frame = ttk.Frame(content_frame)
+    study_form_frame.pack(fill='x', padx=20, pady=5)
+
+    fields = [
+        ("Cấp độ:", "level"), ("Chuyên ngành:", "major"), ("Tỉ lệ học thuật:", "academic_rate"),
+        ("GPA:", "gpa"), ("Năm tốt nghiệp:", "graduate_year"), 
+        ("Điểm ACT:", "act"), ("Điểm GMAT:", "gmat"), 
+        ("Điểm SAT:", "sat"), ("Điểm CAT:", "cat"), 
+        ("Điểm GRE:", "gre"), ("Điểm STAT:", "stat"), 
+        ("Điểm IELTS:", "ielts"), ("Điểm TOEFL:", "toefl"), 
+        ("Điểm Pearson Test:", "pearson_test"), 
+        ("Điểm Cam Advanced:", "cam_adv_test"),
+        ("Điểm Tú tài Quốc tế:", "inter_bac")
+    ]
+    
+    create_form_fields(study_form_frame, fields, study_entries)
+    
+    def save_data():
+        """Hàm xử lý việc lưu dữ liệu vào cơ sở dữ liệu."""
+        
+        user_data = get_user_data()
+        study_data, error = get_study_data()
+        if user_data.get("first_name") == "" or user_data.get("last_name") =="":
+            messagebox.showerror("Lỗi", "Xin hãy điền đầy đủ họ tên") 
+            return
+        if error:
+            messagebox.showerror("Lỗi Nhập Liệu", error)
+            return
+            
+        # --- LOGIC KẾT NỐI VÀ CHÈN DỮ LIỆU CƠ SỞ DỮ LIỆU TẠI ĐÂY ---
+        # Thay thế phần này bằng code kết nối CSDL thực tế.
+        
+        try:
+            mydb = get_connection()
+            cursor = mydb.cursor()
+            query = """
+            INSERT INTO users
+            (first_name, last_name, password, image, phone_number, gender, dob,
+            country_id, email, main_lang, add_lang, ethnic_group, special, postal_code)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """
+            gender = True if gender_var.get() == "Nam" else False
+            values = (
+                user_data.get("first_name"),
+                user_data.get("last_name"),
+                user_data.get("password"),
+                user_data.get("image"),
+                user_data.get("phone_number"),
+                gender,      
+                user_data.get("dob") if user_data.get("dob")!="" else None,         
+                user_data.get("country_id") if user_data.get("country_id")!="" else None,  
+                user_data.get("email"),
+                user_data.get("main_lang"),
+                user_data.get("add_lang"),
+                user_data.get("ethnic_group"),
+                user_data.get("special"),
+                user_data.get("postal_code")
+            )
+            cursor.execute(query, values)
+            
+            user_id = cursor.lastrowid
+            query = """
+            INSERT INTO study_bg
+            (user_id, level, major, academic_rate, gpa, graduate_year,
+            act, gmat, sat, cat, gre, stat,
+            ielts, toefl, pearson_test, cam_adv_test, inter_bac)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """
+            values = (
+                user_id,
+                study_data.get("level"),
+                study_data.get("major"),
+                study_data.get("academic_rate"),
+                float(study_data.get("gpa") or 0),
+                int(study_data.get("graduate_year") or 0),
+                float(study_data.get("act") or 0),
+                float(study_data.get("gmat") or 0),
+                float(study_data.get("sat") or 0),
+                float(study_data.get("cat") or 0),
+                float(study_data.get("gre") or 0),
+                float(study_data.get("stat") or 0),
+                float(study_data.get("ielts") or 0),
+                float(study_data.get("toefl") or 0),
+                float(study_data.get("pearson_test") or 0),
+                float(study_data.get("cam_adv_test") or 0),
+                float(study_data.get("inter_bac") or 0)
+            )
+            cursor.execute(query, values)
+            mydb.commit()
+            messagebox.showinfo("Thành công","Thêm người dùng thành công")
+            root.destroy()
+            from ui.AdminUI import create_ui as create_admin_ui
+            create_admin_ui()
+        except Exception as e:
+            messagebox.showerror("Lỗi CSDL", f"Đã xảy ra lỗi khi lưu dữ liệu: {e}")
+    # Thêm nút Lưu Form Học vấn (Nếu bạn muốn lưu riêng)
+    save_btn_study = tk.Button(study_form_frame, text="Lưu thông tin", command=save_data, foreground='white', background="#28a745")
+    save_btn_study.grid(row=len(fields), column=1, sticky="e", padx=10, pady=10)
+
+    # ===============================================
+    # Phần Footer
+    # ===============================================
+    
+    footer_frame = tk.Frame(content_frame, bg="white", padx=50, pady=40)
+    footer_frame.pack(fill='x', pady=(20, 0))
+    
+    # Thiết lập lưới chính cho footer (giữ nguyên)
+    for i in range(5):
+        footer_frame.grid_columnconfigure(i, weight=1 if i > 0 else 0) 
+
+    # Cột 0: Logo UniCompare (Mô phỏng)
+    tk.Label(footer_frame, text="UniCompare", font=("Arial", 14, "bold"), fg="#1e90ff", bg="white").grid(row=0, column=0, sticky="nw")
+    tk.Label(footer_frame, text="© QS Quacquarelli Symonds Limited 1994 - 2025. All rights reserved.", 
+             font=("Arial", 7), fg="gray", bg="white").grid(row=4, column=0, columnspan=2, sticky="sw", pady=(50, 0))
+    
+    # Cột 1, 2, 3, 4: Menu Links (giữ nguyên)
+    menu_headers = ["About", "Contact", "Privacy", "Users"]
+    menu_row = 0
+    for col, header in enumerate(menu_headers):
+        tk.Label(footer_frame, text=header, font=("Arial", 10, "bold"), bg="white").grid(row=menu_row, column=col+1, sticky="w")
+        
+    # Phần "Follow us" và Social Icons (giữ nguyên)
+    social_frame = tk.Frame(footer_frame, bg="white")
+    social_frame.grid(row=0, column=4, sticky="e")
+    
+    tk.Label(social_frame, text="Follow us", font=("Arial", 10, "bold"), bg="white").pack(side="left", padx=(0, 10))
+    
+    social_icon_paths = [
+        "assets/104498_facebook_icon.png", 
+        "assets/1161953_instagram_icon.png", 
+        "assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
+        "assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"
+    ] 
+    
+    for icon in social_icon_paths:
+        try:
+            img = Image.open(icon)
+            img = img.resize((15, 15), Image.LANCZOS)
+            photo = ImageTk.PhotoImage(img)
+            icon_label = tk.Label(social_frame, image=photo, bg="white", width=15, height=15) 
+            icon_label.pack(side="left", padx=3)
+            images_reference.append(photo) # Lưu tham chiếu ảnh
+        except FileNotFoundError:
+             tk.Label(social_frame, text="I", font=("Arial", 10), bg="white").pack(side="left", padx=3)
+        
+    # Các khối liên kết chính (giữ nguyên)
+    link_blocks = [
+        ("For Students", ["Find courses", "Scholarships", "Events"]),
+        ("For Institution", ["List courses", "Advertise"]),
+        ("For Professionals", ["Career advice", "MBA rankings"])
+    ]
+    
+    for i, (header, links) in enumerate(link_blocks):
+        tk.Label(footer_frame, text=f"{header}", font=("Arial", 10, "bold"), bg="white").grid(row=2, column=i, sticky="nw", pady=(20, 5))
+        for j, link in enumerate(links):
+            tk.Label(footer_frame, text=link, font=("Arial", 9), fg="gray", bg="white").grid(row=3+j, column=i, sticky="nw")
+            
+    # Khối T&C, Data Copyright... (giữ nguyên)
+    tk.Label(footer_frame, text="Cookies", font=("Arial", 10, "bold"), bg="white").grid(row=2, column=3, sticky="nw", pady=(20, 5))
+    tk.Label(footer_frame, text="Data Copyright", font=("Arial", 9), fg="gray", bg="white").grid(row=3, column=3, sticky="nw")
+    tk.Label(footer_frame, text="Terms & Conditions", font=("Arial", 9), fg="gray", bg="white").grid(row=4, column=3, sticky="nw")
+    
+    # Khối Subscribe (giữ nguyên)
+    subscribe_frame = tk.Frame(footer_frame, bg="white")
+    subscribe_frame.grid(row=2, column=4, sticky="ne", pady=(20, 5))
+    
+    tk.Label(subscribe_frame, text="Subscribe to our newsletter", font=("Arial", 10, "bold"), bg="white").pack(anchor="e")
+    
+    input_frame = tk.Frame(subscribe_frame, bg="white", relief="solid", bd=1)
+    input_frame.pack(anchor="e", pady=5)
+    
+    tk.Entry(input_frame, width=25, font=("Arial", 9), relief="flat", borderwidth=0, bg="white").pack(side="left", padx=5)
+    
+    subscribe_btn = tk.Button(input_frame, text="→",width=5, fg="white",bg= "#1F3AB0")
+    subscribe_btn.pack(side="left")
+
+    root.mainloop()
+
+def create_update_ui(id):
+    root = tk.Tk()
+    root.title("UniCompare - Nhập Thông Tin Người Dùng")
+    root.geometry("1000x800")
+    
+    root.config(bg="#f8f9fa")
+
+    nav_frame = tk.Frame(root, bg="white", height=50)
+    nav_frame.pack(fill='x', padx=0, pady=0)
+
+    nav_frame.grid_columnconfigure(0, weight=0) 
+    nav_frame.grid_columnconfigure(1, weight=1) 
+    nav_frame.grid_columnconfigure(2, weight=0) 
+    nav_frame.grid_columnconfigure(3, weight=0) 
+
+    tk.Label(nav_frame, text="UniCompare", font=("Arial", 16, "bold"), fg="#1e90ff", bg="white").grid(row=0, column=0, padx=(20, 50), pady=10)
+    
+    menu_items = ["Rankings", "Discover", "Events", "Prepare", "Scholarships", "Chat To Students"]
+    # ... (Phần Menu giữ nguyên)
+    
+    # Bắt đầu tại cột 1 và tăng dần
+    for i, item in enumerate(menu_items):
+        tk.Button(nav_frame, text=item, font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=i+1, padx=5, pady=10, sticky="e")
+    
+    right_nav_frame = tk.Frame(nav_frame, bg="white")
+    right_nav_frame.grid(row=0, column=len(menu_items)+1, sticky="e", padx=(0, 20)) # Đặt vào cột tiếp theo
+
+    tk.Button(right_nav_frame, text="Free Counselling",foreground='white', background='#28a745', ).pack(side='left', padx=5)
+    
+    # Xử lý ảnh (cần đảm bảo file ảnh tồn tại hoặc sử dụng biểu tượng thay thế)
+    search_photo = None
+    images_reference = []
+    try:
+        img = Image.open("assets/search.png")
+        img = img.resize((24, 24), Image.LANCZOS)
+        search_photo = ImageTk.PhotoImage(img)
+        tk.Button(right_nav_frame, image=search_photo, bg= 'white', relief='flat').pack(side='left', padx=5)
+        images_reference.append(search_photo) # Giữ tham chiếu
+    except FileNotFoundError:
+        tk.Label(right_nav_frame, text="🔍", font=("Arial", 16), bg="white").pack(side='left', padx=5)
+    
+    tk.Button(right_nav_frame, text="Login", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
+    tk.Button(right_nav_frame, text="Sign Up", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
+    
+# main canvas se dung de lam khung keo scroll
+    main_canvas = tk.Canvas(root, bg="#f8f9fa")
+    main_canvas.pack(side="left", fill="both", expand=True)
+
+    scrollbar = ttk.Scrollbar(root, orient="vertical", command=main_canvas.yview)
+    scrollbar.pack(side="right", fill="y")
+
+    main_canvas.configure(yscrollcommand=scrollbar.set)
+    
+    # content_frame de lam khung chinh cho noi dung
+    content_frame = tk.Frame(main_canvas, bg="#f8f9fa")
+
+    # Hàm cấu hình Scroll
+    def on_frame_configure(event):
+        main_canvas.configure(scrollregion=main_canvas.bbox("all"))
+        main_canvas.itemconfigure(content_window, width=main_canvas.winfo_width())
+        
+    def on_mouse_wheel(event):
+        # Kiểm tra hệ điều hành để cuộn phù hợp (Windows vs Linux/Mac)
+        if root.winfo_reqwidth() > 0: # Chỉ cuộn nếu cửa sổ đã được hiển thị
+            main_canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        
+    def on_canvas_resize(event):
+        main_canvas.itemconfigure(content_window, width=event.width)
+
+    content_window = main_canvas.create_window((0, 0), window=content_frame, anchor="nw")
+    content_frame.bind("<Configure>", on_frame_configure)
+    main_canvas.bind('<Configure>', on_canvas_resize)
+    main_canvas.bind_all("<MouseWheel>", on_mouse_wheel)
+
+    # ===============================================
+    # PHẦN NỘI DUNG CHÍNH (FORMS NHẬP LIỆU)
+    # ===============================================
+    
+    # Khung chứa nội dung Form chính
+    form_container = ttk.Frame(content_frame, padding="20")
+    form_container.pack(fill='both', expand=True, padx=50, pady=20)
+    
+    # Tiêu đề trang
+    tk.Label(form_container, text="📝 Nhập Liệu Thông Tin Người Dùng và Học Vấn", 
+             font=("Arial", 18, "bold"), fg="#1F3AB0", bg="#f8f9fa").pack(pady=10)
+    
+    # 1. Thêm Form Users
+    setup_user_form(form_container)
+
+    mydb = get_connection()
+    cursor = mydb.cursor()
+    querry = f'''
+    select * from users
+    where id = {id} 
+'''
+    cursor.execute(querry)
+    fill_data = cursor.fetchone()
+    # 2. Thêm Form Study Background
+    ttk.Label(content_frame, text="🎓 THÔNG TIN HỌC VẤN (STUDY_BG)", font=('Arial', 14, 'bold'), foreground='#0052cc').pack(fill='x', pady=15)
+    
+    study_form_frame = ttk.Frame(content_frame)
+    study_form_frame.pack(fill='x', padx=20, pady=5)
+
+    fields = [
+        ("Cấp độ:", "level"), ("Chuyên ngành:", "major"), ("Tỉ lệ học thuật:", "academic_rate"),
+        ("GPA:", "gpa"), ("Năm tốt nghiệp:", "graduate_year"), 
+        ("Điểm ACT:", "act"), ("Điểm GMAT:", "gmat"), 
+        ("Điểm SAT:", "sat"), ("Điểm CAT:", "cat"), 
+        ("Điểm GRE:", "gre"), ("Điểm STAT:", "stat"), 
+        ("Điểm IELTS:", "ielts"), ("Điểm TOEFL:", "toefl"), 
+        ("Điểm Pearson Test:", "pearson_test"), 
+        ("Điểm Cam Advanced:", "cam_adv_test"),
+        ("Điểm Tú tài Quốc tế:", "inter_bac")
+    ]
+    
+    create_form_fields(study_form_frame, fields, study_entries)
+    def update_data(user_id):
+        """Hàm xử lý việc cập nhật dữ liệu vào cơ sở dữ liệu."""
+        user_data = get_user_data()
+        study_data, error = get_study_data()
+        if user_data.get("first_name") == "" or user_data.get("last_name") =="":
+            messagebox.showerror("Lỗi", "Xin hãy điền đầy đủ họ tên") 
+            return
+        if error:
+            messagebox.showerror("Lỗi Nhập Liệu", error)
+            return
+
+        if not user_id:
+            messagebox.showerror("Lỗi", "Không tìm thấy user_id để cập nhật")
+            return
+
+        try:
+            mydb = get_connection()
+            cursor = mydb.cursor()
+
+            # ================== UPDATE users ==================
+            query = """
+            UPDATE users SET 
+                first_name = %s,
+                last_name = %s,
+                password = %s,
+                image = %s,
+                phone_number = %s,
+                gender = %s,
+                dob = %s,
+                country_id = %s,
+                email = %s,
+                main_lang = %s,
+                add_lang = %s,
+                ethnic_group = %s,
+                special = %s,
+                postal_code = %s
+            WHERE id = %s
+            """
+
+            gender = True if gender_var.get() == "Nam" else False
+
+            values = (
+                user_data.get("first_name"),
+                user_data.get("last_name"),
+                user_data.get("password"),
+                user_data.get("image"),
+                user_data.get("phone_number"),
+                gender,
+                user_data.get("dob") if user_data.get("dob") != "" else None,
+                user_data.get("country_id") if user_data.get("country_id") != "" else None,
+                user_data.get("email"),
+                user_data.get("main_lang"),
+                user_data.get("add_lang"),
+                user_data.get("ethnic_group"),
+                user_data.get("special"),
+                user_data.get("postal_code"),
+                user_id
+            )
+
+            cursor.execute(query, values)
+
+            # ================== UPDATE study_bg ==================
+            query = """
+            UPDATE study_bg SET 
+                level = %s,
+                major = %s,
+                academic_rate = %s,
+                gpa = %s,
+                graduate_year = %s,
+                act = %s,
+                gmat = %s,
+                sat = %s,
+                cat = %s,
+                gre = %s,
+                stat = %s,
+                ielts = %s,
+                toefl = %s,
+                pearson_test = %s,
+                cam_adv_test = %s,
+                inter_bac = %s
+            WHERE user_id = %s
+            """
+
+            values = (
+                study_data.get("level"),
+                study_data.get("major"),
+                study_data.get("academic_rate"),
+                float(study_data.get("gpa") or 0),
+                int(study_data.get("graduate_year") or 0),
+                float(study_data.get("act") or 0),
+                float(study_data.get("gmat") or 0),
+                float(study_data.get("sat") or 0),
+                float(study_data.get("cat") or 0),
+                float(study_data.get("gre") or 0),
+                float(study_data.get("stat") or 0),
+                float(study_data.get("ielts") or 0),
+                float(study_data.get("toefl") or 0),
+                float(study_data.get("pearson_test") or 0),
+                float(study_data.get("cam_adv_test") or 0),
+                float(study_data.get("inter_bac") or 0),
+                user_id
+            )
+            cursor.execute(query, values)
+            mydb.commit()
+            messagebox.showinfo("Thành công", "Cập nhật người dùng thành công")
+            root.destroy()
+            from ui.AdminUI import create_ui as create_admin_ui
+            create_admin_ui()
+        except Exception as e:
+            messagebox.showerror("Lỗi CSDL", f"Đã xảy ra lỗi khi cập nhật dữ liệu: {e}")
+# 
+    # Thêm nút Lưu Form Học vấn (Nếu bạn muốn lưu riêng)
+    save_btn_study = tk.Button(study_form_frame, text="Cập nhật Thông tin", command=lambda name=id: update_data(name), foreground='white', background="#28a745")
+    save_btn_study.grid(row=len(fields), column=1, sticky="e", padx=10, pady=10)
+# 
+    gender_var.set(value="Nam") if fill_data[6] == 1 else gender_var.set(value="Nu")
+    user_fill_data = {
+        'id' : fill_data[0],
+        'first_name' : fill_data[1],
+        'last_name' : fill_data[2],
+        'password' : fill_data[3],
+        'image' : fill_data[4],
+        'phone_number' : fill_data[5],
+        'dob' : fill_data[7] if fill_data[7] is not None else "" ,
+        'country_id' : fill_data[8] if fill_data[8] is not None else "" ,
+        'email' : fill_data[9],
+        'main_lang' : fill_data[10],
+        'add_lang' : fill_data[11],
+        'ethnic_group' : fill_data[12],
+        'special' : fill_data[13],
+        'postal_code' : fill_data[16],
+    }
+    # print(user_fill_data)
+    for k, v in user_fill_data.items():
+        if k in user_entries:
+            user_entries[k].delete(0,tk.END)
+            user_entries[k].insert(tk.END, str(user_fill_data[k]))
+
+    querry = f'''
+    select * from study_bg
+    where user_id = {id} 
+'''
+    cursor.execute(querry)
+    fill_data = cursor.fetchone()
+    # ("Cấp độ:", "level"), ("Chuyên ngành:", "major"), ("Tỉ lệ học thuật:", "academic_rate"),
+    #     ("GPA:", "gpa"), ("Năm tốt nghiệp:", "graduate_year"), 
+    #     ("Điểm ACT:", "act"), ("Điểm GMAT:", "gmat"), 
+    #     ("Điểm SAT:", "sat"), ("Điểm CAT:", "cat"), 
+    #     ("Điểm GRE:", "gre"), ("Điểm STAT:", "stat"), 
+    #     ("Điểm IELTS:", "ielts"), ("Điểm TOEFL:", "toefl"), 
+    #     ("Điểm Pearson Test:", "pearson_test"), 
+    #     ("Điểm Cam Advanced:", "cam_adv_test"),
+    #     ("Điểm Tú tài Quốc tế:", "inter_bac")
+    study_fill_data = {
+        'id' : fill_data[0],
+        'user_id': fill_data[1],
+        'level' : fill_data[2],
+        'major' : fill_data[3],
+        'academic_rate' : fill_data[4],
+        'gpa' : fill_data[5],
+        'graduate_year' : fill_data[6],
+        'act' : fill_data[7],
+        'gmat' : fill_data[8],
+        'sat' : fill_data[9],
+        'cat' : fill_data[10],
+        'gre' : fill_data[11],
+        'stat' : fill_data[12],
+        'ielts' : fill_data[13],
+        'toefl' : fill_data[14],
+        'pearson_test' : fill_data[15],
+        'cam_adv_test' : fill_data[16],
+        'inter_bac' : fill_data[17],
+    }
+    # print(user_fill_data)
+    for k, v in study_fill_data.items():
+        if k in study_entries:
+            study_entries[k].delete(0,tk.END)
+            study_entries[k].insert(tk.END, str(study_fill_data[k]))
 
     # ===============================================
     # Phần Footer
@@ -395,4 +883,4 @@ def create_ui():
     root.mainloop()
 
 # if __name__ == "__main__":
-#     create_ui()
+#     create_update_ui(2)
