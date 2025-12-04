@@ -63,15 +63,36 @@ def create_ui():
     nav_frame.grid_columnconfigure(2, weight=0) 
     nav_frame.grid_columnconfigure(3, weight=0) 
 
-    tk.Label(nav_frame, text="UniCompare", font=("Arial", 16, "bold"), fg="#1e90ff", bg="white").grid(row=0, column=0, padx=(20, 50), pady=10)
+    def link_to_homepage(event):
+        from ui.HomePageUI import create_ui as create_homepage_ui
+        root.destroy()
+        create_homepage_ui()
     
+    lb_homepage_tittle = tk.Label(nav_frame, text="UniCompare", font=("Arial", 16, "bold"), fg="#1e90ff", bg="white")
+    lb_homepage_tittle.grid(row=0, column=0, padx=(20, 50), pady=10)
+    lb_homepage_tittle.bind('<Button-1>', link_to_homepage)
+    
+    def login():
+        from ui.SignInUI import create_ui as create_ui_login
+        root.destroy()
+        create_ui_login()
+
+    def signup():
+        from ui.SignUpUI import create_ui as create_ui_signup
+        root.destroy()
+        create_ui_signup()
+    def chat_to_ai():
+        from ui.ChatbotUI import ChatApp
+        root.destroy()
+        ChatApp()
+
     menu_items = ["Xếp hạng", "Khám phá", "Sự kiện", "Chuẩn bị", "Học bổng", "Chat với AI"]
     btnRankings = tk.Button(nav_frame, text=menu_items[0], command=link_to_ranking, font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=1, padx=5, pady=10, sticky="e", in_=nav_frame)
     btnDiscover = tk.Button(nav_frame, text=menu_items[1], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=2, padx=5, pady=10, sticky="e", in_=nav_frame)
     btnEvents = tk.Button(nav_frame, text=menu_items[2], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=3, padx=5, pady=10, sticky="e", in_=nav_frame)
     btnPrepare = tk.Button(nav_frame, text=menu_items[3], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=4, padx=5, pady=10, sticky="e", in_=nav_frame)
     btnScholarships = tk.Button(nav_frame, text=menu_items[4], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=5, padx=5, pady=10, sticky="e", in_=nav_frame)
-    btnChatToStudents = tk.Button(nav_frame, text=menu_items[5], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=6, padx=5, pady=10, sticky="e", in_=nav_frame)
+    btnChatToStudents = tk.Button(nav_frame, command= chat_to_ai, text=menu_items[5], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=6, padx=5, pady=10, sticky="e", in_=nav_frame)
     
     right_nav_frame = tk.Frame(nav_frame, bg="white")
     right_nav_frame.grid(row=0, column=7, sticky="e", padx=(0, 20))
@@ -87,8 +108,10 @@ def create_ui():
     except FileNotFoundError:
         tk.Label(right_nav_frame, text="🔍", font=("Arial", 16), bg="white").pack(side='left', padx=5)
     
-    tk.Button(right_nav_frame, text="Đăng nhập", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
-    tk.Button(right_nav_frame, text="Đăng ký", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
+    
+    
+    tk.Button(right_nav_frame, text="Đăng nhập", foreground='white', background="#1F3AB0", command=login).pack(side='left', padx=5)
+    tk.Button(right_nav_frame, text="Đăng ký", foreground='white', background="#1F3AB0", command=signup).pack(side='left', padx=5)
 
     # style = ttk.Style() 
     # style.configure('B.TButton', foreground='white', background='#007bff', font=('Arial', 10, 'bold'))
@@ -270,40 +293,40 @@ def create_ui():
     #     tk.Button(right_nav_frame, image=photo,bg= 'white',relief='flat').pack(side='left', padx=5)
     # except FileNotFoundError:
     #     tk.Label(right_nav_frame, text="🔍", font=("Arial", 16), bg="white").pack(side='left', padx=5)
-    logo_texts = [
-        "assets/American_university.png",
-        "assets/Auckland-University-Logo.png",
-        "assets/Boston-University-Logo.png",
-        "assets/Brown-Unversity-Logo.png",
-        "assets/Cairo-University-Logo.png",
-        "assets/Chicago-University-Logo.png",
-        "assets/Columbia-University-Logo.png",
-        "assets/Cornell-University-Logo.png",
-        "assets/Duke-University-Logo.png",
-        "assets/Georgetown-University-Logo.png",
-        "assets/Harvard-University-Logo.png",
-        "assets/Melbourne-University-Logo.png",
-        "assets/Moscow-State-University-Logo.png",
-        "assets/National-University-of-Singapore-Logo.png",
-        "assets/Northeastern-University-Logo.png",
-    ]
     # logo_texts = [
-    #     "Abroad-University-Study-Comparison/assets/American_university.png",
-    #     "Abroad-University-Study-Comparison/assets/Auckland-University-Logo.png",
-    #     "Abroad-University-Study-Comparison/assets/Boston-University-Logo.png",
-    #     "Abroad-University-Study-Comparison/assets/Brown-Unversity-Logo.png",
-    #     "Abroad-University-Study-Comparison/assets/Cairo-University-Logo.png",
-    #     "Abroad-University-Study-Comparison/assets/Chicago-University-Logo.png",
-    #     "Abroad-University-Study-Comparison/assets/Columbia-University-Logo.png",
-    #     "Abroad-University-Study-Comparison/assets/Cornell-University-Logo.png",
-    #     "Abroad-University-Study-Comparison/assets/Duke-University-Logo.png",
-    #     "Abroad-University-Study-Comparison/assets/Georgetown-University-Logo.png",
-    #     "Abroad-University-Study-Comparison/assets/Harvard-University-Logo.png",
-    #     "Abroad-University-Study-Comparison/assets/Melbourne-University-Logo.png",
-    #     "Abroad-University-Study-Comparison/assets/Moscow-State-University-Logo.png",
-    #     "Abroad-University-Study-Comparison/assets/National-University-of-Singapore-Logo.png",
-    #     "Abroad-University-Study-Comparison/assets/Northeastern-University-Logo.png",   
+    #     "assets/American_university.png",
+    #     "assets/Auckland-University-Logo.png",
+    #     "assets/Boston-University-Logo.png",
+    #     "assets/Brown-Unversity-Logo.png",
+    #     "assets/Cairo-University-Logo.png",
+    #     "assets/Chicago-University-Logo.png",
+    #     "assets/Columbia-University-Logo.png",
+    #     "assets/Cornell-University-Logo.png",
+    #     "assets/Duke-University-Logo.png",
+    #     "assets/Georgetown-University-Logo.png",
+    #     "assets/Harvard-University-Logo.png",
+    #     "assets/Melbourne-University-Logo.png",
+    #     "assets/Moscow-State-University-Logo.png",
+    #     "assets/National-University-of-Singapore-Logo.png",
+    #     "assets/Northeastern-University-Logo.png",
     # ]
+    logo_texts = [
+        "Abroad-University-Study-Comparison/assets/American_university.png",
+        "Abroad-University-Study-Comparison/assets/Auckland-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Boston-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Brown-Unversity-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Cairo-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Chicago-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Columbia-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Cornell-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Duke-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Georgetown-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Harvard-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Melbourne-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Moscow-State-University-Logo.png",
+        "Abroad-University-Study-Comparison/assets/National-University-of-Singapore-Logo.png",
+        "Abroad-University-Study-Comparison/assets/Northeastern-University-Logo.png",   
+    ]
     row_count = 3
     col_count = 5
     images_reference = []
@@ -351,14 +374,14 @@ def create_ui():
     tk.Label(social_frame, text="Theo dõi chúng tôi", font=("Arial", 10, "bold"), bg="white").pack(side="left", padx=(0, 10))
     
     # Mô phỏng Social Icons (sử dụng Label với màu nền)
-    social_icons = ["assets/104498_facebook_icon.png", 
-                    "assets/1161953_instagram_icon.png", 
-                    "assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
-                    "assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
-    # social_icons = ["Abroad-University-Study-Comparison/assets/104498_facebook_icon.png", 
-    #                 "Abroad-University-Study-Comparison/assets/1161953_instagram_icon.png", 
-    #                 "Abroad-University-Study-Comparison/assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
-    #                 "Abroad-University-Study-Comparison/assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
+    # social_icons = ["assets/104498_facebook_icon.png", 
+    #                 "assets/1161953_instagram_icon.png", 
+    #                 "assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
+    #                 "assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
+    social_icons = ["Abroad-University-Study-Comparison/assets/104498_facebook_icon.png", 
+                    "Abroad-University-Study-Comparison/assets/1161953_instagram_icon.png", 
+                    "Abroad-University-Study-Comparison/assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
+                    "Abroad-University-Study-Comparison/assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
     for icon in social_icons:
         img = Image.open(icon)
         img = img.resize((15, 15), Image.LANCZOS)
