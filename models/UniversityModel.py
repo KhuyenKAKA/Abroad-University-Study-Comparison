@@ -670,7 +670,7 @@ class UniversityModel:
                         coalesce(d.inter_pg_rate, 0) as inter_pg_rate
                 FROM 
                     detail_infors as d
-                WHERE d.id = %s
+                WHERE d.university_id = %s
             """
             cursor.execute(query,(id,))  
             data = cursor.fetchone()

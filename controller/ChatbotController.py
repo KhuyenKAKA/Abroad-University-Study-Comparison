@@ -115,7 +115,7 @@ class ChatbotController:
         """Tạo connection pool tới MySQL (nếu cấu hình đầy đủ)."""
         try:
             host = os.getenv("MYSQL_HOST", "localhost")
-            port = int(os.getenv("MYSQL_PORT", "3306"))
+            # port = int(os.getenv("MYSQL_PORT", "3306"))
             user = os.getenv("MYSQL_USER")
             password = os.getenv("MYSQL_PASSWORD")
             database = os.getenv("MYSQL_DB")
@@ -128,7 +128,7 @@ class ChatbotController:
                 pool_name="chatbot_pool",
                 pool_size=5,
                 host=host,
-                port=port,
+                # port=port,
                 user=user,
                 password=password,
                 database=database,
@@ -599,9 +599,10 @@ Hãy:
             self.send_to_ui(f"Lỗi AI: {str(e)}")
 
     #  HỖ TRỢ UI 
-    def send_to_ui(self, text: str):
-        if hasattr(self.view, "after"):
-            self.view.after(0, lambda: self._update_ui_with_result(text))
+    def send_to_ui(self, text):
+        if self.view and self.view.winfo_exists():
+            self.view.after(0, self._update_ui_with_result, text)
+
 
     def _update_ui_with_result(self, text: str):
         self.view.hide_loading()

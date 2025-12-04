@@ -116,7 +116,8 @@ def clickCourseRecommendation(event):
 def create_ui():
     root = tk.Tk()
     root.title("UniCompare - Nhập Thông Tin Người Dùng")
-    root.geometry("1000x800")
+    root.attributes('-fullscreen', True)
+    root.bind("<Escape>", lambda e: root.attributes("-fullscreen", False))
     
     root.config(bg="#f8f9fa")
 
@@ -128,14 +129,21 @@ def create_ui():
     nav_frame.grid_columnconfigure(2, weight=0) 
     nav_frame.grid_columnconfigure(3, weight=0) 
 
-    tk.Label(nav_frame, text="UniCompare", font=("Arial", 16, "bold"), fg="#1e90ff", bg="white").grid(row=0, column=0, padx=(20, 50), pady=10)
+    def link_to_homepage(event):
+        from ui.HomePageUI import create_ui as create_homepage_ui
+        root.destroy()
+        create_homepage_ui()
     
-    menu_items = ["Rankings", "Discover", "Events", "Prepare", "Scholarships", "Chat To Students"]
+    lb_homepage_tittle = tk.Label(nav_frame, text="UniCompare", font=("Arial", 16, "bold"), fg="#1e90ff", bg="white")
+    lb_homepage_tittle.grid(row=0, column=0, padx=(20, 50), pady=10)
+    lb_homepage_tittle.bind('<Button-1>', link_to_homepage)
+    menu_items = ["Xếp hạng", "Discover", "Events", "Prepare", "Scholarships", "Chat với AI"]
     # ... (Phần Menu giữ nguyên)
     
     # Bắt đầu tại cột 1 và tăng dần
     for i, item in enumerate(menu_items):
-        tk.Button(nav_frame, text=item, font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=i+1, padx=5, pady=10, sticky="e")
+        if i == 0 or i == len(menu_items)-1:
+            tk.Button(nav_frame, text=item, font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=i+1, padx=5, pady=10, sticky="e")
     
     right_nav_frame = tk.Frame(nav_frame, bg="white")
     right_nav_frame.grid(row=0, column=len(menu_items)+1, sticky="e", padx=(0, 20)) # Đặt vào cột tiếp theo
@@ -386,26 +394,39 @@ def create_ui():
 def create_update_ui(id):
     root = tk.Tk()
     root.title("UniCompare - Nhập Thông Tin Người Dùng")
-    root.geometry("1000x800")
+    root.attributes('-fullscreen', True)
+    root.bind("<Escape>", lambda e: root.attributes("-fullscreen", False))
     
     root.config(bg="#f8f9fa")
 
     nav_frame = tk.Frame(root, bg="white", height=50)
     nav_frame.pack(fill='x', padx=0, pady=0)
 
+    def link_to_ranking():
+        root.destroy()
+        from ui.RankingListAndTableUI import create_ui as create_ranking_ui
+        create_ranking_ui()
+        
     nav_frame.grid_columnconfigure(0, weight=0) 
     nav_frame.grid_columnconfigure(1, weight=1) 
     nav_frame.grid_columnconfigure(2, weight=0) 
     nav_frame.grid_columnconfigure(3, weight=0) 
 
-    tk.Label(nav_frame, text="UniCompare", font=("Arial", 16, "bold"), fg="#1e90ff", bg="white").grid(row=0, column=0, padx=(20, 50), pady=10)
+    def link_to_homepage(event):
+        from ui.HomePageUI import create_ui as create_homepage_ui
+        root.destroy()
+        create_homepage_ui()
     
-    menu_items = ["Rankings", "Discover", "Events", "Prepare", "Scholarships", "Chat To Students"]
+    lb_homepage_tittle = tk.Label(nav_frame, text="UniCompare", font=("Arial", 16, "bold"), fg="#1e90ff", bg="white")
+    lb_homepage_tittle.grid(row=0, column=0, padx=(20, 50), pady=10)
+    lb_homepage_tittle.bind('<Button-1>', link_to_homepage)
+    menu_items = ["Xếp hạng", "Discover", "Events", "Prepare", "Scholarships", "Chat với AI"]
     # ... (Phần Menu giữ nguyên)
     
     # Bắt đầu tại cột 1 và tăng dần
     for i, item in enumerate(menu_items):
-        tk.Button(nav_frame, text=item, font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=i+1, padx=5, pady=10, sticky="e")
+        if i == 0 or i == len(menu_items)-1:
+            tk.Button(nav_frame, text=item, font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=i+1, padx=5, pady=10, sticky="e")
     
     right_nav_frame = tk.Frame(nav_frame, bg="white")
     right_nav_frame.grid(row=0, column=len(menu_items)+1, sticky="e", padx=(0, 20)) # Đặt vào cột tiếp theo
@@ -424,8 +445,17 @@ def create_update_ui(id):
     except FileNotFoundError:
         tk.Label(right_nav_frame, text="🔍", font=("Arial", 16), bg="white").pack(side='left', padx=5)
     
-    tk.Button(right_nav_frame, text="Login", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
-    tk.Button(right_nav_frame, text="Sign Up", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
+    def logout_action(self):
+        from controller.AuthController import AuthController
+        if messagebox.askyesno("Xác nhận", "Bạn có chắc chắn muốn đăng xuất không?"):
+            AuthController.logout()
+            from ui.HomePageUI import create_ui as create_homepage_ui
+            root.destroy()
+            create_homepage_ui()
+            import ui.session as session_data
+            print(session_data.session)
+    tk.Button(right_nav_frame, text="Đăng xuất", foreground='white', background="#1F3AB0", command=logout_action).pack(side='left', padx=5)
+    # tk.Button(right_nav_frame, text="Sign Up", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
     
 # main canvas se dung de lam khung keo scroll
     main_canvas = tk.Canvas(root, bg="#f8f9fa")
@@ -676,7 +706,7 @@ def create_update_ui(id):
     for k, v in study_fill_data.items():
         if k in study_entries:
             study_entries[k].delete(0,tk.END)
-            study_entries[k].insert(tk.END, str(study_fill_data[k]))
+            study_entries[k].insert(tk.END, str(study_fill_data[k])) if str(study_fill_data[k]) != "None" else study_entries[k].insert(tk.END,"")
 
     # ===============================================
     # Phần Footer

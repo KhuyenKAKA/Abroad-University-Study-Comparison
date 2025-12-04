@@ -1,8 +1,10 @@
 import tkinter as tk
 from tkinter import ttk
+import ui.session as session_data
 from PIL import Image, ImageTk, ImageDraw, ImageOps
 import os
 import sys
+from tkinter import messagebox as mess
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(current_dir)
@@ -69,7 +71,8 @@ class ChatApp:
 
         # Thiết lập cửa sổ
         self.root.title("UniCompare - Định hướng tương lai cùng bạn")
-        self.root.geometry("1000x800")
+        self.root.attributes('-fullscreen', True)
+        self.root.bind("<Escape>", lambda e: self.root.attributes("-fullscreen", False))
         self.root.configure(bg=COLOR_PAGE_BG)
 
         # Thay tất cả self. vào widget parent là self.root
@@ -132,16 +135,36 @@ class ChatApp:
         nav_frame.grid_columnconfigure(2, weight=0) 
         nav_frame.grid_columnconfigure(3, weight=0) 
 
-        tk.Label(nav_frame, text="UniCompare", font=("Arial", 16, "bold"), fg="#1e90ff", bg="white").grid(row=0, column=0, padx=(20, 50), pady=10)
+        def link_to_homepage(event):
+            from ui.HomePageUI import create_ui as create_homepage_ui
+            self.root.destroy()
+            create_homepage_ui()
         
+        lb_homepage_tittle = tk.Label(nav_frame, text="UniCompare", font=("Arial", 16, "bold"), fg="#1e90ff", bg="white")
+        lb_homepage_tittle.grid(row=0, column=0, padx=(20, 50), pady=10)
+        lb_homepage_tittle.bind('<Button-1>', link_to_homepage)
+
+        def link_to_ranking():
+            self.root.destroy()
+            from ui.RankingListAndTableUI import create_ui as create_ranking_ui
+            create_ranking_ui()
+        
+        def chat_to_ai():
+            from ui.session import session as session_data
+            if session_data['is_logged_in'] == True:
+                from ui.ChatbotUI import ChatApp
+                self.root.destroy()
+                ChatApp()
+            else:
+                mess.showerror("Lỗi", "Vui lòng đăng nhập để dùng chức năng này!")
         menu_items = ["Xếp hạng", "Khám phá", "Sự kiện", "Chuẩn bị", "Học bổng", "Chat với AI"]
-        btnRankings = tk.Button(nav_frame, text=menu_items[0], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=1, padx=5, pady=10, sticky="e", in_=nav_frame)
+        btnRankings = tk.Button(nav_frame, text=menu_items[0], command=link_to_ranking, font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=1, padx=5, pady=10, sticky="e", in_=nav_frame)
         btnDiscover = tk.Button(nav_frame, text=menu_items[1], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=2, padx=5, pady=10, sticky="e", in_=nav_frame)
         btnEvents = tk.Button(nav_frame, text=menu_items[2], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=3, padx=5, pady=10, sticky="e", in_=nav_frame)
         btnPrepare = tk.Button(nav_frame, text=menu_items[3], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=4, padx=5, pady=10, sticky="e", in_=nav_frame)
         btnScholarships = tk.Button(nav_frame, text=menu_items[4], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=5, padx=5, pady=10, sticky="e", in_=nav_frame)
-        btnChatToStudents = tk.Button(nav_frame, text=menu_items[5], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=6, padx=5, pady=10, sticky="e", in_=nav_frame)
-        
+        btnChatToStudents = tk.Button(nav_frame, command= chat_to_ai, text=menu_items[5], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=6, padx=5, pady=10, sticky="e", in_=nav_frame)
+
         right_nav_frame = tk.Frame(nav_frame, bg="white")
         right_nav_frame.grid(row=0, column=7, sticky="e", padx=(0, 20))
 
@@ -155,9 +178,13 @@ class ChatApp:
             tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
         except FileNotFoundError:
             tk.Label(right_nav_frame, text="🔍", font=("Arial", 16), bg="white").pack(side='left', padx=5)
-        
-        tk.Button(right_nav_frame, text="Đăng nhập", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
-        tk.Button(right_nav_frame, text="Đăng ký", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
+        def link_to_personal_infor():
+            from ui.PersonalInfoUI import main as create_personal_infor
+            self.root.destroy()
+            create_personal_infor()
+
+        if session_data.session["role_type"] == 1:
+            tk.Button(right_nav_frame, text="👤", foreground='white',command= link_to_personal_infor, background="#1F3AB0").pack(side='left', padx=5)
     # PAGE SCROLL
     def build_main_scroll_area(self):
         self.main_container = tk.Frame(self.root, bg=COLOR_PAGE_BG)

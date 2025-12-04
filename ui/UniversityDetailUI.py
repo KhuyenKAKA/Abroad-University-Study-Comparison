@@ -1,5 +1,6 @@
 import sys
 import os
+import ui.session as session_data
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 )
@@ -45,16 +46,46 @@ def create_header(root):
     nav_frame.grid_columnconfigure(0, weight=0) 
     nav_frame.grid_columnconfigure(1, weight=1) 
     nav_frame.grid_columnconfigure(7, weight=0)
+
+    def link_to_ranking():
+        root.destroy()
+        from ui.RankingListAndTableUI import create_ui as create_ranking_ui
+        create_ranking_ui()
+
+    def link_to_homepage(event):
+        from ui.HomePageUI import create_ui as create_homepage_ui
+        root.destroy()
+        create_homepage_ui()
     
-    tk.Label(nav_frame, text="UniCompare", font=("Arial", 16, "bold"), fg="#1e90ff", bg="white").grid(row=0, column=0, padx=(20, 50), pady=10, sticky="w")
+    lb_homepage_tittle = tk.Label(nav_frame, text="UniCompare", font=("Arial", 16, "bold"), fg="#1e90ff", bg="white")
+    lb_homepage_tittle.grid(row=0, column=0, padx=(20, 50), pady=10)
+    lb_homepage_tittle.bind('<Button-1>', link_to_homepage)
     
+    def login():
+        from ui.SignInUI import create_ui as create_ui_login
+        root.destroy()
+        create_ui_login()
+
+    def signup():
+        from ui.SignUpUI import create_ui as create_ui_signup
+        root.destroy()
+        create_ui_signup()
+    def chat_to_ai():
+        from ui.session import session as session_data
+        if session_data['is_logged_in'] == True:
+            from ui.ChatbotUI import ChatApp
+            root.destroy()
+            ChatApp()
+        else:
+            from tkinter import messagebox as mess
+            mess.showerror("Lỗi", "Vui lòng đăng nhập để dùng chức năng này!")
     menu_items = ["Xếp hạng", "Khám phá", "Sự kiện", "Chuẩn bị", "Học bổng", "Chat với AI"]
-    btnRankings =tk.Button(nav_frame, text=menu_items[0], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=1, padx=5, pady=10, sticky="e", in_=nav_frame)
+    btnRankings =tk.Button(nav_frame, text=menu_items[0], command=link_to_ranking, font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=1, padx=5, pady=10, sticky="e", in_=nav_frame)
     btnDiscover = tk.Button(nav_frame, text=menu_items[1], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=2, padx=5, pady=10, sticky="e", in_=nav_frame)
     btnEvents = tk.Button(nav_frame, text=menu_items[2], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=3, padx=5, pady=10, sticky="e", in_=nav_frame)
     btnPrepare = tk.Button(nav_frame, text=menu_items[3], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=4, padx=5, pady=10, sticky="e", in_=nav_frame)
     btnScholarships = tk.Button(nav_frame, text=menu_items[4], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=5, padx=5, pady=10, sticky="e", in_=nav_frame)
-    btnChatToStudents = tk.Button(nav_frame, text=menu_items[5], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=6, padx=5, pady=10, sticky="e", in_=nav_frame)
+    btnChatToStudents = tk.Button(nav_frame, text=menu_items[5], command= chat_to_ai, font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=6, padx=5, pady=10, sticky="e", in_=nav_frame)
 
     
     right_nav_frame = tk.Frame(nav_frame, bg="white")
@@ -75,8 +106,17 @@ def create_header(root):
     except Exception:
         tk.Label(right_nav_frame, text="🔍", font=("Arial", 16), bg="white").pack(side='left', padx=5)
     
-    tk.Button(right_nav_frame, text="Đăng nhập", foreground='white', background="#1F3AB0", relief="flat").pack(side='left', padx=5)
-    tk.Button(right_nav_frame, text="Đăng ký", foreground='white', background="#1F3AB0", relief="flat").pack(side='left', padx=5)
+    def link_to_personal_infor():
+        from ui.PersonalInfoUI import main as create_personal_infor
+        root.destroy()
+        create_personal_infor()
+
+    if session_data.session["role_type"] == 1:
+        tk.Button(right_nav_frame, text="👤", foreground='white',command= link_to_personal_infor, background="#1F3AB0").pack(side='left', padx=5)
+        # tk.Label(right_nav, text="👤", font=("Segoe UI", 20), bg="white", fg="#444").pack(side='left', padx=10)
+    else:
+        tk.Button(right_nav_frame, text="Đăng nhập", foreground='white', background="#1F3AB0", command=login).pack(side='left', padx=5)
+        tk.Button(right_nav_frame, text="Đăng ký", foreground='white', background="#1F3AB0", command=signup).pack(side='left', padx=5)
 
 # ===============================================
 # Hàm tạo Footer
@@ -169,7 +209,8 @@ def create_footer(parent_frame): # THAY ĐỔI: nhận parent_frame là khung cu
 def create_ui(id):
     root = tk.Tk()
     root.title("Thông tin Chi tiết Đại học | UniCompare")
-    root.geometry("1000x800")
+    root.attributes('-fullscreen', True)
+    root.bind("<Escape>", lambda e: root.attributes("-fullscreen", False))
     root.configure(bg="#f0f0f0")
 
     # 1. TẠO HEADER (FIXED)
@@ -284,7 +325,7 @@ def create_ui(id):
         data_master = UniversityController.get_uni_detail_entry(2, id)
         if data_bacherlor :
             for key, val in zip(keys, data_bacherlor):
-                if val == "0" or val is None:
+                if val == "0" or val is None or val == "None":
                     continue
                 else :
                     create_info_box(bachelor_info_frame, key, val)
@@ -298,7 +339,7 @@ def create_ui(id):
         master_info_frame.pack(fill='x', pady=5, anchor='w')
         if data_master :
             for key, val in zip(keys, data_master):
-                if val == "0" or val is None:
+                if val == "0" or val is None  or val == "None":
                     continue
                 else :
                     create_info_box(master_info_frame, key, val)
@@ -348,7 +389,7 @@ def create_ui(id):
             create_legend_item(legend_frame, "#99badd", "UG students", ug_percent)
             create_legend_item(legend_frame, "#3b4a68", "PG students", pg_percent)
         data_bar = UniversityController.get_data_detail_2(id)
-
+        print(data_bar)
         create_student_bar(student_content_frame, "Tổng số học sinh", f'{data_bar[4]}', data_bar[5], data_bar[6])
         create_student_bar(student_content_frame, "Tổng số học sinh quốc tế", f'{data_bar[7]}', data_bar[8],data_bar[9])
 

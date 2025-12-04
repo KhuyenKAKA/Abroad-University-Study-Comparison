@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
+from tkinter import messagebox as mess
+import ui.session as session_data
 import sys
 import os
 sys.path.append(
@@ -12,7 +14,8 @@ def clickCourseRecommendation(event):
 def create_ui():
     root = tk.Tk()
     root.title("UniCompare - Định hướng tương lai cùng bạn")
-    root.geometry("1000x800")
+    root.attributes('-fullscreen', True)
+    root.bind("<Escape>", lambda e: root.attributes("-fullscreen", False))
     
     root.config(bg="#f8f9fa")
 
@@ -56,8 +59,6 @@ def create_ui():
         from ui.RankingListAndTableUI import create_ui as create_ranking_ui
         create_ranking_ui()
         
-        
-
     nav_frame.grid_columnconfigure(0, weight=0) 
     nav_frame.grid_columnconfigure(1, weight=1) 
     nav_frame.grid_columnconfigure(2, weight=0) 
@@ -82,9 +83,13 @@ def create_ui():
         root.destroy()
         create_ui_signup()
     def chat_to_ai():
-        from ui.ChatbotUI import ChatApp
-        root.destroy()
-        ChatApp()
+        from ui.session import session as session_data
+        if session_data['is_logged_in'] == True:
+            from ui.ChatbotUI import ChatApp
+            root.destroy()
+            ChatApp()
+        else:
+            mess.showerror("Lỗi", "Vui lòng đăng nhập để dùng chức năng này!")
 
     menu_items = ["Xếp hạng", "Khám phá", "Sự kiện", "Chuẩn bị", "Học bổng", "Chat với AI"]
     btnRankings = tk.Button(nav_frame, text=menu_items[0], command=link_to_ranking, font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=1, padx=5, pady=10, sticky="e", in_=nav_frame)
@@ -108,10 +113,17 @@ def create_ui():
     except FileNotFoundError:
         tk.Label(right_nav_frame, text="🔍", font=("Arial", 16), bg="white").pack(side='left', padx=5)
     
-    
-    
-    tk.Button(right_nav_frame, text="Đăng nhập", foreground='white', background="#1F3AB0", command=login).pack(side='left', padx=5)
-    tk.Button(right_nav_frame, text="Đăng ký", foreground='white', background="#1F3AB0", command=signup).pack(side='left', padx=5)
+    def link_to_personal_infor():
+        from ui.PersonalInfoUI import main as create_personal_infor
+        root.destroy()
+        create_personal_infor()
+
+    if session_data.session["role_type"] == 1:
+        tk.Button(right_nav_frame, text="👤", foreground='white',command= link_to_personal_infor, background="#1F3AB0").pack(side='left', padx=5)
+        # tk.Label(right_nav, text="👤", font=("Segoe UI", 20), bg="white", fg="#444").pack(side='left', padx=10)
+    else:
+        tk.Button(right_nav_frame, text="Đăng nhập", foreground='white', background="#1F3AB0", command=login).pack(side='left', padx=5)
+        tk.Button(right_nav_frame, text="Đăng ký", foreground='white', background="#1F3AB0", command=signup).pack(side='left', padx=5)
 
     # style = ttk.Style() 
     # style.configure('B.TButton', foreground='white', background='#007bff', font=('Arial', 10, 'bold'))
