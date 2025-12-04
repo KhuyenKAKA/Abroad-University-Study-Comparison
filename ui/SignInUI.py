@@ -19,7 +19,7 @@ def open_main_menu():
 def create_ui():
     print(session_data.session["user_id"])
     root = tk.Tk()
-    root.title("UniCompare - Course Recommendation")
+    root.title("UniCompare - Định hướng tương lai cùng bạn")
     root.geometry("1000x800")
     
     root.config(bg="#f8f9fa")
@@ -34,7 +34,7 @@ def create_ui():
 
     tk.Label(nav_frame, text="UniCompare", font=("Arial", 16, "bold"), fg="#1e90ff", bg="white").grid(row=0, column=0, padx=(20, 50), pady=10)
     
-    menu_items = ["Rankings", "Discover", "Events", "Prepare", "Scholarships", "Chat To Students"]
+    menu_items = ["Xếp hạng", "Khám phá", "Sự kiện", "Chuẩn bị", "Học bổng", "Chat với AI"]
     btnRankings = tk.Button(nav_frame, text=menu_items[0], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=1, padx=5, pady=10, sticky="e", in_=nav_frame)
     btnDiscover = tk.Button(nav_frame, text=menu_items[1], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=2, padx=5, pady=10, sticky="e", in_=nav_frame)
     btnEvents = tk.Button(nav_frame, text=menu_items[2], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=3, padx=5, pady=10, sticky="e", in_=nav_frame)
@@ -45,7 +45,7 @@ def create_ui():
     right_nav_frame = tk.Frame(nav_frame, bg="white")
     right_nav_frame.grid(row=0, column=7, sticky="e", padx=(0, 20))
 
-    tk.Button(right_nav_frame, text="Free Counselling",foreground='white', background='#28a745', ).pack(side='left', padx=5)
+    tk.Button(right_nav_frame, text="Tư vấn miễn phí",foreground='white', background='#28a745', ).pack(side='left', padx=5)
     
     try:
         # img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
@@ -56,8 +56,8 @@ def create_ui():
     except FileNotFoundError:
         tk.Label(right_nav_frame, text="🔍", font=("Arial", 16), bg="white").pack(side='left', padx=5)
     
-    tk.Button(right_nav_frame, text="Login", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
-    tk.Button(right_nav_frame, text="Sign Up", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
+    tk.Button(right_nav_frame, text="Đăng nhập", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
+    tk.Button(right_nav_frame, text="Đăng ký", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
 # main canvas se dung de lam khung keo scroll
     main_canvas = tk.Canvas(root, bg="#f8f9fa")
     main_canvas.pack(side="left", fill="both", expand=True)
@@ -82,7 +82,7 @@ def create_ui():
     def on_canvas_resize(event):
         main_canvas.itemconfigure(content_window, width=event.width)
 
-    content_window = main_canvas.create_window((0, 0), window=content_frame, anchor="nw")
+    content_window = main_canvas.create_window((30, 0), window=content_frame, anchor="nw")
     main_canvas.bind('<Configure>', on_canvas_resize)
     main_canvas.bind_all("<MouseWheel>", on_mouse_wheel)
     images_reference = []
@@ -95,7 +95,7 @@ def create_ui():
     body_frame = tk.Frame(content_frame)
     body_frame.pack(fill='x')
     left_padding = tk.Frame(body_frame)
-    left_padding.grid(row=0,column=0,padx=200)
+    left_padding.grid(row=0,column=0,padx=200, pady=(100, 0))
     # --- Phần 2: Cột bên trái (Thông tin khuyến khích) ---
     left_frame = ttk.Frame(body_frame, padding="30", style='Left.TFrame')
     # left_frame.grid(row=0, column=0, sticky="nsew")
@@ -133,7 +133,7 @@ def create_ui():
     # --- Phần 3: Cột bên phải (Form Đăng nhập) ---
     right_frame = ttk.Frame(body_frame, padding="30")
     # right_frame.grid(row=0, column=1, sticky="nsew")
-    right_frame.grid(row=0,column=2)
+    right_frame.grid(row=0,column=2, pady=(100, 0))
     
     # Hàng 0: Tiêu đề "Đăng nhập"
     signin_title = ttk.Label(right_frame, text="Đăng nhập", font=("Arial", 18, "bold"))
@@ -220,9 +220,10 @@ def create_ui():
     # ===============================================
     # Phần Footer
     # ===============================================
-    
+    spacer = tk.Frame(content_frame, height=200)
+    spacer.pack(fill="x")
     footer_frame = tk.Frame(content_frame, bg="white", padx=50, pady=40)
-    footer_frame.pack(fill='x', pady=(20, 0))
+    footer_frame.pack(fill='x', pady=(10, 0))
     
     # Thiết lập lưới chính cho footer (5 cột chính)
     for i in range(5):

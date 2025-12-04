@@ -1,14 +1,16 @@
 import mysql.connector
-
+import sys
+import os
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+)
+from db import get_connection
 class UniversityModel:
+    # done
     def get_all_university():
-        conn = mysql.connector.connect(
-            host="127.0.0.1",
-            user="user",       
-            password="Tung@09092004"  
-        )
+        conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("use universities_db_clone")
+        # cursor.execute("use universities_db")
         # universities, country, 
         querry = """
         SELECT 
@@ -78,16 +80,11 @@ class UniversityModel:
                 data['score'][x[7]][x[8]] = x[9]
             universities_data.append(data)
         return universities_data
-    
+    # done
     def get_universities_with_name(name:str):
-        import mysql.connector
-        conn = mysql.connector.connect(
-            host="127.0.0.1",
-            user="user",       
-            password="Tung@09092004"  
-        )
+        conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("use universities_db_clone")
+        # cursor.execute("use universities_db")
         # universities, country, 
         where_condition = ""
         if name.strip():
@@ -166,19 +163,107 @@ class UniversityModel:
                 data['score'][x[7]][x[8]] = x[9]
             uni_data.append(data)
         return uni_data
-    
-    def add_university(data):
-        """
-        Thêm 1 trường đại học, score, detail_infors
-        """
-        import mysql.connector
-        conn = mysql.connector.connect(
-            host="127.0.0.1",
-            user="user",       
-            password="Tung@09092004"  
-        )
+
+    # done
+    # cau truc filter: { 'region': '', 'country': '', 'ranking': (int(),int()) }
+    def get_universities_with_condition(filter):
+        conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("use universities_db_clone")
+        # cursor.execute("use universities_db_clone")
+        cursor.execute("use universities_db")
+        # universities, country, 
+        where_condition = ""
+        if filter['region'] is not None:
+            where_condition += f"u.region like '{filter['region']}'"
+        if filter['country'] is not None:
+            if where_condition != "":
+                where_condition += f" and c.name like '{filter['country']}'"
+            else:
+                where_condition += f" c.name like '{filter['country']}'"
+        if filter['ranking'] is not None:
+            if where_condition != "":
+                where_condition += f" and u.rank_int >= {filter['ranking'][0]} and u.rank_int <= {filter['ranking'][1]}"
+            else:
+                where_condition += f" u.rank_int >= {filter['ranking'][0]} and u.rank_int <= {filter['ranking'][1]}"
+        if where_condition != "":
+            where_condition = 'where '+where_condition
+
+        querry = f"""
+        SELECT 
+            u.id,
+            u.rank_int,
+            u.overall_score,
+            u.name AS university_name,
+            u.city,
+            c.name AS country_name,
+            u.logo,
+            st.name AS score_type,
+            i.name AS indicator_name,
+            s.score
+        FROM universities u
+        JOIN countries c  ON u.country_id = c.id
+        JOIN scores s ON u.id = s.university_id
+        JOIN score_types st ON s.score_type_id = st.id
+        JOIN indicators i ON i.id = s.indicator_id
+        {where_condition}
+        """
+        cursor.execute(querry)
+        crawl_data = cursor.fetchall()
+        crawl_data = sorted(crawl_data, key= lambda x:x[0])
+        uni_data = []
+        end_data = min(len(crawl_data),500)
+        for i in range(int(len(crawl_data[0:end_data])/10)):
+            data = {
+                'id':None,
+                'rank': None,
+                'overall_score': None,
+                'name': None,
+                'city': None,
+                'country': None,
+                'logo': None,
+                'score': {
+                    "Research & Discovery":{
+                        "Citations per Faculty":None,
+                        "Academic Reputation":None
+                    },
+                    "Learning Experience":{
+                        "Faculty Student Ratio":None
+                    },
+                    "Employability":{
+                        "Employer Reputation": None,
+                        "Employment Outcomes": None,
+                    },
+                    "Global Engagement":{
+                        "International Student Ratio": None,
+                        "International Research Network": None,
+                        "International Faculty Ratio": None,
+                        "International Student Diversity": None
+                    },
+                    "Sustainability":{
+                        "Sustainability Score": None
+                    }
+                }
+            }
+            for x in crawl_data[i*10:i*10+10]:
+                data['id'] = x[0]
+                data['rank'] = x[1]
+                if x[2] is not None:
+                    data['overall_score'] = x[2]
+                else:
+                    data['overall_score'] = 0.0
+                data['name'] = x[3]
+                data['city'] = x[4]
+                data['country'] = x[5]
+                data['logo'] = x[6]
+                data['score'][x[7]][x[8]] = x[9]
+            uni_data.append(data)
+        return uni_data
+
+    # not working yet
+    def add_university(data):
+        conn = get_connection()
+        cursor = conn.cursor()
+        # cursor.execute("use universities_db")
         # 1️⃣ Xử lý country
         country_name = data.get("country")
         if country_name:
@@ -191,15 +276,17 @@ class UniversityModel:
 
         # 2️⃣ Thêm vào universities
         cursor.execute("""
-            INSERT INTO universities (name, region, country_id, city, logo, overall_score)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            INSERT INTO universities (name, region, country_id, city, logo, overall_score, rank_int, path)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """, (
-            data.get("name"),
+            data.get("title"),
             data.get("region"),
             country_id,
             data.get("city"),
             data.get("logo"),
-            data.get("overall_score")
+            data.get("overall_score"),
+            data.get('rank'),
+            data.get('path')
         ))
         conn.commit()
         university_id = cursor.lastrowid
@@ -207,8 +294,7 @@ class UniversityModel:
         # 3️⃣ Thêm detail_infors
         d = data.get("detail_infors", {})
         cursor.execute("""
-            INSERT INTO detail_infors (university_id, fee, scholarship, domestic, international, english_test, academic_test,
-                                    total_stu, ug_rate, pg_rate, inter_total, inter_ug_rate, inter_pg_rate)
+            INSERT INTO detail_infors (university_id, fee, scholarship, domestic, international, english_test, academic_test, total_stu, ug_rate, pg_rate, inter_total, inter_ug_rate, inter_pg_rate)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """, (
             university_id,
@@ -230,7 +316,7 @@ class UniversityModel:
         # 4️⃣ Thêm scores
         score_type_map = {}
         indicator_map = {}
-        for st_name, indicators in data.get("score", {}).items():
+        for st_name, indicators in data.get("scores", {}).items():
             # score_type
             cursor.execute("INSERT IGNORE INTO score_types (name) VALUES (%s)", (st_name,))
             conn.commit()
@@ -238,45 +324,72 @@ class UniversityModel:
             st_id = cursor.fetchone()[0]
             score_type_map[st_name] = st_id
 
-            for ind_name, value in indicators.items():
-                if value:
-                    rank_val, score_val = value
-                else:
-                    rank_val, score_val = None, None
+            for sc in indicators:
+                indicator_id = sc["indicator_id"]
+                if indicator_id not in indicator_map:
+                    cursor.execute("INSERT IGNORE INTO indicators (id, name) VALUES (%s, %s)", (indicator_id, sc["indicator_name"]))
+                    conn.commit()
+                    indicator_map[indicator_id] = indicator_id
 
-                # indicator
-                cursor.execute("INSERT IGNORE INTO indicators (name) VALUES (%s)", (ind_name,))
-                conn.commit()
-                cursor.execute("SELECT id FROM indicators WHERE name=%s", (ind_name,))
-                ind_id = cursor.fetchone()[0]
-                indicator_map[ind_name] = ind_id
+                rank_val = ''.join([c for c in sc["rank"] if c.isdigit()])
+                rank_val = int(rank_val) if rank_val else None
 
-                # score
                 cursor.execute("""
                     INSERT INTO scores (indicator_id, score_type_id, rank_int, score, university_id)
                     VALUES (%s, %s, %s, %s, %s)
-                """, (ind_id, st_id, rank_val, score_val, university_id))
+                """, (
+                    indicator_id,
+                    score_type_map[st_name],
+                    rank_val,
+                    float(sc["score"]) if sc["score"] and str(sc["score"]).replace('.', '', 1).isdigit() else None,
+                    university_id
+                ))
+        conn.commit()
+
+        if data['entry_infor']['bachelor']['exists']:
+            cursor.execute("""
+            INSERT INTO entry_infor (
+                university_id, degree_type, SAT, GRE, GMAT, ACT, ATAR, GPA, TOEFL, IELTS
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (
+            university_id,
+            1,
+            data['entry_infor']['bachelor']["SAT"],
+            data['entry_infor']['bachelor']["GRE"],
+            data['entry_infor']['bachelor']["GMAT"],
+            data['entry_infor']['bachelor']["ACT"],
+            data['entry_infor']['bachelor']["ATAR"],
+            data['entry_infor']['bachelor']["GPA"],
+            data['entry_infor']['bachelor']["TOEFL"],
+            data['entry_infor']['bachelor']["IELTS"]
+        ))
+            
+        if data['entry_infor']['master']['exists']:
+            cursor.execute("""
+            INSERT INTO entry_infor (
+                university_id, degree_type, SAT, GRE, GMAT, ACT, ATAR, GPA, TOEFL, IELTS
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (
+            university_id,
+            2,
+            data['entry_infor']['master']["SAT"],
+            data['entry_infor']['master']["GRE"],
+            data['entry_infor']['master']["GMAT"],
+            data['entry_infor']['master']["ACT"],
+            data['entry_infor']['master']["ATAR"],
+            data['entry_infor']['master']["GPA"],
+            data['entry_infor']['master']["TOEFL"],
+            data['entry_infor']['master']["IELTS"]
+        ))
         conn.commit()
         return university_id
 
-
-    def update_university( data):
-        """
-        Cập nhật thông tin trường, detail_infors và scores theo data['id']
-        """
-        import mysql.connector
-        conn = mysql.connector.connect(
-            host="127.0.0.1",
-            user="user",       
-            password="Tung@09092004"  
-        )
+    # not working yet
+    def update_university(data, uni_id):
+        conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("use universities_db_clone")
-        uni_id = data.get("id")
-        if not uni_id:
-            raise ValueError("data phải có id để update")
-
-        # 1️⃣ Update country nếu có
+        # cursor.execute("use universities_db")
+        # 1️⃣ Xử lý country
         country_name = data.get("country")
         if country_name:
             cursor.execute("INSERT IGNORE INTO countries (name) VALUES (%s)", (country_name,))
@@ -286,30 +399,43 @@ class UniversityModel:
         else:
             country_id = None
 
-        # 2️⃣ Update universities
+        # 2️⃣ Thêm vào universities
         cursor.execute("""
             UPDATE universities
-            SET name=%s, region=%s, country_id=%s, city=%s, logo=%s, overall_score=%s
-            WHERE id=%s
+            SET name = %s,
+                region = %s,
+                country_id = %s,
+                city = %s,
+                logo = %s,
+                overall_score = %s,
+                rank_int = %s,
+                path = %s
+            WHERE id = %s
         """, (
-            data.get("name"),
+            data.get("title"),
             data.get("region"),
             country_id,
             data.get("city"),
             data.get("logo"),
             data.get("overall_score"),
+            data.get('rank'),
+            data.get('path'),
             uni_id
         ))
         conn.commit()
+        university_id = uni_id
 
-        # 3️⃣ Update detail_infors
+        cursor.execute(
+            "DELETE FROM detail_infors WHERE university_id=%s",
+            (university_id,)
+        )
+        # 3️⃣ Thêm detail_infors
         d = data.get("detail_infors", {})
         cursor.execute("""
-            UPDATE detail_infors
-            SET fee=%s, scholarship=%s, domestic=%s, international=%s, english_test=%s, academic_test=%s,
-                total_stu=%s, ug_rate=%s, pg_rate=%s, inter_total=%s, inter_ug_rate=%s, inter_pg_rate=%s
-            WHERE university_id=%s
+            INSERT INTO detail_infors (university_id, fee, scholarship, domestic, international, english_test, academic_test, total_stu, ug_rate, pg_rate, inter_total, inter_ug_rate, inter_pg_rate)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """, (
+            university_id,
             d.get("fee"),
             d.get("scholarship"),
             d.get("domestic"),
@@ -321,17 +447,19 @@ class UniversityModel:
             d.get("pg_rate"),
             d.get("inter_total"),
             d.get("inter_ug_rate"),
-            d.get("inter_pg_rate"),
-            uni_id
+            d.get("inter_pg_rate")
         ))
         conn.commit()
 
-        # 4️⃣ Update scores: xóa cũ rồi thêm mới
-        cursor.execute("DELETE FROM scores WHERE university_id=%s", (uni_id,))
-        conn.commit()
+        cursor.execute(
+            "DELETE FROM scores WHERE university_id=%s",
+            (university_id,)
+        )
+
+        # 4️⃣ Thêm scores
         score_type_map = {}
         indicator_map = {}
-        for st_name, indicators in data.get("score", {}).items():
+        for st_name, indicators in data.get("scores", {}).items():
             # score_type
             cursor.execute("INSERT IGNORE INTO score_types (name) VALUES (%s)", (st_name,))
             conn.commit()
@@ -339,184 +467,337 @@ class UniversityModel:
             st_id = cursor.fetchone()[0]
             score_type_map[st_name] = st_id
 
-            for ind_name, value in indicators.items():
-                if value:
-                    rank_val, score_val = value
-                else:
-                    rank_val, score_val = None, None
+            for sc in indicators:
+                indicator_id = sc["indicator_id"]
+                if indicator_id not in indicator_map:
+                    cursor.execute("INSERT IGNORE INTO indicators (id, name) VALUES (%s, %s)", (indicator_id, sc["indicator_name"]))
+                    conn.commit()
+                    indicator_map[indicator_id] = indicator_id
 
-                # indicator
-                cursor.execute("INSERT IGNORE INTO indicators (name) VALUES (%s)", (ind_name,))
-                conn.commit()
-                cursor.execute("SELECT id FROM indicators WHERE name=%s", (ind_name,))
-                ind_id = cursor.fetchone()[0]
+                rank_val = ''.join([c for c in sc["rank"] if c.isdigit()])
+                rank_val = int(rank_val) if rank_val else None
 
-                # score
                 cursor.execute("""
                     INSERT INTO scores (indicator_id, score_type_id, rank_int, score, university_id)
                     VALUES (%s, %s, %s, %s, %s)
-                """, (ind_id, st_id, rank_val, score_val, uni_id))
+                """, (
+                    indicator_id,
+                    score_type_map[st_name],
+                    rank_val,
+                    float(sc["score"]) if sc["score"] and str(sc["score"]).replace('.', '', 1).isdigit() else None,
+                    university_id
+                ))
         conn.commit()
 
+        cursor.execute(
+            "DELETE FROM entry_infor WHERE university_id=%s",
+            (university_id,)
+        )
+        if data['entry_infor']['bachelor']['exists']:
+            cursor.execute("""
+            INSERT INTO entry_infor (
+                university_id, degree_type, SAT, GRE, GMAT, ACT, ATAR, GPA, TOEFL, IELTS
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (
+            university_id,
+            1,
+            data['entry_infor']['bachelor']["SAT"],
+            data['entry_infor']['bachelor']["GRE"],
+            data['entry_infor']['bachelor']["GMAT"],
+            data['entry_infor']['bachelor']["ACT"],
+            data['entry_infor']['bachelor']["ATAR"],
+            data['entry_infor']['bachelor']["GPA"],
+            data['entry_infor']['bachelor']["TOEFL"],
+            data['entry_infor']['bachelor']["IELTS"]
+        ))
+            
+        if data['entry_infor']['master']['exists']:
+            cursor.execute("""
+            INSERT INTO entry_infor (
+                university_id, degree_type, SAT, GRE, GMAT, ACT, ATAR, GPA, TOEFL, IELTS
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (
+            university_id,
+            2,
+            data['entry_infor']['master']["SAT"],
+            data['entry_infor']['master']["GRE"],
+            data['entry_infor']['master']["GMAT"],
+            data['entry_infor']['master']["ACT"],
+            data['entry_infor']['master']["ATAR"],
+            data['entry_infor']['master']["GPA"],
+            data['entry_infor']['master']["TOEFL"],
+            data['entry_infor']['master']["IELTS"]
+        ))
+        conn.commit()
+        return university_id
 
+    # done
     def delete_university(uni_id):
         """
         Xóa 1 trường và tất cả dữ liệu liên quan (scores, detail_infors)
         """
-        import mysql.connector
-        conn = mysql.connector.connect(
-            host="127.0.0.1",
-            user="user",       
-            password="Tung@09092004"  
-        )
+        conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("use universities_db_clone")
+        # cursor.execute("use universities_db")
         # xóa scores
         cursor.execute("DELETE FROM scores WHERE university_id=%s", (uni_id,))
         # xóa detail_infors
         cursor.execute("DELETE FROM detail_infors WHERE university_id=%s", (uni_id,))
         # xóa university_texts nếu có
         cursor.execute("DELETE FROM university_texts WHERE university_id=%s", (uni_id,))
+        cursor.execute("DELETE FROM entry_infor WHERE university_id=%s", (uni_id,))
         # xóa universities
         cursor.execute("DELETE FROM universities WHERE id=%s", (uni_id,))
         conn.commit()
 
+    def get_uni_detail(list_id):
+        conn = get_connection()
+        cursor = conn.cursor()
+        data = []
+        if list_id:
+            var = ",".join(["%s"] * len(list_id))   
+
+            query = f"""
+                SELECT u.name as name,
+                    COALESCE(d.fee, 'Chưa có ') AS fee,
+                    CASE 
+                        WHEN d.scholarship = 0 THEN 'Không'
+                        WHEN d.scholarship = 1 THEN 'Có'
+                        ELSE 'Chưa có '
+                        END AS scholarship,
+                        coalesce(d.domestic, 'Chưa có ') as domestic,
+                        coalesce(d.international, 'Chưa có ') as international,
+                        coalesce(d.total_stu, 'Chưa có ') as total_stu,
+                        coalesce(d.ug_rate, 'Chưa có ') as ug_rate,
+                        coalesce(d.pg_rate, 'Chưa có ') as pg_rate,
+                        coalesce(d.inter_total, 'Chưa có ') as inter_total,
+                        coalesce(d.inter_ug_rate, 'Chưa có ') as inter_ug_rate,
+                        coalesce(d.inter_pg_rate, 'Chưa có ') as inter_pg_rate
+                FROM 
+                    universities as u
+                LEFT JOIN detail_infors as d 
+                    ON u.id = d.university_id
+                WHERE u.id IN ({var});
+            """
+
+            cursor.execute(query, list_id)  
+            data = cursor.fetchall()
+        return data
     
+    def get_data_chart(list_id):
+        conn = get_connection()
+        cursor = conn.cursor()
+        data = []
+        if list_id:
+            var = ",".join(["%s"] * len(list_id))   
 
-structure_sample_data = {
-    "id": None, #int
-    "name": None, #varchar
-    "region": None, #varchar
-    "country": None, #varchar
-    "city": None, #varchar
-    "logo": None, #varchar
-    "overall_score": None, #float
-    'score': {
-        "Research & Discovery":{
-            "Citations per Faculty":None, #(rank_int, score) 
-            "Academic Reputation":None #(rank_int, score)
-        },
-        "Learning Experience":{
-            "Faculty Student Ratio":None #(rank_int, score)
-        },
-        "Employability":{
-            "Employer Reputation": None, #(rank_int, score)
-            "Employment Outcomes": None, #(rank_int, score)
-        },
-        "Global Engagement":{
-            "International Student Ratio": None, #(rank_int, score)
-            "International Research Network": None, #(rank_int, score)
-            "International Faculty Ratio": None, #(rank_int, score)
-            "International Student Diversity": None #(rank_int, score)
-        },
-        "Sustainability":{
-            "Sustainability Score": None #(rank_int, score)
-        }
-    },
-    "entry_degree_requirement": {
-        "General": {
-            "SAT": None,  #int
-            "GRE": None,  #int
-            "GMAT" : None, #int
-            "ACT": None, #float
-            "ATAR": None, #float
-            "GPA": None, #float
-            "TOEFL": None,  #int
-            "IELTS": None #float
-        },
-        "Master": {
-            "SAT": None,  #int
-            "GRE": None,  #int
-            "GMAT" : None, #int
-            "ACT": None, #float
-            "ATAR": None, #float
-            "GPA": None, #float
-            "TOEFL": None,  #int
-            "IELTS": None #float
-        }
-    },
-    "detail_infors": {
-        'fee': None, #int
-        'scholarship': None,  #int
-        'domestic': None,  #int
-        'international': None, #int
-        'english_test': None, #varchar
-        'academic_test': None, #varchar
-        'total_stu': None, #int
-        'ug_rate': None, #float
-        'pg_rate': None, #float
-        'inter_total': None, #int
-        'inter_ug_rate': None, #float
-        'inter_pg_rate': None #float
-    }
-}
-
+            query = f"""
+                sELECT u.name as name,
+                        COALESCE(d.SAT, 0) AS SAT,
+                        coalesce(d.GRE, 0) as GRE,
+                        coalesce(d.GMAT, 0) as GMAT,
+                        coalesce(d.ACT, 0) as ACT,
+                        coalesce(d.ATAR, 0) as ATAR,
+                        coalesce(d.GPA, 0) as GPA,
+                        coalesce(d.TOEFL, 0) as TOEFL,
+                        coalesce(d.IELTS, 0) as IELTS
+                FROM 
+                    universities as u
+                LEFT JOIN entry_infor as d 
+                    ON u.id = d.university_id
+                WHERE d.degree_type = 1 and  u.id IN ({var});
+            """
+            cursor.execute(query, list_id)  
+            data = cursor.fetchall()
+        return data
+    def get_uni(id):
+        conn = get_connection()
+        cursor = conn.cursor()
+        query = """
+            SELECT u.name,
+                    CONCAT(c.name, ',', u.city) AS address,
+                    u.rank_int as ranks
+                FROM 
+                universities as u
+                left join countries as c on u.country_id = c.id
+                where u.id = %s
+            """
+        cursor.execute(query,(id,))
+        data = cursor.fetchone()
+        return data
+    def get_data_detail_entry(typeDegree, id):
+        conn = get_connection()
+        cursor = conn.cursor()
+        if id: 
+            query = """
+                sELECT
+                        COALESCE(d.SAT, 0) AS SAT,
+                        coalesce(d.GRE, 0) as GRE,
+                        coalesce(d.GMAT, 0) as GMAT,
+                        coalesce(d.ACT, 0) as ACT,
+                        coalesce(d.ATAR, 0) as ATAR,
+                        coalesce(d.GPA, 0) as GPA,
+                        coalesce(d.TOEFL, 0) as TOEFL,
+                        coalesce(d.IELTS, 0) as IELTS
+                FROM 
+                    universities as u
+                LEFT JOIN entry_infor as d 
+                    ON u.id = d.university_id
+                WHERE d.degree_type = %s and  u.id = %s ;
+            """
+            cursor.execute(query,(typeDegree, id,))  
+            data = cursor.fetchone()
+        return data
+    def get_data_detail_2(id):
+        conn = get_connection()
+        cursor = conn.cursor()
+        if id: 
+            query = """
+               SELECT 
+                    COALESCE(d.fee, 0) AS fee,
+                    CASE 
+                        WHEN d.scholarship = 0 THEN 'Không có'
+                        WHEN d.scholarship = 1 THEN 'Có'
+                        ELSE 'Chưa có thông tin'
+                        END AS scholarship,
+                        coalesce(d.domestic, 0) as domestic,
+                        coalesce(d.international, 0) as international,
+                        coalesce(d.total_stu, 0) as total_stu,
+                        coalesce(d.ug_rate, 0) as ug_rate,
+                        coalesce(d.pg_rate, 0) as pg_rate,
+                        coalesce(d.inter_total,0) as inter_total,
+                        coalesce(d.inter_ug_rate, 0) as inter_ug_rate,
+                        coalesce(d.inter_pg_rate, 0) as inter_pg_rate
+                FROM 
+                    detail_infors as d
+                WHERE d.id = %s
+            """
+            cursor.execute(query,(id,))  
+            data = cursor.fetchone()
+        return data
 sample_data = {
-    "name": "Đại học EMI, Đại học Kông ngiệp",
-    "region": "Asia", #varchar
-    "country": "Địa linh", #varchar
-    "city": "Đất vua", #varchar
-    "logo": "https://duocphamtim.vn/wp-content/uploads/2022/12/rau-ma-scaled.jpeg", #varchar
-    "overall_score": 36.36, #float
-    'score': {
-        "Research & Discovery":{
-            "Citations per Faculty":(36, 36.36), #(rank_int, score) 
-            "Academic Reputation":(36, 36.36) #(rank_int, score)
+        "title": "Ghost University",#entry
+        "path": "/universities/massachusetts-institute-technology-mit", #entry
+        "region": "North America",#entry
+        "country": "United States",#entry
+        "city": "Cambridge",#entry
+        "logo": "https://duocphamtim.vn/wp-content/uploads/2022/12/rau-ma-scaled.jpeg",#entry
+        "overall_score": "0", #entry
+        "rank": "1518",#entry
+        "scores": {
+            "Research & Discovery": [
+                {
+                    "indicator_id": "73",
+                    "indicator_name": "Citations per Faculty",
+                    "rank": "7",#entry
+                    "score": "100"#entry
+                },
+                {
+                    "indicator_id": "76",
+                    "indicator_name": "Academic Reputation",
+                    "rank": "4",#entry
+                    "score": "100"#entry
+                }
+            ],
+            "Learning Experience": [
+                {
+                    "indicator_id": "36",
+                    "indicator_name": "Faculty Student Ratio",
+                    "rank": "16",#entry
+                    "score": "100"#entry
+                }
+            ],
+            "Employability": [
+                {
+                    "indicator_id": "77",
+                    "indicator_name": "Employer Reputation",
+                    "rank": "2",#entry
+                    "score": "100"#entry
+                },
+                {
+                    "indicator_id": "3819456",
+                    "indicator_name": "Employment Outcomes",
+                    "rank": "7",#entry
+                    "score": "100"#entry
+                }
+            ],
+            "Global Engagement": [
+                {
+                    "indicator_id": "14",
+                    "indicator_name": "International Student Ratio",
+                    "rank": "153",#entry
+                    "score": "91.6"#entry
+                },
+                {
+                    "indicator_id": "15",
+                    "indicator_name": "International Research Network",
+                    "rank": "98",#entry
+                    "score": "94.1"#entry
+                },
+                {
+                    "indicator_id": "18",
+                    "indicator_name": "International Faculty Ratio",
+                    "rank": "63",#entry
+                    "score": "100"#entry
+                },
+                {
+                    "indicator_id": "3924415",
+                    "indicator_name": "International Student Diversity",
+                    "rank": "130",#entry
+                    "score": "92.3"#entry
+                }
+            ],
+            "Sustainability": [
+                {
+                    "indicator_id": "3897497",
+                    "indicator_name": "Sustainability Score",
+                    "rank": "33",#entry
+                    "score": "93.8"#entry
+                }
+            ]
         },
-        "Learning Experience":{
-            "Faculty Student Ratio":(36, 36.36) #(rank_int, score)
+        'detail_infors': {
+            'fee': None, #entry
+            'scholarship': None, #entry
+            'domestic': None, #entry
+            'international': None, #entry
+            'english_test': None, #entry
+            'academic_test': None, #entry
+            'total_stu': None, #entry
+            'ug_rate': "32", #entry
+            'pg_rate': None, #entry
+            'inter_total': None, #entry
+            'inter_ug_rate': None, #entry
+            'inter_pg_rate': None #entry
         },
-        "Employability":{
-            "Employer Reputation": (36, 36.36), #(rank_int, score)
-            "Employment Outcomes": (36, 36.36), #(rank_int, score)
-        },
-        "Global Engagement":{
-            "International Student Ratio": (36, 36.36), #(rank_int, score)
-            "International Research Network": (36, 36.36), #(rank_int, score)
-            "International Faculty Ratio": (36, 36.36), #(rank_int, score)
-            "International Student Diversity": (36, 36.36) #(rank_int, score)
-        },
-        "Sustainability":{
-            "Sustainability Score": (36, 36.36) #(rank_int, score)
+        'entry_infor': {
+            'bachelor':{
+                "exists": True,#entry -> checkbox
+                "SAT": None,#entry
+                "GRE": None,#entry
+                "GMAT": None,#entry
+                "ACT": None,#entry
+                "ATAR" :None,#entry
+                "GPA":None,#entry
+                "TOEFL": None,#entry
+                "IELTS": None#entry
+            },
+            'master':{
+                "exists": True,#entry -> checkbox
+                "SAT": None,#entry
+                "GRE": None,#entry
+                "GMAT": None,#entry
+                "ACT": None,#entry
+                "ATAR" :None,#entry
+                "GPA":None,#entry
+                "TOEFL": None,#entry
+                "IELTS": None#entry
+            },
         }
-    },
-    "entry_degree_requirement": {
-        "General": {
-            "SAT": 36,  #int
-            "GRE": 36,  #int
-            "GMAT" : 36, #int
-            "ACT": 36, #float
-            "ATAR": 36, #float
-            "GPA": 36, #float
-            "TOEFL": 36,  #int
-            "IELTS": 36 #float
-        },
-        "Master": {
-            "SAT": 36,  #int
-            "GRE": 36,  #int
-            "GMAT" : 36, #int
-            "ACT": 36, #float
-            "ATAR": 36, #float
-            "GPA": 36, #float
-            "TOEFL": 36,  #int
-            "IELTS": 36 #float
-        }
-    },
-    "detail_infors": {
-        'fee': 36, #int
-        'scholarship': 36,  #int
-        'domestic': 36,  #int
-        'international': 36, #int
-        'english_test': "36", #varchar
-        'academic_test': "36", #varchar
-        'total_stu': 36, #int
-        'ug_rate': 36, #float
-        'pg_rate': 36, #float
-        'inter_total': 36, #int
-        'inter_ug_rate': 36, #float
-        'inter_pg_rate': 36 #float
     }
-}
 
-UniversityModel.add_university(sample_data)
-# UniversityModel.delete_university(1505)
+sample_data_1 = {'title': 'This is not ghost', 'path': '', 'region': 'Asia', 'country': 'Vietnam', 'city': '', 'logo': '', 'overall_score': '0', 'rank': '1536', 'scores': {'Research & Discovery': [{'indicator_id': '73', 'indicator_name': 'Citations per Faculty', 'rank': '', 'score': ''}, {'indicator_id': '76', 'indicator_name': 'Academic Reputation', 'rank': '', 'score': ''}], 'Learning Experience': [{'indicator_id': '36', 'indicator_name': 'Faculty Student Ratio', 'rank': '', 'score': ''}], 'Employability': [{'indicator_id': '77', 'indicator_name': 'Employer Reputation', 'rank': '', 'score': ''}, {'indicator_id': '3819456', 'indicator_name': 'Employment Outcomes', 'rank': '', 'score': ''}], 'Global Engagement': [{'indicator_id': '14', 'indicator_name': 'International Student Ratio', 'rank': '', 'score': ''}, {'indicator_id': '15', 'indicator_name': 'International Research Network', 'rank': '', 'score': ''}, {'indicator_id': '18', 'indicator_name': 'International Faculty Ratio', 'rank': '', 'score': ''}, {'indicator_id': '3924415', 'indicator_name': 'International Student Diversity', 'rank': '', 'score': ''}], 'Sustainability': [{'indicator_id': '3897497', 'indicator_name': 'Sustainability Score', 'rank': '', 'score': ''}]}, 'detail_infors': {'fee': None, 'scholarship': None, 'domestic': None, 'international': None, 'english_test': None, 'academic_test': None, 'total_stu': None, 'ug_rate': None, 'pg_rate': None, 'inter_total': None, 'inter_ug_rate': None, 'inter_pg_rate': None}, 'entry_infor': {'bachelor': {'exists': False, 'SAT': None, 'GRE': None, 'GMAT': None, 'ACT': None, 'ATAR': None, 'GPA': None, 'TOEFL': None, 'IELTS': None}, 'master': {'exists': False, 'SAT': None, 'GRE': None, 'GMAT': None, 'ACT': None, 'ATAR': None, 'GPA': None, 'TOEFL': None, 'IELTS': None}}}
+# print(UniversityModel.get_universities_with_condition(conditions)[0])
+
+# UniversityModel.add_university(sample_data_1)
+# UniversityModel.update_university(sample_data_1,1514)

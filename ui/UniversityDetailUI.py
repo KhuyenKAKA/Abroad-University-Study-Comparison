@@ -1,12 +1,16 @@
+import sys
+import os
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+)
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk 
 import os 
+from controller.UniversityController import UniversityController
 
 # --- Dữ liệu giả định ---
-TEN_TRUONG = "Massachusetts Institute of Technology (MIT)"
-XEP_HANG = "#1 QS World University Rankings"
-VI_TRI = "Cambridge, United States"
+
 
 # --- Hàm hỗ trợ chung ---
 
@@ -44,15 +48,19 @@ def create_header(root):
     
     tk.Label(nav_frame, text="UniCompare", font=("Arial", 16, "bold"), fg="#1e90ff", bg="white").grid(row=0, column=0, padx=(20, 50), pady=10, sticky="w")
     
-    menu_items = ["Rankings", "Discover", "Events", "Prepare", "Scholarships", "Chat To Students"]
-    
-    for i, item in enumerate(menu_items):
-        tk.Button(nav_frame, text=item, font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=i+1, padx=5, pady=10, sticky="w")
+    menu_items = ["Xếp hạng", "Khám phá", "Sự kiện", "Chuẩn bị", "Học bổng", "Chat với AI"]
+    btnRankings =tk.Button(nav_frame, text=menu_items[0], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=1, padx=5, pady=10, sticky="e", in_=nav_frame)
+    btnDiscover = tk.Button(nav_frame, text=menu_items[1], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=2, padx=5, pady=10, sticky="e", in_=nav_frame)
+    btnEvents = tk.Button(nav_frame, text=menu_items[2], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=3, padx=5, pady=10, sticky="e", in_=nav_frame)
+    btnPrepare = tk.Button(nav_frame, text=menu_items[3], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=4, padx=5, pady=10, sticky="e", in_=nav_frame)
+    btnScholarships = tk.Button(nav_frame, text=menu_items[4], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=5, padx=5, pady=10, sticky="e", in_=nav_frame)
+    btnChatToStudents = tk.Button(nav_frame, text=menu_items[5], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=6, padx=5, pady=10, sticky="e", in_=nav_frame)
+
     
     right_nav_frame = tk.Frame(nav_frame, bg="white")
     right_nav_frame.grid(row=0, column=7, sticky="e", padx=(0, 20))
 
-    tk.Button(right_nav_frame, text="Free Counselling", foreground='white', background='#28a745', relief="flat").pack(side='left', padx=5)
+    tk.Button(right_nav_frame, text="Tư vấn miễn phí", foreground='white', background='#28a745', relief="flat").pack(side='left', padx=5)
     
     search_path = "assets/search.png"
     try:
@@ -67,8 +75,8 @@ def create_header(root):
     except Exception:
         tk.Label(right_nav_frame, text="🔍", font=("Arial", 16), bg="white").pack(side='left', padx=5)
     
-    tk.Button(right_nav_frame, text="Login", foreground='white', background="#1F3AB0", relief="flat").pack(side='left', padx=5)
-    tk.Button(right_nav_frame, text="Sign Up", foreground='white', background="#1F3AB0", relief="flat").pack(side='left', padx=5)
+    tk.Button(right_nav_frame, text="Đăng nhập", foreground='white', background="#1F3AB0", relief="flat").pack(side='left', padx=5)
+    tk.Button(right_nav_frame, text="Đăng ký", foreground='white', background="#1F3AB0", relief="flat").pack(side='left', padx=5)
 
 # ===============================================
 # Hàm tạo Footer
@@ -158,7 +166,7 @@ def create_footer(parent_frame): # THAY ĐỔI: nhận parent_frame là khung cu
 # ===============================================
 # Hàm chính tạo UI (Đã tích hợp Header, Footer và điều chỉnh cấu trúc cuộn)
 # ===============================================
-def create_ui():
+def create_ui(id):
     root = tk.Tk()
     root.title("Thông tin Chi tiết Đại học | UniCompare")
     root.geometry("1000x800")
@@ -182,7 +190,16 @@ def create_ui():
     canvas.configure(yscrollcommand=v_scrollbar.set)
     v_scrollbar.pack(side="right", fill="y")
     canvas.pack(side="left", fill="both", expand=True)
-
+    TEN_TRUONG = ""
+    XEP_HANG = ""
+    VI_TRI = ""
+    data = UniversityController.get_uni(id)
+    
+    UniversityController.get_data_detail_2(id)
+    if data:
+        TEN_TRUONG = data[0]
+        VI_TRI = data[1]
+        XEP_HANG = data[2]
     def on_frame_configure(event):
         # Cập nhật vùng cuộn khi nội dung bên trong thay đổi
         canvas.configure(scrollregion=canvas.bbox("all"))
@@ -208,7 +225,7 @@ def create_ui():
     # Đặt header_frame ở hàng 0, cột 0, span 2
     header_frame.grid(row=0, column=0, columnspan=2, sticky="new", padx=(0,0), pady=(0, 10))
     header_frame.pack_propagate(False)
-
+    
     tk.Label(header_frame, text=TEN_TRUONG, font=("Arial", 20, "bold"), fg="white", bg="#1F3AB0").pack(anchor="w", padx=20, pady=(10, 0))
     tk.Label(header_frame, text=VI_TRI, font=("Arial", 10), fg="lightgray", bg="#1F3AB0").pack(anchor="w", padx=20)
     tk.Label(header_frame, text=XEP_HANG, font=("Arial", 12), bg="white", fg="#1F3AB0", padx=10, pady=5).place(x=20, y=90)
@@ -262,24 +279,40 @@ def create_ui():
             tk.Label(box, text=f"{value}", font=("Arial", 18, "bold"), bg="#e0e0e0", fg="#3b4a68").pack()
             if unit:
                  tk.Label(box, text=unit, font=("Arial", 10), bg="#e0e0e0").pack()
+        keys = ["SAT", "GRE", "GMAT", "ACT", "ATAR", "GPA", "TOEFL", "IELTS"]
+        data_bacherlor = UniversityController.get_uni_detail_entry(1, id)
+        data_master = UniversityController.get_uni_detail_entry(2, id)
+        if data_bacherlor :
+            for key, val in zip(keys, data_bacherlor):
+                if val == "0" or val is None:
+                    continue
+                else :
+                    create_info_box(bachelor_info_frame, key, val)
         
-        create_info_box(bachelor_info_frame, "SAT", "1520", "+")
-        create_info_box(bachelor_info_frame, "TOEF", "100", "+")
+        
+        # create_info_box(bachelor_info_frame, "TOEF", "100")
 
         tk.Label(admission_content_frame, text="Bằng thạc sĩ", font=("Arial", 12, "bold"), bg="white", anchor="w").pack(fill='x', pady=(10, 5))
         
         master_info_frame = tk.Frame(admission_content_frame, bg="white")
         master_info_frame.pack(fill='x', pady=5, anchor='w')
+        if data_master :
+            for key, val in zip(keys, data_master):
+                if val == "0" or val is None:
+                    continue
+                else :
+                    create_info_box(master_info_frame, key, val)
         
-        create_info_box(master_info_frame, "GMAT", "728", "+")
-        create_info_box(master_info_frame, "IELTS", "7+", " ")
-        create_info_box(master_info_frame, "TOEF", "90+", " ")
+        # create_info_box(master_info_frame, "GMAT", "728", "+")
+        # create_info_box(master_info_frame, "IELTS", "7+", " ")
+        # create_info_box(master_info_frame, "TOEF", "90+", " ")
 
         tk.Label(parent_frame, text="Thông tin học sinh", font=("Arial", 16, "bold"), bg="white", anchor="w").pack(fill='x', padx=10, pady=(20, 5))
         student_content_frame = tk.Frame(parent_frame, bg="white", padx=10, pady=10)
         student_content_frame.pack(fill='x', padx=10, pady=(0, 10))
         
         def create_student_bar(parent, title, total, ug_percent, pg_percent):
+            
             card = tk.Frame(parent, bg="white", padx=15, pady=10, relief="flat", borderwidth=0, highlightbackground="#99badd", highlightthickness=1)
             card.pack(side="left", padx=(0, 20), anchor="nw")
             
@@ -314,38 +347,41 @@ def create_ui():
 
             create_legend_item(legend_frame, "#99badd", "UG students", ug_percent)
             create_legend_item(legend_frame, "#3b4a68", "PG students", pg_percent)
+        data_bar = UniversityController.get_data_detail_2(id)
 
-        create_student_bar(student_content_frame, "Tổng số học sinh", "11,720", 39, 61)
-        create_student_bar(student_content_frame, "Tổng số học sinh quốc tế", "3,824", 17, 83)
+        create_student_bar(student_content_frame, "Tổng số học sinh", f'{data_bar[4]}', data_bar[5], data_bar[6])
+        create_student_bar(student_content_frame, "Tổng số học sinh quốc tế", f'{data_bar[7]}', data_bar[8],data_bar[9])
 
 
     create_university_info_section(scrollable_content_frame)
 
     # 3. Scholarships
     def create_scholarships_section(parent_frame):
+        data_bar = UniversityController.get_data_detail_2(id)
         tk.Label(parent_frame, text="Thông tin học bổng", font=("Arial", 16, "bold"), bg="white", anchor="w").pack(fill='x', padx=10, pady=(20, 5))
         
-        scholarship_text = ("Selecting the right scholarship can be a daunting process. With countless options available, "
-                            "students often find themselves overwhelmed and confused. The decision can be especially "
-                            "stressful for those facing financial constraints or pursuing specific academic or career goals.")
+        scholarship_text = (f"Hiện nay chúng tôi đang cập nhật thông tin học bổng, tính đến thời điểm hiện tại trường {TEN_TRUONG} đang {data_bar[1]} học bổng.")
         tk.Label(parent_frame, text=scholarship_text, font=("Arial", 10), bg="white", justify="left", wraplength=700).pack(fill='x', padx=10, pady=(5, 10))
         
-        tk.Label(parent_frame, text="To help students navigate this challenging process, we recommend the following articles:", font=("Arial", 10), bg="white", justify="left").pack(fill='x', padx=10, pady=0)
+        tk.Label(parent_frame, text="Để tìm hiểu thêm chi tiết xem tại đường link: https://www.topuniversities.com/scholarships", font=("Arial", 10), bg="white", justify="left").pack(fill='x', padx=10, pady=0)
     
     create_scholarships_section(scrollable_content_frame)
 
     # 4. Fees
     def create_fees_section(parent_frame):
+        data_bar = UniversityController.get_data_detail_2(id)
         tk.Label(parent_frame, text="Học phí", font=("Arial", 16, "bold"), bg="white", anchor="w").pack(fill='x', padx=10, pady=(20, 5))
-        fee = "100,000 USD/năm"
+        if data_bar[0] == 0.0:
+            fee = " Chưa có thông tin"
+        else: fee = f"{data_bar[0]} USD/ năm"
         tk.Label(parent_frame, text=fee, font=("Arial", 10), bg="white", justify="left", wraplength=700).pack(fill='x', padx=10, pady=(5, 10))
     create_fees_section(scrollable_content_frame)
 
     # 5. Rankings & Ratings
     def create_rankings_section(parent_frame):
         tk.Label(parent_frame, text="Xếp hạng - Đánh giá", font=("Arial", 16, "bold"), bg="white", anchor="w").pack(fill='x', padx=10, pady=(20, 5))
-        
-        ranking_text = "Massachusetts Institute of Technology (MIT) is one of the top Private not for Profit universities in... It is ranked #1 in QS World University Rankings 2026."
+        data_rank = UniversityController.get_uni(id)
+        ranking_text = f" TRường {TEN_TRUONG} hiện tại đang đứng ở vị trí # {data_rank[2]} QS World University Rankings 2026."
         tk.Label(parent_frame, text=ranking_text, font=("Arial", 10), bg="white", justify="left", wraplength=700).pack(fill='x', padx=10, pady=(0, 10))
 
         rank_cards_frame = tk.Frame(parent_frame, bg="white")
@@ -360,8 +396,8 @@ def create_ui():
             
             title_label = tk.Label(card, text=title, font=("Arial", 9), fg="gray", bg="white", padx=10)
             title_label.pack(anchor="w", pady=(0, 5))
-
-        create_rank_card(rank_cards_frame, "#1", "QS World University Rankings")
+        
+        create_rank_card(rank_cards_frame, f"#{data_rank[2]}", "QS World University Rankings")
     create_rankings_section(scrollable_content_frame)
     
     # 6. Programmes

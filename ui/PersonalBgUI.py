@@ -41,16 +41,34 @@ class AcademicInfoForm:
         self.fill_data()
 
     def create_layout(self):
-        # header/nar
         nav_frame = tk.Frame(self.root, bg="white", height=50)
         nav_frame.pack(fill='x', padx=0, pady=0)
         nav_frame.grid_columnconfigure(1, weight=1)
+
         tk.Label(nav_frame, text="UniCompare", font=("Segoe UI", 16, "bold"), fg="#1F3AB0", bg="white").grid(row=0,
                                                                                                              column=0,
                                                                                                              padx=(20,
                                                                                                                    50),
                                                                                                              pady=10)
 
+        menu_items = ["Xếp hạng", "Khám phá", "Sự kiện", "Chuẩn bị", "Học bổng", "Chat với AI"]
+        for i, item in enumerate(menu_items):
+            tk.Button(nav_frame, text=item, font=("Segoe UI", 10), bg="white", relief="flat", cursor="hand2").grid(
+                row=0, column=i + 1, padx=5, pady=10, sticky="e")
+
+        right_nav = tk.Frame(nav_frame, bg="white")
+        right_nav.grid(row=0, column=7, sticky="e", padx=(0, 20))
+        tk.Button(right_nav, text="Tư vấn miễn phí", fg='white', bg="#28a745", font=("Segoe UI", 10)).pack(side='left',
+                                                                                                            padx=5)
+        try:
+            img = Image.open("assets/search.png")
+            img = img.resize((24, 24), Image.LANCZOS)
+            search_photo = ImageTk.PhotoImage(img)
+            tk.Button(right_nav, image=search_photo, bg='white', relief='flat').pack(side='left', padx=5)
+            self.images_reference.append(search_photo)
+        except:
+            tk.Label(right_nav, text="🔍", font=("Segoe UI", 16), bg="white").pack(side='left', padx=5)
+        tk.Label(right_nav, text="👤", font=("Segoe UI", 20), bg="white", fg="#444").pack(side='left', padx=10)
         # ===============================================
         # 2. SCROLL AREA
         # ===============================================
@@ -61,6 +79,8 @@ class AcademicInfoForm:
         main_canvas.configure(yscrollcommand=scrollbar.set)
         content_frame = tk.Frame(main_canvas, bg="#f8f9fa")
         content_window = main_canvas.create_window((0, 0), window=content_frame, anchor="nw")
+
+
 
         def on_conf(event):
             main_canvas.configure(scrollregion=main_canvas.bbox("all"))
