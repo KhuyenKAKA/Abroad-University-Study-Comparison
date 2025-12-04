@@ -1,4 +1,5 @@
 def create_ui():
+    from ui.session import session as session_data
     import sys
     import os
     sys.path.append(
@@ -18,7 +19,8 @@ def create_ui():
     global universities_data
     root = tk.Tk()
     root.title("UniCompare - Course Recommendation")
-    root.geometry("1000x800")
+    root.attributes('-fullscreen', True)
+    root.bind("<Escape>", lambda e: root.attributes("-fullscreen", False))
     
     root.config(bg="#f8f9fa")
 
@@ -30,16 +32,42 @@ def create_ui():
     nav_frame.grid_columnconfigure(2, weight=0) 
     nav_frame.grid_columnconfigure(3, weight=0) 
 
-    tk.Label(nav_frame, text="UniCompare", font=("Arial", 16, "bold"), fg="#1e90ff", bg="white").grid(row=0, column=0, padx=(20, 50), pady=10)
+    def link_to_homepage(event):
+        from ui.HomePageUI import create_ui as create_homepage_ui
+        root.destroy()
+        create_homepage_ui()
     
+    lb_homepage_tittle = tk.Label(nav_frame, text="UniCompare", font=("Arial", 16, "bold"), fg="#1e90ff", bg="white")
+    lb_homepage_tittle.grid(row=0, column=0, padx=(20, 50), pady=10)
+    lb_homepage_tittle.bind('<Button-1>', link_to_homepage)
     menu_items = ["Xếp hạng", "Khám phá", "Sự kiện", "Chuẩn bị", "Học bổng", "Chat với AI"]
     # Để làm nổi bật "Rankings" như trong ảnh
+    
+    def login():
+        from ui.SignInUI import create_ui as create_ui_login
+        root.destroy()
+        create_ui_login()
+
+    def signup():
+        from ui.SignUpUI import create_ui as create_ui_signup
+        root.destroy()
+        create_ui_signup()
+
+    def chat_to_ai():
+        from ui.session import session as session_data
+        if session_data['is_logged_in'] == True:
+            from ui.ChatbotUI import ChatApp
+            root.destroy()
+            ChatApp()
+        else:
+            mess.showerror("Lỗi", "Vui lòng đăng nhập để dùng chức năng này!")
+    
     tk.Button(nav_frame, text=menu_items[0], font=("Arial", 10, "bold"), bg="white", fg="#1e90ff", relief="flat").grid(row=0, column=1, padx=5, pady=10, sticky="e", in_=nav_frame) 
     tk.Button(nav_frame, text=menu_items[1], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=2, padx=5, pady=10, sticky="e", in_=nav_frame)
     tk.Button(nav_frame, text=menu_items[2], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=3, padx=5, pady=10, sticky="e", in_=nav_frame)
     tk.Button(nav_frame, text=menu_items[3], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=4, padx=5, pady=10, sticky="e", in_=nav_frame)
     tk.Button(nav_frame, text=menu_items[4], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=5, padx=5, pady=10, sticky="e", in_=nav_frame)
-    tk.Button(nav_frame, text=menu_items[5], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=6, padx=5, pady=10, sticky="e", in_=nav_frame)
+    btnChatToStudents = tk.Button(nav_frame, command= chat_to_ai, text=menu_items[5], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=6, padx=5, pady=10, sticky="e", in_=nav_frame)
     
     right_nav_frame = tk.Frame(nav_frame, bg="white")
     right_nav_frame.grid(row=0, column=7, sticky="e", padx=(0, 20))
@@ -47,16 +75,25 @@ def create_ui():
     tk.Button(right_nav_frame, text="Tư vấn miễn phí",foreground='white', background='#28a745', ).pack(side='left', padx=5)
     try:
         # Giả sử bạn đã có file search.png trong thư mục assets
-        # img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
-        img = Image.open("assets/search.png")
+        img = Image.open("Abroad-University-Study-Comparison/assets/search.png")
+        # img = Image.open("assets/search.png")
         img = img.resize((24, 24), Image.LANCZOS)
         search_photo = ImageTk.PhotoImage(img)
         tk.Button(right_nav_frame, image=search_photo,bg= 'white',relief='flat').pack(side='left', padx=5)
     except FileNotFoundError:
         tk.Label(right_nav_frame, text="🔍", font=("Arial", 16), bg="white").pack(side='left', padx=5)
     
-    tk.Button(right_nav_frame, text="Đăng nhập", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
-    tk.Button(right_nav_frame, text="Đăng ký", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
+    def link_to_personal_infor():
+        from ui.PersonalInfoUI import main as create_personal_infor
+        root.destroy()
+        create_personal_infor()
+
+    if session_data["role_type"] == 1:
+        tk.Button(right_nav_frame, text="👤", foreground='white',command= link_to_personal_infor, background="#1F3AB0").pack(side='left', padx=5)
+        # tk.Label(right_nav, text="👤", font=("Segoe UI", 20), bg="white", fg="#444").pack(side='left', padx=10)
+    else:
+        tk.Button(right_nav_frame, text="Đăng nhập", foreground='white', background="#1F3AB0", command=login).pack(side='left', padx=5)
+        tk.Button(right_nav_frame, text="Đăng ký", foreground='white', background="#1F3AB0", command=signup).pack(side='left', padx=5)
 
 # main canvas se dung de lam khung keo scroll
     main_canvas = tk.Canvas(root, bg="#f8f9fa")
@@ -231,9 +268,9 @@ def create_ui():
         global compare_list
         checked_list = [v for v in compare_list if compare_list[v].get()]
         if len(checked_list)>1: 
+            root.destroy()
             from ui.CompareUniUI import create_ui as compare_ui
             compare_ui(checked_list)
-            root.destroy()
         else:
             mess.showwarning("Thông báo","Hãy chọn trường đại học để so sánh!")
 
@@ -781,14 +818,14 @@ def create_ui():
     tk.Label(social_frame, text="Theo dõi chúng tôi", font=("Arial", 10, "bold"), bg="white").pack(side="left", padx=(0, 10))
     
     # Mô phỏng Social Icons (sử dụng Label với màu nền)
-    social_icons = ["assets/104498_facebook_icon.png", 
-                    "assets/1161953_instagram_icon.png", 
-                    "assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
-                    "assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
-    # social_icons = ["Abroad-University-Study-Comparison/assets/104498_facebook_icon.png", 
-    #                 "Abroad-University-Study-Comparison/assets/1161953_instagram_icon.png", 
-    #                 "Abroad-University-Study-Comparison/assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
-    #                 "Abroad-University-Study-Comparison/assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
+    # social_icons = ["assets/104498_facebook_icon.png", 
+    #                 "assets/1161953_instagram_icon.png", 
+    #                 "assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
+    #                 "assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
+    social_icons = ["Abroad-University-Study-Comparison/assets/104498_facebook_icon.png", 
+                    "Abroad-University-Study-Comparison/assets/1161953_instagram_icon.png", 
+                    "Abroad-University-Study-Comparison/assets/5279114_linkedin_network_social network_linkedin logo_icon.png",
+                    "Abroad-University-Study-Comparison/assets/11244080_x_twitter_elon musk_twitter new logo_icon.png"] 
     for icon in social_icons:
         img = Image.open(icon)
         img = img.resize((15, 15), Image.LANCZOS)

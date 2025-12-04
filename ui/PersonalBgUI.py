@@ -17,7 +17,8 @@ class AcademicInfoForm:
         for widget in self.root.winfo_children():
             widget.destroy()
 
-        self.root.geometry("1000x800")
+        self.root.attributes('-fullscreen', True)
+        self.root.bind("<Escape>", lambda e: self.root.attributes("-fullscreen", False))
         self.root.configure(bg="#f8f9fa")
         self.is_submenu_visible = False
         self.images_reference = []
@@ -44,17 +45,35 @@ class AcademicInfoForm:
         nav_frame = tk.Frame(self.root, bg="white", height=50)
         nav_frame.pack(fill='x', padx=0, pady=0)
         nav_frame.grid_columnconfigure(1, weight=1)
+        def link_to_homepage(event):
+            from ui.HomePageUI import create_ui as create_homepage_ui
+            self.root.destroy()
+            create_homepage_ui()
+        
+        lb_homepage_tittle = tk.Label(nav_frame, text="UniCompare", font=("Arial", 16, "bold"), fg="#1e90ff", bg="white")
+        lb_homepage_tittle.grid(row=0, column=0, padx=(20, 50), pady=10)
+        lb_homepage_tittle.bind('<Button-1>', link_to_homepage)
 
-        tk.Label(nav_frame, text="UniCompare", font=("Segoe UI", 16, "bold"), fg="#1F3AB0", bg="white").grid(row=0,
-                                                                                                             column=0,
-                                                                                                             padx=(20,
-                                                                                                                   50),
-                                                                                                             pady=10)
-
+        def link_to_ranking():
+            self.root.destroy()
+            from ui.RankingListAndTableUI import create_ui as create_ranking_ui
+            create_ranking_ui()
+        
+        def chat_to_ai():
+            from ui.session import session as session_data
+            if session_data['is_logged_in'] == True:
+                from ui.ChatbotUI import ChatApp
+                self.root.destroy()
+                ChatApp()
+            else:
+                messagebox.showerror("Lỗi", "Vui lòng đăng nhập để dùng chức năng này!")
         menu_items = ["Xếp hạng", "Khám phá", "Sự kiện", "Chuẩn bị", "Học bổng", "Chat với AI"]
-        for i, item in enumerate(menu_items):
-            tk.Button(nav_frame, text=item, font=("Segoe UI", 10), bg="white", relief="flat", cursor="hand2").grid(
-                row=0, column=i + 1, padx=5, pady=10, sticky="e")
+        btnRankings = tk.Button(nav_frame, text=menu_items[0], command=link_to_ranking, font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=1, padx=5, pady=10, sticky="e", in_=nav_frame)
+        btnDiscover = tk.Button(nav_frame, text=menu_items[1], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=2, padx=5, pady=10, sticky="e", in_=nav_frame)
+        btnEvents = tk.Button(nav_frame, text=menu_items[2], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=3, padx=5, pady=10, sticky="e", in_=nav_frame)
+        btnPrepare = tk.Button(nav_frame, text=menu_items[3], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=4, padx=5, pady=10, sticky="e", in_=nav_frame)
+        btnScholarships = tk.Button(nav_frame, text=menu_items[4], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=5, padx=5, pady=10, sticky="e", in_=nav_frame)
+        btnChatToStudents = tk.Button(nav_frame, command= chat_to_ai, text=menu_items[5], font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=6, padx=5, pady=10, sticky="e", in_=nav_frame)
 
         right_nav = tk.Frame(nav_frame, bg="white")
         right_nav.grid(row=0, column=7, sticky="e", padx=(0, 20))
@@ -380,7 +399,7 @@ class AcademicInfoForm:
 
     def go_back_to_personal(self):
         try:
-            from PersonalInfoUI import PersonalInfoForm
+            from ui.PersonalInfoUI import PersonalInfoForm
             PersonalInfoForm(self.root)
         except ImportError:
             messagebox.showerror("Lỗi", "Không tìm thấy file main.py")

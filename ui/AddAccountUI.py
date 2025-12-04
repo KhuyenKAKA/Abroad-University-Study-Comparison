@@ -110,138 +110,14 @@ def setup_user_form(content_frame):
 
     ttk.Separator(content_frame, orient='horizontal').pack(fill='x', pady=10, padx=20)
 
-
-# def setup_study_form(content_frame):
-#     """Tạo Form Học vấn."""
-    
-#     ttk.Label(content_frame, text="🎓 THÔNG TIN HỌC VẤN (STUDY_BG)", font=('Arial', 14, 'bold'), foreground='#0052cc').pack(fill='x', pady=15)
-    
-#     study_form_frame = ttk.Frame(content_frame)
-#     study_form_frame.pack(fill='x', padx=20, pady=5)
-
-#     fields = [
-#         ("Cấp độ:", "level"), ("Chuyên ngành:", "major"), ("Tỉ lệ học thuật:", "academic_rate"),
-#         ("GPA:", "gpa"), ("Năm tốt nghiệp:", "graduate_year"), 
-#         ("Điểm ACT:", "act"), ("Điểm GMAT:", "gmat"), 
-#         ("Điểm SAT:", "sat"), ("Điểm CAT:", "cat"), 
-#         ("Điểm GRE:", "gre"), ("Điểm STAT:", "stat"), 
-#         ("Điểm IELTS:", "ielts"), ("Điểm TOEFL:", "toefl"), 
-#         ("Điểm Pearson Test:", "pearson_test"), 
-#         ("Điểm Cam Advanced:", "cam_adv_test"),
-#         ("Điểm Tú tài Quốc tế:", "inter_bac")
-#     ]
-    
-#     create_form_fields(study_form_frame, fields, study_entries)
-#     def save_data():
-#         """Hàm xử lý việc lưu dữ liệu vào cơ sở dữ liệu."""
-#         user_data = get_user_data()
-#         study_data, error = get_study_data()
-        
-#         if error:
-#             messagebox.showerror("Lỗi Nhập Liệu", error)
-#             return
-            
-#         # --- LOGIC KẾT NỐI VÀ CHÈN DỮ LIỆU CƠ SỞ DỮ LIỆU TẠI ĐÂY ---
-#         # Thay thế phần này bằng code kết nối CSDL thực tế.
-        
-#         try:
-#             mydb = get_connection()
-#             cursor = mydb.cursor()
-#             query = """
-#             INSERT INTO users
-#             (first_name, last_name, password, image, phone_number, gender, dob,
-#             country_id, email, main_lang, add_lang, ethnic_group, special, postal_code)
-#             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-#             """
-#             gender = True if gender_var.get() == "Nam" else False
-#             values = (
-#                 user_data.get("first_name"),
-#                 user_data.get("last_name"),
-#                 user_data.get("password"),
-#                 user_data.get("image"),
-#                 user_data.get("phone_number"),
-#                 gender,      
-#                 user_data.get("dob") if user_data.get("dob")!="" else None,         
-#                 user_data.get("country_id") if user_data.get("country_id")!="" else None,  
-#                 user_data.get("email"),
-#                 user_data.get("main_lang"),
-#                 user_data.get("add_lang"),
-#                 user_data.get("ethnic_group"),
-#                 user_data.get("special"),
-#                 user_data.get("postal_code")
-#             )
-#             cursor.execute(query, values)
-            
-#             user_id = cursor.lastrowid
-#             query = """
-#             INSERT INTO study_bg
-#             (user_id, level, major, academic_rate, gpa, graduate_year,
-#             act, gmat, sat, cat, gre, stat,
-#             ielts, toefl, pearson_test, cam_adv_test, inter_bac)
-#             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-#             """
-#             values = (
-#                 user_id,
-#                 study_data.get("level"),
-#                 study_data.get("major"),
-#                 study_data.get("academic_rate"),
-#                 float(study_data.get("gpa") or 0),
-#                 int(study_data.get("graduate_year") or 0),
-#                 float(study_data.get("act") or 0),
-#                 float(study_data.get("gmat") or 0),
-#                 float(study_data.get("sat") or 0),
-#                 float(study_data.get("cat") or 0),
-#                 float(study_data.get("gre") or 0),
-#                 float(study_data.get("stat") or 0),
-#                 float(study_data.get("ielts") or 0),
-#                 float(study_data.get("toefl") or 0),
-#                 float(study_data.get("pearson_test") or 0),
-#                 float(study_data.get("cam_adv_test") or 0),
-#                 float(study_data.get("inter_bac") or 0)
-#             )
-#             cursor.execute(query, values)
-#             mydb.commit()
-#             messagebox.showinfo("Thành công","Thêm người dùng thành công")
-#             from ui.AdminUI import create_ui as create_admin_ui
-#             create_admin_ui()
-#         except Exception as e:
-#             messagebox.showerror("Lỗi CSDL", f"Đã xảy ra lỗi khi lưu dữ liệu: {e}")
-#     # Thêm nút Lưu Form Học vấn (Nếu bạn muốn lưu riêng)
-#     save_btn_study = tk.Button(study_form_frame, text="Lưu thông tin", command=save_data, foreground='white', background="#28a745")
-#     save_btn_study.grid(row=len(fields), column=1, sticky="e", padx=10, pady=10)
-
-# def setup_update_study_form(content_frame, id):
-#     """Tạo Form Học vấn."""
-    
-#     ttk.Label(content_frame, text="🎓 THÔNG TIN HỌC VẤN (STUDY_BG)", font=('Arial', 14, 'bold'), foreground='#0052cc').pack(fill='x', pady=15)
-    
-#     study_form_frame = ttk.Frame(content_frame)
-#     study_form_frame.pack(fill='x', padx=20, pady=5)
-
-#     fields = [
-#         ("Cấp độ:", "level"), ("Chuyên ngành:", "major"), ("Tỉ lệ học thuật:", "academic_rate"),
-#         ("GPA:", "gpa"), ("Năm tốt nghiệp:", "graduate_year"), 
-#         ("Điểm ACT:", "act"), ("Điểm GMAT:", "gmat"), 
-#         ("Điểm SAT:", "sat"), ("Điểm CAT:", "cat"), 
-#         ("Điểm GRE:", "gre"), ("Điểm STAT:", "stat"), 
-#         ("Điểm IELTS:", "ielts"), ("Điểm TOEFL:", "toefl"), 
-#         ("Điểm Pearson Test:", "pearson_test"), 
-#         ("Điểm Cam Advanced:", "cam_adv_test"),
-#         ("Điểm Tú tài Quốc tế:", "inter_bac")
-#     ]
-    
-#     create_form_fields(study_form_frame, fields, study_entries)
-#     # Thêm nút Lưu Form Học vấn (Nếu bạn muốn lưu riêng)
-#     save_btn_study = tk.Button(study_form_frame, text="Cập nhật Thông tin", command=lambda name=id: update_data(name), foreground='white', background="#28a745")
-#     save_btn_study.grid(row=len(fields), column=1, sticky="e", padx=10, pady=10)
-
 def clickCourseRecommendation(event):
     pass
 
 def create_ui():
     root = tk.Tk()
     root.title("UniCompare - Nhập Thông Tin Người Dùng")
-    root.geometry("1000x800")
+    root.attributes('-fullscreen', True)
+    root.bind("<Escape>", lambda e: root.attributes("-fullscreen", False))
     
     root.config(bg="#f8f9fa")
 
@@ -253,14 +129,21 @@ def create_ui():
     nav_frame.grid_columnconfigure(2, weight=0) 
     nav_frame.grid_columnconfigure(3, weight=0) 
 
-    tk.Label(nav_frame, text="UniCompare", font=("Arial", 16, "bold"), fg="#1e90ff", bg="white").grid(row=0, column=0, padx=(20, 50), pady=10)
+    def link_to_homepage(event):
+        from ui.HomePageUI import create_ui as create_homepage_ui
+        root.destroy()
+        create_homepage_ui()
     
-    menu_items = ["Rankings", "Discover", "Events", "Prepare", "Scholarships", "Chat To Students"]
+    lb_homepage_tittle = tk.Label(nav_frame, text="UniCompare", font=("Arial", 16, "bold"), fg="#1e90ff", bg="white")
+    lb_homepage_tittle.grid(row=0, column=0, padx=(20, 50), pady=10)
+    lb_homepage_tittle.bind('<Button-1>', link_to_homepage)
+    menu_items = ["Xếp hạng", "Discover", "Events", "Prepare", "Scholarships", "Chat với AI"]
     # ... (Phần Menu giữ nguyên)
     
     # Bắt đầu tại cột 1 và tăng dần
     for i, item in enumerate(menu_items):
-        tk.Button(nav_frame, text=item, font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=i+1, padx=5, pady=10, sticky="e")
+        if i == 0 or i == len(menu_items)-1:
+            tk.Button(nav_frame, text=item, font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=i+1, padx=5, pady=10, sticky="e")
     
     right_nav_frame = tk.Frame(nav_frame, bg="white")
     right_nav_frame.grid(row=0, column=len(menu_items)+1, sticky="e", padx=(0, 20)) # Đặt vào cột tiếp theo
@@ -511,26 +394,39 @@ def create_ui():
 def create_update_ui(id):
     root = tk.Tk()
     root.title("UniCompare - Nhập Thông Tin Người Dùng")
-    root.geometry("1000x800")
+    root.attributes('-fullscreen', True)
+    root.bind("<Escape>", lambda e: root.attributes("-fullscreen", False))
     
     root.config(bg="#f8f9fa")
 
     nav_frame = tk.Frame(root, bg="white", height=50)
     nav_frame.pack(fill='x', padx=0, pady=0)
 
+    def link_to_ranking():
+        root.destroy()
+        from ui.RankingListAndTableUI import create_ui as create_ranking_ui
+        create_ranking_ui()
+        
     nav_frame.grid_columnconfigure(0, weight=0) 
     nav_frame.grid_columnconfigure(1, weight=1) 
     nav_frame.grid_columnconfigure(2, weight=0) 
     nav_frame.grid_columnconfigure(3, weight=0) 
 
-    tk.Label(nav_frame, text="UniCompare", font=("Arial", 16, "bold"), fg="#1e90ff", bg="white").grid(row=0, column=0, padx=(20, 50), pady=10)
+    def link_to_homepage(event):
+        from ui.HomePageUI import create_ui as create_homepage_ui
+        root.destroy()
+        create_homepage_ui()
     
-    menu_items = ["Rankings", "Discover", "Events", "Prepare", "Scholarships", "Chat To Students"]
+    lb_homepage_tittle = tk.Label(nav_frame, text="UniCompare", font=("Arial", 16, "bold"), fg="#1e90ff", bg="white")
+    lb_homepage_tittle.grid(row=0, column=0, padx=(20, 50), pady=10)
+    lb_homepage_tittle.bind('<Button-1>', link_to_homepage)
+    menu_items = ["Xếp hạng", "Discover", "Events", "Prepare", "Scholarships", "Chat với AI"]
     # ... (Phần Menu giữ nguyên)
     
     # Bắt đầu tại cột 1 và tăng dần
     for i, item in enumerate(menu_items):
-        tk.Button(nav_frame, text=item, font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=i+1, padx=5, pady=10, sticky="e")
+        if i == 0 or i == len(menu_items)-1:
+            tk.Button(nav_frame, text=item, font=("Arial", 10), bg="white", relief="flat").grid(row=0, column=i+1, padx=5, pady=10, sticky="e")
     
     right_nav_frame = tk.Frame(nav_frame, bg="white")
     right_nav_frame.grid(row=0, column=len(menu_items)+1, sticky="e", padx=(0, 20)) # Đặt vào cột tiếp theo
@@ -549,8 +445,17 @@ def create_update_ui(id):
     except FileNotFoundError:
         tk.Label(right_nav_frame, text="🔍", font=("Arial", 16), bg="white").pack(side='left', padx=5)
     
-    tk.Button(right_nav_frame, text="Login", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
-    tk.Button(right_nav_frame, text="Sign Up", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
+    def logout_action(self):
+        from controller.AuthController import AuthController
+        if messagebox.askyesno("Xác nhận", "Bạn có chắc chắn muốn đăng xuất không?"):
+            AuthController.logout()
+            from ui.HomePageUI import create_ui as create_homepage_ui
+            root.destroy()
+            create_homepage_ui()
+            import ui.session as session_data
+            print(session_data.session)
+    tk.Button(right_nav_frame, text="Đăng xuất", foreground='white', background="#1F3AB0", command=logout_action).pack(side='left', padx=5)
+    # tk.Button(right_nav_frame, text="Sign Up", foreground='white', background="#1F3AB0").pack(side='left', padx=5)
     
 # main canvas se dung de lam khung keo scroll
     main_canvas = tk.Canvas(root, bg="#f8f9fa")
@@ -801,7 +706,7 @@ def create_update_ui(id):
     for k, v in study_fill_data.items():
         if k in study_entries:
             study_entries[k].delete(0,tk.END)
-            study_entries[k].insert(tk.END, str(study_fill_data[k]))
+            study_entries[k].insert(tk.END, str(study_fill_data[k])) if str(study_fill_data[k]) != "None" else study_entries[k].insert(tk.END,"")
 
     # ===============================================
     # Phần Footer
